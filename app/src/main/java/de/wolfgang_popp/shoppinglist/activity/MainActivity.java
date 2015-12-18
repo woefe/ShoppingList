@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
                     }
                     oldFirstVisibleItem = firstVisibleItem;
                 }
-
             }
         });
 
@@ -122,6 +121,20 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.action_delete_checked:
+                binder.removeAllCheckedItems();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         getMenuInflater().inflate(R.menu.context_menu, menu);
@@ -140,18 +153,6 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
                 return true;
         }
         return super.onContextItemSelected(item);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

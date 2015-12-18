@@ -9,6 +9,7 @@
     <string name="quantity_hint">e.g. 500g</string>
     <string name="context_menu_edit">Edit</string>
     <string name="context_menu_delete">Delete</string>
+    <string name="action_delete_checked">Delete checked items</string>
     <array name="actions">
         <item>Delete</item>
         <item>Edit</item>

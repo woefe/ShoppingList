@@ -119,6 +119,10 @@ public class ShoppingListService extends Service implements SharedPreferences.On
             shoppingList.remove(index);
         }
 
+        public void removeAllCheckedItems() {
+            shoppingList.removeAllCheckedItems();
+        }
+
         public void edit(int index, String newDescription, String newQuantity) {
             shoppingList.editItem(index, newDescription, newQuantity);
         }

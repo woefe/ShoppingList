@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -181,6 +182,19 @@ public class ShoppingList {
         listItem.setDescription(newDescription);
         listItem.setQuantity(newQuantity);
         isFileDirty = true;
+        notifyListChanged();
+    }
+
+
+    public void removeAllCheckedItems() {
+        Iterator<ListItem> iterator = items.iterator();
+
+        while (iterator.hasNext()){
+            ListItem item = iterator.next();
+            if (item.isChecked()) {
+                iterator.remove();
+            }
+        }
         notifyListChanged();
     }
 }
