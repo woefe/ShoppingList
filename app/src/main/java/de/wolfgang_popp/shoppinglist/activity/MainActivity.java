@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,7 +21,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import de.wolfgang_popp.shoppinglist.R;
-import de.wolfgang_popp.shoppinglist.dialog.ActionDialog;
 import de.wolfgang_popp.shoppinglist.dialog.AddItemDialog;
 import de.wolfgang_popp.shoppinglist.dialog.EditDialog;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListChangedListener;
@@ -28,7 +28,7 @@ import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingList;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
-public class MainActivity extends AppCompatActivity implements EditDialog.EditDialogListener, ActionDialog.ActionDialogListener, AddItemDialog.AddDialogListener {
+public class MainActivity extends AppCompatActivity implements EditDialog.EditDialogListener, AddItemDialog.AddDialogListener {
     private ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
     private ShoppingListService.ShoppingListBinder binder;
 
@@ -47,17 +47,66 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
-
-    @Override
     protected void onStart() {
         super.onStart();
         Intent intent = new Intent(this, ShoppingListService.class);
         startService(intent);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+
+    private void buildView(){
+        ListView listView = (ListView) findViewById(R.id.shoppingListView);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add);
+
+        registerForContextMenu(listView);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddItemDialog.show(MainActivity.this);
+            }
+        });
+
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            private int oldFirstVisibleItem = 0;
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                return;
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem == 0) {
+                    fab.show();
+                }
+                if (oldFirstVisibleItem != firstVisibleItem) {
+                    if (oldFirstVisibleItem < firstVisibleItem) {
+                        fab.hide();
+                    } else {
+                        fab.show();
+                    }
+                    oldFirstVisibleItem = firstVisibleItem;
+                }
+
+            }
+        });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                binder.toggleItemChecked(position);
+            }
+        });
+
+        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -70,6 +119,27 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getMenuInflater().inflate(R.menu.context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.context_menu_edit:
+                ListItem listItem = binder.getShoppingList().get(info.position);
+                EditDialog.show(this, info.position, listItem.getDescription(), listItem.getQuantity());
+                return true;
+            case R.id.context_menu_delete:
+                binder.removeItem(info.position);
+                return true;
+        }
+        return super.onContextItemSelected(item);
     }
 
     @Override
@@ -87,17 +157,6 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
     @Override
     public void onEditSave(int position, String description, String quantity) {
         binder.edit(position, description, quantity);
-    }
-
-    @Override
-    public void onRemoveItemSelected(int position) {
-        binder.removeItem(position);
-    }
-
-    @Override
-    public void onEditItemSelected(int position) {
-        ListItem item = binder.getShoppingList().get(position);
-        EditDialog.show(this, position, item.getDescription(), item.getQuantity());
     }
 
     @Override
@@ -158,58 +217,7 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
         public void onServiceConnected(ComponentName name, IBinder iBinder) {
             binder = ((ShoppingListService.ShoppingListBinder) iBinder);
             binder.getShoppingList().addListChangeListener(listener);
-
-            ListView listView = (ListView) findViewById(R.id.shoppingListView);
-            final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add);
-
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AddItemDialog.show(MainActivity.this);
-                }
-            });
-
-            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-                private int oldFirstVisibleItem = 0;
-
-                @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-                    return;
-                }
-
-                @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (firstVisibleItem == 0) {
-                        fab.show();
-                    }
-                    if (oldFirstVisibleItem != firstVisibleItem) {
-                        if (oldFirstVisibleItem < firstVisibleItem) {
-                            fab.hide();
-                        } else {
-                            fab.show();
-                        }
-                        oldFirstVisibleItem = firstVisibleItem;
-                    }
-
-                }
-            });
-
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    binder.toggleItemChecked(position);
-                }
-            });
-            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                    ActionDialog.show(MainActivity.this, position);
-                    return true;
-                }
-            });
-
-            listView.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
+            buildView();
         }
 
         @Override

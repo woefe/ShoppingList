@@ -7,6 +7,8 @@
     <string name="quantity">Quantity:</string>
     <string name="new_item_hint">e.g. Tomatoes</string>
     <string name="quantity_hint">e.g. 500g</string>
+    <string name="context_menu_edit">Edit</string>
+    <string name="context_menu_delete">Delete</string>
     <array name="actions">
         <item>Delete</item>
         <item>Edit</item>
