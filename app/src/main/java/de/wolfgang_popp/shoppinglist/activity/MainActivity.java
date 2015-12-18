@@ -22,13 +22,14 @@ import android.widget.TextView;
 
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.dialog.AddItemDialog;
+import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
 import de.wolfgang_popp.shoppinglist.dialog.EditDialog;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListChangedListener;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingList;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
-public class MainActivity extends AppCompatActivity implements EditDialog.EditDialogListener, AddItemDialog.AddDialogListener {
+public class MainActivity extends AppCompatActivity implements EditDialog.EditDialogListener, AddItemDialog.AddDialogListener, ConfirmationDialog.ConfirmationDialogListener {
     private ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
     private ShoppingListService.ShoppingListBinder binder;
 
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
                 startActivity(intent);
                 return true;
             case R.id.action_delete_checked:
-                binder.removeAllCheckedItems();
+                ConfirmationDialog.show(this, "Remove all checked items?");
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -163,6 +164,15 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
     @Override
     public void onAddNewItem(String description, String quantity) {
         binder.addItem(description, quantity);
+    }
+
+    @Override
+    public void onPositiveButtonClicked() {
+        binder.removeAllCheckedItems();
+    }
+
+    @Override
+    public void onNegativeButtonClicked() {
     }
 
     private class ShoppingListAdapter extends BaseAdapter {
