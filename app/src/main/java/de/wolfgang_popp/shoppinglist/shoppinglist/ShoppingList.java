@@ -5,7 +5,6 @@ import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class ShoppingList {
     private List<ListItem> items;
     private boolean isFileDirty;
 
-    public ShoppingList(final String filename) {
+    public ShoppingList(final String filename) throws IOException {
         setFilename(filename);
         readListFromFile(filename);
     }
@@ -48,7 +47,7 @@ public class ShoppingList {
         }
     }
 
-    public void changeFile(String filename) {
+    public void changeFile(String filename) throws IOException {
         setFilename(filename);
         readListFromFile(filename);
         notifyListChanged();
@@ -63,7 +62,11 @@ public class ShoppingList {
                     case FileObserver.CLOSE_WRITE:
                     case FileObserver.CREATE:
                     case FileObserver.ATTRIB:
-                        readListFromFile(filename);
+                        try {
+                            readListFromFile(filename);
+                        } catch (IOException e) {
+                            Log.e(TAG, "FileObserver could not read file.", e);
+                        }
                         notifyListChanged();
                         break;
                 }
@@ -72,7 +75,7 @@ public class ShoppingList {
         fileObserver.startWatching();
     }
 
-    private void readListFromFile(String filename) {
+    private void readListFromFile(String filename) throws IOException {
         items = new LinkedList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
@@ -95,10 +98,6 @@ public class ShoppingList {
             }
 
             isFileDirty = false;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -125,7 +124,7 @@ public class ShoppingList {
         return new ListItem(isChecked, name.trim(), quantity);
     }
 
-    public void writeIfDirty() {
+    public void writeIfDirty() throws IOException {
         if (!isFileDirty) {
             return;
         }
@@ -144,8 +143,6 @@ public class ShoppingList {
             }
             isFileDirty = false;
             Log.v(TAG, "data written");
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -186,5 +183,4 @@ public class ShoppingList {
         isFileDirty = true;
         notifyListChanged();
     }
-
 }

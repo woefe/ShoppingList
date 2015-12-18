@@ -35,7 +35,11 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
     @Override
     public boolean onUnbind(Intent intent) {
-        shoppingList.writeIfDirty();
+        try {
+            shoppingList.writeIfDirty();
+        } catch (IOException e) {
+            Toast.makeText(ShoppingListService.this, "An error occurred while saving.", Toast.LENGTH_SHORT).show();
+        }
         Log.v(TAG, "onUnbind() called: " + intent.toString());
         return true;
     }
@@ -58,19 +62,29 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String filename = sharedPreferences.getString(SettingsFragment.KEY_FILE_LOCATION, "");
+        String defaultFilename = getApplicationContext().getFileStreamPath(DEFAULT_FILENAME).getAbsolutePath();
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         if (filename.equals("")) {
-            filename = getApplicationContext().getFileStreamPath(DEFAULT_FILENAME).getAbsolutePath();
+            filename = defaultFilename;
         }
+
         File listFile = new File(filename);
         try {
             listFile.createNewFile();
+            shoppingList = new ShoppingList(filename);
         } catch (IOException e) {
             Toast.makeText(ShoppingListService.this, "Cannot create file: " + filename, Toast.LENGTH_LONG).show();
         }
 
-        shoppingList = new ShoppingList(filename);
+        if (shoppingList == null) {
+            try {
+                shoppingList = new ShoppingList(defaultFilename);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         Log.v(TAG, "onCreate() called");
     }
 
@@ -78,7 +92,11 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     public void onDestroy() {
         super.onDestroy();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
-        shoppingList.writeIfDirty();
+        try {
+            shoppingList.writeIfDirty();
+        } catch (IOException e) {
+            Toast.makeText(ShoppingListService.this, "An error occurred while saving.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
