@@ -13,7 +13,7 @@ import de.wolfgang_popp.shoppinglist.R;
 /**
  * @author Wolfgang Popp.
  */
-public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String KEY_FILE_LOCATION = "FILE_LOCATION";
 

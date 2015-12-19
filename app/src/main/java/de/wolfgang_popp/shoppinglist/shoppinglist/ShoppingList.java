@@ -21,7 +21,7 @@ public class ShoppingList {
     private static final String TAG = ShoppingList.class.getSimpleName();
     private static final Pattern EMPTY_LINE = Pattern.compile("^\\s*$");
 
-    private List<ListChangedListener> listeners = new LinkedList<>();
+    private final List<ListChangedListener> listeners = new LinkedList<>();
     private FileObserver fileObserver;
 
     private String name;
@@ -44,7 +44,7 @@ public class ShoppingList {
 
     private void notifyListChanged() {
         for (ListChangedListener listener : listeners) {
-            listener.listChanged(this);
+            listener.listChanged();
         }
     }
 
@@ -189,7 +189,7 @@ public class ShoppingList {
     public void removeAllCheckedItems() {
         Iterator<ListItem> iterator = items.iterator();
 
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             ListItem item = iterator.next();
             if (item.isChecked()) {
                 iterator.remove();

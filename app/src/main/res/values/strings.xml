@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Shopping List</string>
-
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="new_item">Item\'s name:</string>
     <string name="quantity">Quantity:</string>
@@ -10,8 +8,4 @@
     <string name="context_menu_edit">Edit</string>
     <string name="context_menu_delete">Delete</string>
     <string name="action_delete_checked">Delete checked items</string>
-    <array name="actions">
-        <item>Delete</item>
-        <item>Edit</item>
-    </array>
 </resources>

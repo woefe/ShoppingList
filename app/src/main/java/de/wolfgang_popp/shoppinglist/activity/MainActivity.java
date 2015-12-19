@@ -26,23 +26,22 @@ import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
 import de.wolfgang_popp.shoppinglist.dialog.EditDialog;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListChangedListener;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingList;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
 public class MainActivity extends AppCompatActivity implements EditDialog.EditDialogListener, AddItemDialog.AddDialogListener, ConfirmationDialog.ConfirmationDialogListener {
-    private ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
+    private final ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
     private ShoppingListService.ShoppingListBinder binder;
     private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
     private static final String KEY_SAVED_TOP_PADDING = "SAVED_TOP_PADDING";
     private int savedScrollPosition;
     private int savedTopPadding;
 
-    private ShoppingListAdapter adapter = new ShoppingListAdapter();
+    private final ShoppingListAdapter adapter = new ShoppingListAdapter();
 
 
-    private ListChangedListener listener = new ListChangedListener() {
+    private final ListChangedListener listener = new ListChangedListener() {
         @Override
-        public void listChanged(ShoppingList shoppingList) {
+        public void listChanged() {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
         }
     }
 
-    private void buildView(){
+    private void buildView() {
         ListView listView = (ListView) findViewById(R.id.shoppingListView);
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add);
 
@@ -93,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
 
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                return;
             }
 
             @Override
@@ -146,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);

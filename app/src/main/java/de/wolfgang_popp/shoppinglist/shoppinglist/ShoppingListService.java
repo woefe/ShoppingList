@@ -21,10 +21,10 @@ import de.wolfgang_popp.shoppinglist.activity.SettingsFragment;
 public class ShoppingListService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = ShoppingListService.class.getSimpleName();
 
-    public static final String DEFAULT_FILENAME = "ShoppingList.lst";
+    private static final String DEFAULT_FILENAME = "ShoppingList.lst";
 
     private ShoppingList shoppingList = null;
-    private IBinder binder = new ShoppingListBinder();
+    private final IBinder binder = new ShoppingListBinder();
 
     @Nullable
     @Override
