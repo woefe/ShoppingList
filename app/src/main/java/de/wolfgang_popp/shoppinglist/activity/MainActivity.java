@@ -32,8 +32,13 @@ import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 public class MainActivity extends AppCompatActivity implements EditDialog.EditDialogListener, AddItemDialog.AddDialogListener, ConfirmationDialog.ConfirmationDialogListener {
     private ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
     private ShoppingListService.ShoppingListBinder binder;
+    private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
+    private static final String KEY_SAVED_TOP_PADDING = "SAVED_TOP_PADDING";
+    private int savedScrollPosition;
+    private int savedTopPadding;
 
     private ShoppingListAdapter adapter = new ShoppingListAdapter();
+
 
     private ListChangedListener listener = new ListChangedListener() {
         @Override
@@ -47,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
         }
     };
 
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -59,6 +65,10 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (savedInstanceState != null) {
+            savedScrollPosition = savedInstanceState.getInt(KEY_SAVED_SCROLL_POSITION);
+            savedTopPadding = savedInstanceState.getInt(KEY_SAVED_TOP_PADDING);
+        }
     }
 
     private void buildView(){
@@ -73,6 +83,10 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
                 AddItemDialog.show(MainActivity.this);
             }
         });
+
+        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        listView.setSelectionFromTop(savedScrollPosition, savedTopPadding);
 
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             private int oldFirstVisibleItem = 0;
@@ -105,8 +119,17 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
             }
         });
 
-        listView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        ListView listView = (ListView) findViewById(R.id.shoppingListView);
+        View v = listView.getChildAt(0);
+        savedScrollPosition = listView.getFirstVisiblePosition();
+        savedTopPadding = (v == null) ? 0 : (v.getTop() - listView.getPaddingTop());
+        outState.putInt(KEY_SAVED_SCROLL_POSITION, savedScrollPosition);
+        outState.putInt(KEY_SAVED_TOP_PADDING, savedTopPadding);
     }
 
     @Override
