@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Shopping List</string>
+    <string name="action_delete_checked">Abgehakte Einträge löschen</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="context_menu_delete">Löschen</string>
+    <string name="context_menu_edit">Bearbeiten</string>
+    <string name="error_create">"Folgende Datei kann nicht erstellt werden: "</string>
+    <string name="error_saving">Während des Speicherns ist ein Fehler aufgetreten</string>
+    <string name="file_location">Dateipfad</string>
+    <string name="ok">OK</string>
+    <string name="quantity">Menge</string>
+    <string name="remove_checked_items">Alle abgehakten Eintäge löschen?</string>
+    <string name="quantity_hint">z.B. 500g</string>
+    <string name="new_item_hint">z.B. Tomaten</string>
+    <string name="new_item">Name des Eintrags</string>
+</resources>
