@@ -9,26 +9,27 @@ import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import de.wolfgang_popp.shoppinglist.R;
-import de.wolfgang_popp.shoppinglist.dialog.AddItemDialog;
 import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
-import de.wolfgang_popp.shoppinglist.dialog.EditDialog;
+import de.wolfgang_popp.shoppinglist.dialog.ItemDialog;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListChangedListener;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
-public class MainActivity extends AppCompatActivity implements EditDialog.EditDialogListener, AddItemDialog.AddDialogListener, ConfirmationDialog.ConfirmationDialogListener {
+public class MainActivity extends AppCompatActivity implements ItemDialog.ItemDialogListener, ConfirmationDialog.ConfirmationDialogListener {
     private final ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
     private ShoppingListService.ShoppingListBinder binder;
     private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
@@ -37,7 +38,6 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
     private int savedTopPadding;
 
     private final ShoppingListAdapter adapter = new ShoppingListAdapter();
-
 
     private final ListChangedListener listener = new ListChangedListener() {
         @Override
@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
             });
         }
     };
-
 
     @Override
     protected void onStart() {
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AddItemDialog.show(MainActivity.this);
+                ItemDialog.showNew(MainActivity.this);
             }
         });
 
@@ -87,26 +86,30 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
         adapter.notifyDataSetChanged();
         listView.setSelectionFromTop(savedScrollPosition, savedTopPadding);
 
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            private int oldFirstVisibleItem = 0;
+        final GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
+            private final int slop = ViewConfiguration.get(MainActivity.this).getScaledPagingTouchSlop();
 
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-            }
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                final float start = e1.getY();
+                final float end = e2.getY();
 
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem == 0) {
+                if (end - start > slop) {
                     fab.show();
+                } else if (end - start < -slop) {
+                    fab.hide();
                 }
-                if (oldFirstVisibleItem != firstVisibleItem) {
-                    if (oldFirstVisibleItem < firstVisibleItem) {
-                        fab.hide();
-                    } else {
-                        fab.show();
-                    }
-                    oldFirstVisibleItem = firstVisibleItem;
-                }
+                return super.onScroll(e1, e2, distanceX, distanceY);
+            }
+        };
+
+        final GestureDetector detector = new GestureDetector(MainActivity.this, gestureListener);
+
+        listView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                detector.onTouchEvent(event);
+                return false;
             }
         });
 
@@ -116,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
                 binder.toggleItemChecked(position);
             }
         });
-
     }
 
     @Override
@@ -150,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
                 startActivity(intent);
                 return true;
             case R.id.action_delete_checked:
-                ConfirmationDialog.show(this, "Remove all checked items?");
+                ConfirmationDialog.show(this, getString(R.string.remove_checked_items));
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -168,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
         switch (item.getItemId()) {
             case R.id.context_menu_edit:
                 ListItem listItem = binder.getShoppingList().get(info.position);
-                EditDialog.show(this, info.position, listItem.getDescription(), listItem.getQuantity());
+                ItemDialog.showEdit(this, info.position, listItem.getDescription(), listItem.getQuantity());
                 return true;
             case R.id.context_menu_delete:
                 binder.removeItem(info.position);
@@ -183,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditDi
     }
 
     @Override
-    public void onAddNewItem(String description, String quantity) {
+    public void onNewItem(String description, String quantity) {
         binder.addItem(description, quantity);
     }
 

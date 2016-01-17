@@ -7,6 +7,8 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import de.wolfgang_popp.shoppinglist.R;
+
 /**
  * @author Wolfgang Popp.
  */
@@ -44,15 +46,14 @@ public class ConfirmationDialog extends DialogFragment {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Confirm")
-                .setMessage(message)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setMessage(message)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         listener.onPositiveButtonClicked();
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         listener.onNegativeButtonClicked();

@@ -5,5 +5,4 @@ package de.wolfgang_popp.shoppinglist.shoppinglist;
  */
 public interface ListChangedListener {
     void listChanged();
-
 }

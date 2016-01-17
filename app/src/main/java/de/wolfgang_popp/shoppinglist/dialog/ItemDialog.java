@@ -15,33 +15,44 @@ import de.wolfgang_popp.shoppinglist.R;
 /**
  * @author Wolfgang Popp.
  */
-public class EditDialog extends DialogFragment {
-    private static final String TAG = EditDialog.class.getSimpleName();
+public class ItemDialog extends DialogFragment {
+    private static final String TAG = ItemDialog.class.getSimpleName();
     private static final String KEY_POSITION = "POSITION";
     private static final String KEY_DESCRIPTION = "DESCRIPTION";
     private static final String KEY_QUANTITY = "QUANTITY";
 
-    private EditDialogListener listener;
+    private ItemDialogListener listener;
     private int position;
     private String description;
     private String quantity;
 
-    public interface EditDialogListener {
+    public interface ItemDialogListener {
         void onEditSave(int position, String description, String quantity);
+
+        void onNewItem(String description, String quantity);
     }
 
-    public static void show(Activity activity, int position, String description, String quantity) {
-        EditDialog dialog = new EditDialog();
+    public static void showEdit(Activity activity, int position, String description, String quantity) {
+        ItemDialog dialog = new ItemDialog();
         dialog.position = position;
         dialog.description = description;
         dialog.quantity = quantity;
         dialog.show(activity.getFragmentManager(), TAG);
     }
 
+
+    public static void showNew(Activity activity) {
+        ItemDialog dialog = new ItemDialog();
+        dialog.position = -1;
+        dialog.description = "";
+        dialog.quantity = "";
+        dialog.show(activity.getFragmentManager(), TAG);
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        listener = (EditDialogListener) activity;
+        listener = (ItemDialogListener) activity;
     }
 
     @Override
@@ -63,20 +74,24 @@ public class EditDialog extends DialogFragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    EditDialog.this.getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    ItemDialog.this.getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
             }
         });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view)
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        listener.onEditSave(position, descriptionInput.getText().toString(), quantityInput.getText().toString());
+                        if (position == -1) {
+                            listener.onNewItem(descriptionInput.getText().toString(), quantityInput.getText().toString());
+                        } else {
+                            listener.onEditSave(position, descriptionInput.getText().toString(), quantityInput.getText().toString());
+                        }
                     }
                 })
-                .setNegativeButton("Cancel", null);
+                .setNegativeButton(R.string.cancel, null);
         return builder.create();
     }
 
