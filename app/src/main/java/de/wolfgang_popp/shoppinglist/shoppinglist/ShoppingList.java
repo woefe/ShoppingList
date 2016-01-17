@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 public class ShoppingList {
     private static final String TAG = ShoppingList.class.getSimpleName();
     private static final Pattern EMPTY_LINE = Pattern.compile("^\\s*$");
+    private static final Pattern HEADER = Pattern.compile("\\[(.*)\\]");
 
     private final List<ListChangedListener> listeners = new LinkedList<>();
     private FileObserver fileObserver;
@@ -83,11 +84,11 @@ public class ShoppingList {
             String firstLine = reader.readLine();
 
             if (firstLine != null) {
-                Matcher matcher = Pattern.compile("\\[(.*)\\]").matcher(firstLine);
+                Matcher matcher = HEADER.matcher(firstLine);
                 if (matcher.matches()) {
                     name = matcher.group(1).trim();
                 } else {
-                    Log.e(TAG, "Invalid file");
+                    name = "ShoppingList";
                 }
             }
 

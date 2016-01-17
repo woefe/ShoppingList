@@ -9,8 +9,9 @@
     <string name="context_menu_delete">Delete</string>
     <string name="action_delete_checked">Delete checked items</string>
     <string name="remove_checked_items">Remove all checked items?</string>
-    <string name="add">Add</string>
     <string name="cancel">Cancel</string>
-    <string name="save">Save</string>
     <string name="ok">OK</string>
+    <string name="file_location">File location</string>
+    <string name="error_saving">An error occurred while saving.</string>
+    <string name="error_create">"Cannot create file: "</string>
 </resources>

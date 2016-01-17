@@ -13,6 +13,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 
+import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.activity.SettingsFragment;
 
 /**
@@ -38,7 +39,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         try {
             shoppingList.writeIfDirty();
         } catch (IOException e) {
-            Toast.makeText(ShoppingListService.this, "An error occurred while saving.", Toast.LENGTH_SHORT).show();
+            toastErrorWhileSave();
         }
         Log.v(TAG, "onUnbind() called: " + intent.toString());
         return true;
@@ -52,7 +53,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
             newFile.createNewFile();
             shoppingList.changeFile(filename);
         } catch (IOException e) {
-            Toast.makeText(ShoppingListService.this, "Cannot create file: " + filename, Toast.LENGTH_LONG).show();
+            toastErrorCreateFile(filename);
         }
     }
 
@@ -74,7 +75,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
             listFile.createNewFile();
             shoppingList = new ShoppingList(filename);
         } catch (IOException e) {
-            Toast.makeText(ShoppingListService.this, "Cannot create file: " + filename, Toast.LENGTH_LONG).show();
+            toastErrorCreateFile(filename);
         }
 
         if (shoppingList == null) {
@@ -95,7 +96,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         try {
             shoppingList.writeIfDirty();
         } catch (IOException e) {
-            Toast.makeText(ShoppingListService.this, "An error occurred while saving.", Toast.LENGTH_SHORT).show();
+            toastErrorWhileSave();
         }
     }
 
@@ -104,6 +105,15 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         Log.v(TAG, "onStartCommand() called");
         return START_NOT_STICKY;
     }
+
+    private void toastErrorWhileSave() {
+        Toast.makeText(ShoppingListService.this, R.string.error_saving, Toast.LENGTH_SHORT).show();
+    }
+
+    private void toastErrorCreateFile(String filename) {
+        Toast.makeText(ShoppingListService.this, R.string.error_create + filename, Toast.LENGTH_LONG).show();
+    }
+
 
     public class ShoppingListBinder extends Binder {
         public void addItem(String description, String quantity) {
