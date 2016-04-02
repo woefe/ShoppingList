@@ -17,9 +17,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import de.wolfgang_popp.shoppinglist.R;
@@ -36,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements ItemDialog.ItemDi
     private static final String KEY_SAVED_TOP_PADDING = "SAVED_TOP_PADDING";
     private int savedScrollPosition;
     private int savedTopPadding;
+    private FloatingActionButton fab;
+    private RelativeLayout addLayout;
 
     private final ShoppingListAdapter adapter = new ShoppingListAdapter();
 
@@ -69,18 +75,47 @@ public class MainActivity extends AppCompatActivity implements ItemDialog.ItemDi
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (addLayout.getVisibility() != View.GONE) {
+            addLayout.setVisibility(View.GONE);
+            fab.show();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     private void buildView() {
-        ListView listView = (ListView) findViewById(R.id.shoppingListView);
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add);
+        final ListView listView = (ListView) findViewById(R.id.shoppingListView);
+        fab = (FloatingActionButton) findViewById(R.id.fab_add);
+        addLayout = (RelativeLayout) findViewById(R.id.layout_add_item);
+        final Button addButton = (Button) findViewById(R.id.button_add_new_item);
+        final EditText description = ((EditText) findViewById(R.id.new_item_description));
+        final EditText quantity = ((EditText) findViewById(R.id.new_item_quantity));
 
         registerForContextMenu(listView);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ItemDialog.showNew(MainActivity.this);
+                fab.hide();
+                addLayout.setVisibility(View.VISIBLE);
+                description.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(description, InputMethodManager.SHOW_IMPLICIT);
             }
         });
+
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                binder.addItem(description.getText().toString(), quantity.getText().toString());
+                description.setText("");
+                quantity.setText("");
+                listView.smoothScrollToPosition(listView.getAdapter().getCount() - 1);
+            }
+        });
+        registerForContextMenu(listView);
 
         listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();

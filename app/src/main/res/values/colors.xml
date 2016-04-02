@@ -2,4 +2,5 @@
 <resources>
     <color name="textColorDefault">#000000</color>
     <color name="textColorChecked">#cccccc</color>
+    <color name="edit_background">#c8e6c9</color>
 </resources>

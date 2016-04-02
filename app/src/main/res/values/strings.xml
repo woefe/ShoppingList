@@ -14,4 +14,5 @@
     <string name="file_location">File location</string>
     <string name="error_saving">An error occurred while saving.</string>
     <string name="error_create">"Cannot create file: "</string>
+    <string name="hint_new_item">New Item</string>
 </resources>
