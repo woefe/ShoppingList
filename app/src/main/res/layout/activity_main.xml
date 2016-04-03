@@ -39,6 +39,8 @@
             android:layout_above="@+id/button_add_new_item"
             android:layout_alignEnd="@+id/button_add_new_item"
             android:layout_alignParentStart="true"
+            android:inputType="textCapSentences"
+            android:singleLine="true"
             android:hint="@string/hint_new_item" />
 
         <Button
@@ -53,10 +55,12 @@
             android:id="@+id/new_item_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:inputType="textCapSentences"
+            android:singleLine="true"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
             android:layout_toStartOf="@+id/button_add_new_item"
-            android:hint="@string/quantity" />
+            android:hint="@string/hint_quantity" />
     </RelativeLayout>
 
 </RelativeLayout>

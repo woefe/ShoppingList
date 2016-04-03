@@ -20,20 +20,16 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
-import de.wolfgang_popp.shoppinglist.dialog.ItemDialog;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListChangedListener;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
-public class MainActivity extends AppCompatActivity implements ItemDialog.ItemDialogListener, ConfirmationDialog.ConfirmationDialogListener {
+public class MainActivity extends AppCompatActivity implements EditBar.EditBarListener, ConfirmationDialog.ConfirmationDialogListener {
     private final ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
     private ShoppingListService.ShoppingListBinder binder;
     private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
@@ -41,7 +37,8 @@ public class MainActivity extends AppCompatActivity implements ItemDialog.ItemDi
     private int savedScrollPosition;
     private int savedTopPadding;
     private FloatingActionButton fab;
-    private RelativeLayout addLayout;
+    private EditBar editBar;
+    private ListView listView;
 
     private final ShoppingListAdapter adapter = new ShoppingListAdapter();
 
@@ -77,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements ItemDialog.ItemDi
 
     @Override
     public void onBackPressed() {
-        if (addLayout.getVisibility() != View.GONE) {
-            addLayout.setVisibility(View.GONE);
+        if (editBar.isVisible()) {
+            editBar.hide();
             fab.show();
         } else {
             super.onBackPressed();
@@ -86,12 +83,10 @@ public class MainActivity extends AppCompatActivity implements ItemDialog.ItemDi
     }
 
     private void buildView() {
-        final ListView listView = (ListView) findViewById(R.id.shoppingListView);
+        listView = (ListView) findViewById(R.id.shoppingListView);
         fab = (FloatingActionButton) findViewById(R.id.fab_add);
-        addLayout = (RelativeLayout) findViewById(R.id.layout_add_item);
-        final Button addButton = (Button) findViewById(R.id.button_add_new_item);
-        final EditText description = ((EditText) findViewById(R.id.new_item_description));
-        final EditText quantity = ((EditText) findViewById(R.id.new_item_quantity));
+        editBar = new EditBar(this);
+        editBar.addEditBarListener(this);
 
         registerForContextMenu(listView);
 
@@ -99,22 +94,10 @@ public class MainActivity extends AppCompatActivity implements ItemDialog.ItemDi
             @Override
             public void onClick(View v) {
                 fab.hide();
-                addLayout.setVisibility(View.VISIBLE);
-                description.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(description, InputMethodManager.SHOW_IMPLICIT);
+                editBar.showAdd();
             }
         });
 
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                binder.addItem(description.getText().toString(), quantity.getText().toString());
-                description.setText("");
-                quantity.setText("");
-                listView.smoothScrollToPosition(listView.getAdapter().getCount() - 1);
-            }
-        });
         registerForContextMenu(listView);
 
         listView.setAdapter(adapter);
@@ -205,7 +188,8 @@ public class MainActivity extends AppCompatActivity implements ItemDialog.ItemDi
         switch (item.getItemId()) {
             case R.id.context_menu_edit:
                 ListItem listItem = binder.getShoppingList().get(info.position);
-                ItemDialog.showEdit(this, info.position, listItem.getDescription(), listItem.getQuantity());
+                fab.hide();
+                editBar.showEdit(info.position, listItem.getDescription(), listItem.getQuantity());
                 return true;
             case R.id.context_menu_delete:
                 binder.removeItem(info.position);
@@ -217,11 +201,17 @@ public class MainActivity extends AppCompatActivity implements ItemDialog.ItemDi
     @Override
     public void onEditSave(int position, String description, String quantity) {
         binder.edit(position, description, quantity);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(listView.getWindowToken(), 0);
+        editBar.hide();
+        fab.show();
+        listView.smoothScrollToPosition(position);
     }
 
     @Override
     public void onNewItem(String description, String quantity) {
         binder.addItem(description, quantity);
+        listView.smoothScrollToPosition(listView.getAdapter().getCount() - 1);
     }
 
     @Override
