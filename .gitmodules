@@ -1,0 +1,3 @@
+[submodule "libs/DragNDropList"]
+	path = libs/DragNDropList
+	url = git@github.com:popeye123/DragNDropList.git

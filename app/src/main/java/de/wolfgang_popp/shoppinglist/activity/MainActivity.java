@@ -23,6 +23,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.terlici.dragndroplist.DragNDropListView;
+
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListChangedListener;
@@ -38,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     private int savedTopPadding;
     private FloatingActionButton fab;
     private EditBar editBar;
-    private ListView listView;
+    private DragNDropListView listView;
 
     private final ShoppingListAdapter adapter = new ShoppingListAdapter();
 
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     }
 
     private void buildView() {
-        listView = (ListView) findViewById(R.id.shoppingListView);
+        listView = (DragNDropListView) findViewById(R.id.shoppingListView);
         fab = (FloatingActionButton) findViewById(R.id.fab_add);
         editBar = new EditBar(this);
         editBar.addEditBarListener(this);

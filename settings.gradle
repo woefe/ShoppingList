@@ -1,1 +1,2 @@
-include ':app'
+include ':app', ':DragNDropList'
+project(':DragNDropList').projectDir = new File('libs/DragNDropList')
