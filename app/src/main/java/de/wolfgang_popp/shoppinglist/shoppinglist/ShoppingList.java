@@ -170,6 +170,10 @@ public class ShoppingList {
         notifyListChanged();
     }
 
+    public void move(int oldIndex, int newIndex) {
+        items.add(newIndex, items.remove(oldIndex));
+    }
+
     public int size() {
         return items.size();
     }

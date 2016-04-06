@@ -17,12 +17,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.terlici.dragndroplist.DragNDropAdapter;
 import com.terlici.dragndroplist.DragNDropListView;
 
 import de.wolfgang_popp.shoppinglist.R;
@@ -102,9 +102,9 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
 
         registerForContextMenu(listView);
 
-        listView.setAdapter(adapter);
+        listView.setDragNDropAdapter(adapter);
         adapter.notifyDataSetChanged();
-        listView.setSelectionFromTop(savedScrollPosition, savedTopPadding);
+        listView.setSelection(savedScrollPosition);
 
         final GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             private final int slop = ViewConfiguration.get(MainActivity.this).getScaledPagingTouchSlop();
@@ -203,8 +203,6 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     @Override
     public void onEditSave(int position, String description, String quantity) {
         binder.edit(position, description, quantity);
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(listView.getWindowToken(), 0);
         editBar.hide();
         fab.show();
         listView.smoothScrollToPosition(position);
@@ -225,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     public void onNegativeButtonClicked() {
     }
 
-    private class ShoppingListAdapter extends BaseAdapter {
+    private class ShoppingListAdapter extends BaseAdapter implements DragNDropAdapter {
 
         @Override
         public int getCount() {
@@ -269,6 +267,22 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
             }
 
             return view;
+        }
+
+        @Override
+        public int getDragHandler() {
+            return R.id.drag_n_drop_handler;
+        }
+
+        @Override
+        public void onItemDrag(DragNDropListView parent, View view, int position, long id) {
+
+        }
+
+        @Override
+        public void onItemDrop(DragNDropListView parent, View view, int startPosition, int endPosition, long id) {
+            binder.getShoppingList().move(startPosition, endPosition);
+
         }
     }
 

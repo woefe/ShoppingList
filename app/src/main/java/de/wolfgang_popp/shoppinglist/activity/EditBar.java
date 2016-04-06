@@ -76,10 +76,12 @@ public class EditBar {
         layout.setVisibility(View.VISIBLE);
         descriptionText.requestFocus();
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        imm.showSoftInput(descriptionText, 0);
     }
 
     public void hide() {
+        descriptionText.clearFocus();
+        quantityText.clearFocus();
         layout.setVisibility(View.GONE);
     }
 
