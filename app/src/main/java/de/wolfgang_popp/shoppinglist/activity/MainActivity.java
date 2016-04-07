@@ -4,9 +4,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
@@ -36,11 +36,10 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     private ShoppingListService.ShoppingListBinder binder;
     private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
     private static final String KEY_SAVED_TOP_PADDING = "SAVED_TOP_PADDING";
-    private int savedScrollPosition;
-    private int savedTopPadding;
-    private FloatingActionButton fab;
     private EditBar editBar;
     private DragNDropListView listView;
+    private int savedScrollPosition = 0;
+    private int savedTopPadding = 0;
 
     private final ShoppingListAdapter adapter = new ShoppingListAdapter();
 
@@ -68,43 +67,27 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        editBar = new EditBar(this);
+        editBar.addEditBarListener(this);
+
         if (savedInstanceState != null) {
             savedScrollPosition = savedInstanceState.getInt(KEY_SAVED_SCROLL_POSITION);
             savedTopPadding = savedInstanceState.getInt(KEY_SAVED_TOP_PADDING);
+            editBar.restoreState(savedInstanceState);
         }
-    }
 
-    @Override
-    public void onBackPressed() {
-        if (editBar.isVisible()) {
-            editBar.hide();
-            fab.show();
-        } else {
-            super.onBackPressed();
-        }
     }
 
     private void buildView() {
         listView = (DragNDropListView) findViewById(R.id.shoppingListView);
-        fab = (FloatingActionButton) findViewById(R.id.fab_add);
-        editBar = new EditBar(this);
-        editBar.addEditBarListener(this);
-
         registerForContextMenu(listView);
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fab.hide();
-                editBar.showAdd();
-            }
-        });
-
-        registerForContextMenu(listView);
-
         listView.setDragNDropAdapter(adapter);
         adapter.notifyDataSetChanged();
-        listView.setSelection(savedScrollPosition);
+        if (Build.VERSION.SDK_INT < 21) {
+            listView.setSelection(savedScrollPosition);
+        } else {
+            listView.setSelectionFromTop(savedScrollPosition, savedTopPadding);
+        }
 
         final GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             private final int slop = ViewConfiguration.get(MainActivity.this).getScaledPagingTouchSlop();
@@ -115,9 +98,9 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
                 final float end = e2.getY();
 
                 if (end - start > slop) {
-                    fab.show();
+                    editBar.showFAB();
                 } else if (end - start < -slop) {
-                    fab.hide();
+                    editBar.hideFAB();
                 }
                 return super.onScroll(e1, e2, distanceX, distanceY);
             }
@@ -139,6 +122,16 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
                 binder.toggleItemChecked(position);
             }
         });
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (editBar.isVisible()) {
+            editBar.hide();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -146,10 +139,11 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
         super.onSaveInstanceState(outState);
         ListView listView = (ListView) findViewById(R.id.shoppingListView);
         View v = listView.getChildAt(0);
-        savedScrollPosition = listView.getFirstVisiblePosition();
-        savedTopPadding = (v == null) ? 0 : (v.getTop() - listView.getPaddingTop());
+        int savedScrollPosition = listView.getFirstVisiblePosition();
+        int savedTopPadding = (v == null) ? 0 : (v.getTop() - listView.getPaddingTop());
         outState.putInt(KEY_SAVED_SCROLL_POSITION, savedScrollPosition);
         outState.putInt(KEY_SAVED_TOP_PADDING, savedTopPadding);
+        editBar.saveState(outState);
     }
 
     @Override
@@ -190,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
         switch (item.getItemId()) {
             case R.id.context_menu_edit:
                 ListItem listItem = binder.getShoppingList().get(info.position);
-                fab.hide();
                 editBar.showEdit(info.position, listItem.getDescription(), listItem.getQuantity());
                 return true;
             case R.id.context_menu_delete:
@@ -204,7 +197,6 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     public void onEditSave(int position, String description, String quantity) {
         binder.edit(position, description, quantity);
         editBar.hide();
-        fab.show();
         listView.smoothScrollToPosition(position);
     }
 

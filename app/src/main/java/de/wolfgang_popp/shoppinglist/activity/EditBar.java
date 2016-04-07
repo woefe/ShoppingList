@@ -2,6 +2,8 @@ package de.wolfgang_popp.shoppinglist.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -12,6 +14,10 @@ import android.widget.Toast;
 import de.wolfgang_popp.shoppinglist.R;
 
 public class EditBar {
+    private static final String KEY_SAVED_DESCRIPTION = "SAVED_DESCRIPTION";
+    private static final String KEY_SAVED_QUANTITY = "SAVED_QUANTITY";
+    private static final String KEY_SAVED_MODE = "SAVED_MODE";
+    private static final String KEY_SAVE_IS_VISIBLE = "SAVE_IS_VISIBLE";
     private Activity activity;
     private RelativeLayout layout;
     private Button button;
@@ -19,6 +25,7 @@ public class EditBar {
     private EditText quantityText;
     private Mode mode;
     private EditBarListener listener;
+    private FloatingActionButton fab;
     private int position;
 
     public EditBar(Activity activity) {
@@ -53,36 +60,63 @@ public class EditBar {
                 quantityText.setText("");
             }
         });
+        fab = (FloatingActionButton) activity.findViewById(R.id.fab_add);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fab.hide();
+                showAdd();
+            }
+        });
     }
 
     public void showEdit(int position, String description, String quantity) {
-        descriptionText.setText(description);
-        quantityText.setText(quantity);
-        button.setText("✔");
         this.position = position;
-        mode = Mode.EDIT;
+        prepare(Mode.EDIT, description, quantity);
         show();
     }
 
     public void showAdd() {
-        descriptionText.setText("");
-        quantityText.setText("");
-        button.setText("+");
-        mode = Mode.ADD;
+        prepare(Mode.ADD, "", "");
         show();
+    }
+
+    private void prepare(Mode mode, String description, String quantity) {
+        this.mode = mode;
+        descriptionText.setText(description);
+        quantityText.setText(quantity);
+        if (mode == Mode.ADD) {
+            button.setText("+");
+        } else if (mode == Mode.EDIT) {
+            button.setText("✔");
+        }
+    }
+
+    public void showFAB() {
+        if (!isVisible()) {
+            fab.show();
+        }
+    }
+
+    public void hideFAB() {
+        fab.hide();
     }
 
     private void show(){
         layout.setVisibility(View.VISIBLE);
         descriptionText.requestFocus();
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(descriptionText, 0);
+        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
 
     public void hide() {
         descriptionText.clearFocus();
         quantityText.clearFocus();
         layout.setVisibility(View.GONE);
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(layout.getWindowToken(), 0);
+        fab.show();
+        fab.requestFocus();
     }
 
     public boolean isVisible(){
@@ -96,6 +130,24 @@ public class EditBar {
     public void removeEditBarListener(EditBarListener l) {
         if (l == listener) {
             listener = null;
+        }
+    }
+
+    public void saveState(Bundle state) {
+        state.putString(KEY_SAVED_DESCRIPTION, descriptionText.getText().toString());
+        state.putString(KEY_SAVED_QUANTITY, quantityText.getText().toString());
+        state.putBoolean(KEY_SAVE_IS_VISIBLE, isVisible());
+        state.putSerializable(KEY_SAVED_MODE, mode);
+    }
+
+    public void restoreState(Bundle state) {
+        String description = state.getString(KEY_SAVED_DESCRIPTION);
+        String quantity = state.getString(KEY_SAVED_QUANTITY);
+        Mode mode = (Mode) state.getSerializable(KEY_SAVED_MODE);
+        if (state.getBoolean(KEY_SAVE_IS_VISIBLE)) {
+            prepare(mode, description, quantity);
+            layout.setVisibility(View.VISIBLE);
+            fab.hide();
         }
     }
 
