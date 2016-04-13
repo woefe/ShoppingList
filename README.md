@@ -23,3 +23,7 @@ Bananas #
 Juice #2 Liters
 // Eggs #12
 ```
+
+## Miscellaneous
+This project uses git submodules. Make sure the submodules are initialized before compiling the project or use
+`git clone --recursive https://github.com/popeye123/ShoppingList.git` when cloning the repo.
