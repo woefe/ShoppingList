@@ -216,6 +216,8 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     }
 
     private class ShoppingListAdapter extends BaseAdapter implements DragNDropAdapter {
+        private int dragStartPosition = -1;
+        private View startView = null;
 
         @Override
         public int getCount() {
@@ -235,8 +237,12 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
+            if (position == dragStartPosition) {
+                return startView;
+            }
+
             View view;
-            if (convertView != null) {
+            if (convertView != null && convertView != startView) {
                 view = convertView;
             } else {
                 LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -268,13 +274,15 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
 
         @Override
         public void onItemDrag(DragNDropListView parent, View view, int position, long id) {
-
+            dragStartPosition = position;
+            startView = view;
         }
 
         @Override
         public void onItemDrop(DragNDropListView parent, View view, int startPosition, int endPosition, long id) {
             binder.getShoppingList().move(startPosition, endPosition);
-
+            dragStartPosition = -1;
+            startView = null;
         }
     }
 
