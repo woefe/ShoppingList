@@ -130,7 +130,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     }
 
     private void toastErrorCreateFile(String filename) {
-        Toast.makeText(ShoppingListService.this, R.string.error_create + filename, Toast.LENGTH_LONG).show();
+        Toast.makeText(ShoppingListService.this, getResources().getString(R.string.error_create) + filename, Toast.LENGTH_LONG).show();
     }
 
 
