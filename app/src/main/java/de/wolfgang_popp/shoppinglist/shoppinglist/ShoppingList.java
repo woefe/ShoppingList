@@ -191,6 +191,7 @@ public class ShoppingList {
 
     public void move(int oldIndex, int newIndex) {
         items.add(newIndex, items.remove(oldIndex));
+        isFileDirty = true;
         notifyListChanged();
     }
 
