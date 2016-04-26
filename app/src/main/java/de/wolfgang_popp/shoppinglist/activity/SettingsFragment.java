@@ -20,12 +20,17 @@
 package de.wolfgang_popp.shoppinglist.activity;
 
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v13.app.FragmentCompat;
+import android.support.v4.content.ContextCompat;
+import android.widget.Toast;
 
 import de.wolfgang_popp.shoppinglist.R;
 
@@ -35,6 +40,7 @@ import de.wolfgang_popp.shoppinglist.R;
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String KEY_FILE_LOCATION = "FILE_LOCATION";
+    private static final int REQUEST_CODE_EXT_STORAGE = 32537;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,10 +78,34 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         }
     }
 
+    private void requestExternalStoragePermission(){
+        int result = ContextCompat.checkSelfPermission(getActivity(), "android.permission.WRITE_EXTERNAL_STORAGE");
+        if (result == PackageManager.PERMISSION_DENIED) {
+            FragmentCompat.requestPermissions(this, new String[]{ "android.permission.WRITE_EXTERNAL_STORAGE" }, REQUEST_CODE_EXT_STORAGE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_EXT_STORAGE) {
+            if (grantResults.length == 0 || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                Toast.makeText(getActivity(), "permisson denied", Toast.LENGTH_SHORT).show();
+                PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putString(KEY_FILE_LOCATION, "").commit();
+            }
+        }
+    }
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(KEY_FILE_LOCATION)) {
-            updatePreferences(findPreference(key));
+            Preference p = findPreference(key);
+            updatePreferences(p);
+            if (!sharedPreferences.getString(KEY_FILE_LOCATION, "").equals("")){
+                requestExternalStoragePermission();
+            } else {
+                p.setSummary("");
+            }
+
         }
     }
 }

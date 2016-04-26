@@ -49,9 +49,7 @@ public class ShoppingList {
     private List<ListItem> items;
     private boolean isFileDirty;
 
-    public ShoppingList(final String filename) throws IOException {
-        setFilename(filename);
-        readListFromFile(filename);
+    public ShoppingList() {
     }
 
     public void addListChangeListener(ListChangedListener listener) {
@@ -68,7 +66,7 @@ public class ShoppingList {
         }
     }
 
-    public void changeFile(String filename) throws IOException {
+    public void init(String filename) throws IOException {
         setFilename(filename);
         readListFromFile(filename);
         notifyListChanged();

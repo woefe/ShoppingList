@@ -66,13 +66,29 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String filename = sharedPreferences.getString(SettingsFragment.KEY_FILE_LOCATION, "");
-        File newFile = new File(filename);
         try {
-            newFile.createNewFile();
-            shoppingList.changeFile(filename);
+            shoppingList.init(getListFileName(sharedPreferences));
         } catch (IOException e) {
+            Log.e(TAG, "Could not initialize the shoppinglist", e);
+        }
+    }
+
+    private String getListFileName(SharedPreferences sharedPreferences){
+        String filename = sharedPreferences.getString(SettingsFragment.KEY_FILE_LOCATION, "");
+        String defaultFilename = getApplicationContext().getFileStreamPath(DEFAULT_FILENAME).getAbsolutePath();
+
+        if (filename.equals("")) {
+            return defaultFilename;
+        }
+
+        File listFile = new File(filename);
+        try {
+            listFile.createNewFile();
+            return filename;
+        } catch (IOException e) {
+            Log.e(TAG, "onSharedPrefChanged", e);
             toastErrorCreateFile(filename);
+            return defaultFilename;
         }
     }
 
@@ -81,28 +97,13 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         super.onCreate();
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String filename = sharedPreferences.getString(SettingsFragment.KEY_FILE_LOCATION, "");
-        String defaultFilename = getApplicationContext().getFileStreamPath(DEFAULT_FILENAME).getAbsolutePath();
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        if (filename.equals("")) {
-            filename = defaultFilename;
-        }
-
-        File listFile = new File(filename);
+        shoppingList = new ShoppingList();
         try {
-            listFile.createNewFile();
-            shoppingList = new ShoppingList(filename);
+            shoppingList.init(getListFileName(sharedPreferences));
         } catch (IOException e) {
-            toastErrorCreateFile(filename);
-        }
-
-        if (shoppingList == null) {
-            try {
-                shoppingList = new ShoppingList(defaultFilename);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Log.e(TAG, "Could not initialize the shoppinglist", e);
         }
 
         Log.v(TAG, "onCreate() called");
