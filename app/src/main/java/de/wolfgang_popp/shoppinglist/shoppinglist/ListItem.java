@@ -56,4 +56,23 @@ public class ListItem {
     public void setQuantity(String quantity) {
         this.quantity = quantity;
     }
+
+    static class ListItemWithID extends ListItem {
+        private final int id;
+
+        public ListItemWithID(int id, ListItem item) {
+            super(item.isChecked, item.description, item.quantity);
+            this.id = id;
+        }
+
+        public ListItemWithID(int id, boolean isChecked, String description, String quantity) {
+            super(isChecked, description, quantity);
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+    }
 }

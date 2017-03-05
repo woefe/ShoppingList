@@ -46,8 +46,9 @@ public class ShoppingList {
 
     private String name;
     private String filename;
-    private List<ListItem> items;
+    private List<ListItem.ListItemWithID> items;
     private boolean isFileDirty;
+    private int currentID = 0;
 
     public ShoppingList() {
     }
@@ -70,6 +71,10 @@ public class ShoppingList {
         setFilename(filename);
         readListFromFile(filename);
         notifyListChanged();
+    }
+
+    private int generateID(){
+        return ++currentID;
     }
 
     private void setFilename(final String filename) {
@@ -112,7 +117,7 @@ public class ShoppingList {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (!EMPTY_LINE.matcher(line).matches()) {
-                    items.add(createListItem(line));
+                    items.add(createListItem(generateID(), line));
                 }
             }
 
@@ -120,7 +125,7 @@ public class ShoppingList {
         }
     }
 
-    private ListItem createListItem(String item) {
+    private ListItem.ListItemWithID createListItem(int id, String item) {
         boolean isChecked = item.startsWith("//");
         int index;
         String quantity;
@@ -140,7 +145,7 @@ public class ShoppingList {
             name = item.trim();
         }
 
-        return new ListItem(isChecked, name.trim(), quantity);
+        return new ListItem.ListItemWithID(id, isChecked, name.trim(), quantity);
     }
 
     public void writeIfDirty() throws IOException {
@@ -166,7 +171,7 @@ public class ShoppingList {
     }
 
     public void add(ListItem item) {
-        items.add(item);
+        items.add(new ListItem.ListItemWithID(generateID(), item));
         isFileDirty = true;
         notifyListChanged();
     }
@@ -201,6 +206,10 @@ public class ShoppingList {
         return items.get(index);
     }
 
+    public int getId(int index) {
+        return items.get(index).getId();
+    }
+
     public void editItem(int index, String newDescription, String newQuantity) {
         ListItem listItem = items.get(index);
         listItem.setDescription(newDescription);
@@ -211,7 +220,7 @@ public class ShoppingList {
 
 
     public void removeAllCheckedItems() {
-        Iterator<ListItem> iterator = items.iterator();
+        Iterator<ListItem.ListItemWithID> iterator = items.iterator();
 
         while (iterator.hasNext()) {
             ListItem item = iterator.next();

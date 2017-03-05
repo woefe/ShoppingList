@@ -29,20 +29,13 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import com.terlici.dragndroplist.DragNDropAdapter;
-import com.terlici.dragndroplist.DragNDropListView;
 
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
@@ -51,16 +44,16 @@ import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
 public class MainActivity extends AppCompatActivity implements EditBar.EditBarListener, ConfirmationDialog.ConfirmationDialogListener {
-    private final ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
-    private ShoppingListService.ShoppingListBinder binder;
     private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
     private static final String KEY_SAVED_TOP_PADDING = "SAVED_TOP_PADDING";
+    private final ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
+    private ShoppingListService.ShoppingListBinder binder;
     private EditBar editBar;
-    private DragNDropListView listView;
+    private DynamicListView listView;
     private int savedScrollPosition = 0;
     private int savedTopPadding = 0;
 
-    private final ShoppingListAdapter adapter = new ShoppingListAdapter();
+    private final DynamicListViewAdapter adapter = new DynamicListViewAdapter(this);
 
     private final ListChangedListener listener = new ListChangedListener() {
         @Override
@@ -98,9 +91,9 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     }
 
     private void buildView() {
-        listView = (DragNDropListView) findViewById(R.id.shoppingListView);
+        listView = (DynamicListView) findViewById(R.id.shoppingListView);
         registerForContextMenu(listView);
-        listView.setDragNDropAdapter(adapter);
+        listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         if (Build.VERSION.SDK_INT < 21) {
             listView.setSelection(savedScrollPosition);
@@ -234,88 +227,19 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     public void onNegativeButtonClicked() {
     }
 
-    private class ShoppingListAdapter extends BaseAdapter implements DragNDropAdapter {
-        private int dragStartPosition = -1;
-        private View startView = null;
-
-        @Override
-        public int getCount() {
-            return binder.getShoppingList().size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return binder.getShoppingList().get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            if (position == dragStartPosition) {
-                return startView;
-            }
-
-            View view;
-            if (convertView != null && convertView != startView) {
-                view = convertView;
-            } else {
-                LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                view = inflater.inflate(R.layout.list_item, parent, false);
-            }
-
-            TextView description = (TextView) view.findViewById(R.id.text_description);
-            TextView quantity = (TextView) view.findViewById(R.id.text_quantity);
-
-            ListItem item = binder.getShoppingList().get(position);
-            description.setText(item.getDescription());
-            quantity.setText(item.getQuantity());
-
-            if (item.isChecked()) {
-                description.setTextColor(getResources().getColor(R.color.textColorChecked));
-                quantity.setTextColor(getResources().getColor(R.color.textColorChecked));
-            } else {
-                description.setTextColor(getResources().getColor(R.color.textColorDefault));
-                quantity.setTextColor(getResources().getColor(R.color.textColorDefault));
-            }
-
-            return view;
-        }
-
-        @Override
-        public int getDragHandler() {
-            return R.id.drag_n_drop_handler;
-        }
-
-        @Override
-        public void onItemDrag(DragNDropListView parent, View view, int position, long id) {
-            dragStartPosition = position;
-            startView = view;
-        }
-
-        @Override
-        public void onItemDrop(DragNDropListView parent, View view, int startPosition, int endPosition, long id) {
-            binder.getShoppingList().move(startPosition, endPosition);
-            dragStartPosition = -1;
-            startView = null;
-        }
-    }
-
     private class ShoppingListServiceConnection implements ServiceConnection {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder iBinder) {
             binder = ((ShoppingListService.ShoppingListBinder) iBinder);
             binder.getShoppingList().addListChangeListener(listener);
+            adapter.onBinderConnected(binder);
             buildView();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            adapter.onBinderDisconnected(binder);
             binder.getShoppingList().removeListChangeListener(listener);
             binder = null;
         }
