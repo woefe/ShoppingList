@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
         setContentView(R.layout.activity_main);
 
         listView = (DynamicListView) findViewById(R.id.shoppingListView);
+        listView.setDragHandler(R.id.dragNDropHandler);
         listView.setAdapter(adapter);
         registerForContextMenu(listView);
 

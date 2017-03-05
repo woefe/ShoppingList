@@ -32,13 +32,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.annotation.IdRes;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -65,9 +64,9 @@ import android.widget.ListView;
  */
 public class DynamicListView extends ListView {
 
-    private final int SMOOTH_SCROLL_AMOUNT_AT_EDGE = 60;
-    private final int MOVE_DURATION = 150;
-    private final int LINE_THICKNESS = 10;
+    private static final int MOVE_DURATION = 150;
+    private static final int LINE_THICKNESS = 10;
+    public static final int HOVER_CELL_ALPHA = 200;
 
     private int mLastEventY = -1;
 
@@ -78,7 +77,6 @@ public class DynamicListView extends ListView {
 
     private boolean mCellIsMobile = false;
     private boolean mIsMobileScrolling = false;
-    private int mSmoothScrollAmountAtEdge = 0;
 
     private final int INVALID_ID = -1;
     private long mAboveItemId = INVALID_ID;
@@ -94,6 +92,7 @@ public class DynamicListView extends ListView {
 
     private boolean mIsWaitingForScrollFinish = false;
     private int mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
+    private int mDragHandler = 0;
 
     public DynamicListView(Context context) {
         super(context);
@@ -111,36 +110,24 @@ public class DynamicListView extends ListView {
     }
 
     public void init(Context context) {
-        setOnItemLongClickListener(mOnItemLongClickListener);
         setOnScrollListener(mScrollListener);
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        mSmoothScrollAmountAtEdge = (int) (SMOOTH_SCROLL_AMOUNT_AT_EDGE / metrics.density);
     }
 
-    /**
-     * Listens for long clicks on any items in the listview. When a cell has
-     * been selected, the hover cell is created and set up.
-     */
-    private OnItemLongClickListener mOnItemLongClickListener =
-            new OnItemLongClickListener() {
-                public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-                    mTotalOffset = 0;
+    private void startRearrange() {
+        mTotalOffset = 0;
 
-                    int position = pointToPosition(mDownX, mDownY);
-                    int itemNum = position - getFirstVisiblePosition();
+        int position = pointToPosition(mDownX, mDownY);
+        int itemNum = position - getFirstVisiblePosition();
 
-                    View selectedView = getChildAt(itemNum);
-                    mMobileItemId = getItemId(position);
-                    mHoverCell = getAndAddHoverView(selectedView);
-                    selectedView.setVisibility(INVISIBLE);
+        View selectedView = getChildAt(itemNum);
+        mMobileItemId = getItemId(position);
+        mHoverCell = getAndAddHoverView(selectedView);
+        selectedView.setVisibility(INVISIBLE);
 
-                    mCellIsMobile = true;
+        mCellIsMobile = true;
 
-                    updateNeighborViewsForID(mMobileItemId);
-
-                    return true;
-                }
-            };
+        updateNeighborViewsForID(mMobileItemId);
+    }
 
     /**
      * Creates the hover cell with the appropriate bitmap and of appropriate
@@ -162,6 +149,7 @@ public class DynamicListView extends ListView {
         mHoverCellCurrentBounds = new Rect(mHoverCellOriginalBounds);
 
         drawable.setBounds(mHoverCellCurrentBounds);
+        drawable.setAlpha(HOVER_CELL_ALPHA);
 
         return drawable;
     }
@@ -223,7 +211,6 @@ public class DynamicListView extends ListView {
      */
     public View getViewForID(long itemID) {
         int firstVisiblePosition = getFirstVisiblePosition();
-        DynamicListViewAdapter adapter = ((DynamicListViewAdapter) getAdapter());
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             int position = firstVisiblePosition + i;
@@ -260,6 +247,40 @@ public class DynamicListView extends ListView {
         }
     }
 
+    public void setDragHandler(@IdRes int dragHandler) {
+        mDragHandler = dragHandler;
+    }
+
+    private boolean isStartRearrangeEvent(MotionEvent event) {
+        if (mDragHandler == 0) {
+            return false;
+        }
+
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+
+        int startPosition = pointToPosition(x, y);
+
+        if (startPosition == INVALID_POSITION) {
+            return false;
+        }
+
+        int childPosition = startPosition - getFirstVisiblePosition();
+        View parent = getChildAt(childPosition);
+        View handler = parent.findViewById(mDragHandler);
+
+        if (handler == null) {
+            return false;
+        }
+
+        int top = parent.getTop() + handler.getTop();
+        int bottom = top + handler.getHeight();
+        int left = parent.getLeft() + handler.getLeft();
+        int right = left + handler.getWidth();
+
+        return left <= x && x <= right && top <= y && y <= bottom;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
@@ -268,6 +289,9 @@ public class DynamicListView extends ListView {
                 mDownX = (int) event.getX();
                 mDownY = (int) event.getY();
                 mActivePointerId = event.getPointerId(0);
+                if (isStartRearrangeEvent(event)) {
+                    startRearrange();
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mActivePointerId == INVALID_POINTER_ID) {
@@ -344,12 +368,6 @@ public class DynamicListView extends ListView {
             View switchView = isBelow ? belowView : aboveView;
             final int originalItem = getPositionForView(mobileView);
 
-            //if (switchView == null) {
-            //    updateNeighborViewsForID(mMobileItemId);
-            //    return;
-            //}
-
-
             DynamicListViewAdapter adapter = (DynamicListViewAdapter) getAdapter();
             adapter.onItemSwap(originalItem, getPositionForView(switchView));
             adapter.notifyDataSetChanged();
@@ -369,6 +387,10 @@ public class DynamicListView extends ListView {
                     observer.removeOnPreDrawListener(this);
 
                     View switchView = getViewForID(switchItemID);
+
+                    if (switchView == null) {
+                        return true;
+                    }
 
                     mTotalOffset += deltaY;
 
@@ -492,19 +514,32 @@ public class DynamicListView extends ListView {
      */
     public boolean handleMobileCellScroll(Rect r) {
         int offset = computeVerticalScrollOffset();
-        int height = getHeight();
         int extent = computeVerticalScrollExtent();
         int range = computeVerticalScrollRange();
         int hoverViewTop = r.top;
-        int hoverHeight = r.height();
+        int hoverViewBottom = r.bottom;
+        int listViewTop = getTop();
+        int listViewBottom = getBottom();
 
-        if (hoverViewTop <= 0 && offset > 0) {
-            smoothScrollBy(-mSmoothScrollAmountAtEdge, 0);
+        double beginScrollOffset = getHeight() / 4;
+
+        if (hoverViewTop < listViewTop + beginScrollOffset && offset > 1) {
+            int topOffset = hoverViewTop - listViewTop;
+            if (topOffset < 0) {
+                topOffset = 0;
+            }
+            int distance = (int) (100 - (topOffset / beginScrollOffset) * 100);
+            smoothScrollBy(-distance, 0);
             return true;
         }
 
-        if (hoverViewTop + hoverHeight >= height && (offset + extent) < range) {
-            smoothScrollBy(mSmoothScrollAmountAtEdge, 0);
+        if (hoverViewBottom > listViewBottom - beginScrollOffset && (offset + extent) < range) {
+            int bottomOffset = listViewBottom - hoverViewBottom;
+            if (bottomOffset < 0) {
+                bottomOffset = 0;
+            }
+            int distance = (int) (100 - (bottomOffset / beginScrollOffset) * 100);
+            smoothScrollBy(distance, 0);
             return true;
         }
 

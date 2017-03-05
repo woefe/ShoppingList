@@ -48,7 +48,7 @@
         android:textColor="@android:color/black" />
 
     <ImageView
-        android:id="@+id/drag_n_drop_handler"
+        android:id="@+id/dragNDropHandler"
         android:layout_width="32dp"
         android:layout_gravity="center"
         android:src="@drawable/ic_swap_vert_black_24dp"
