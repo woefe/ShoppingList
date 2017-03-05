@@ -105,10 +105,12 @@ public class DynamicListViewAdapter extends BaseAdapter {
 
     public void onBinderDisconnected(ShoppingListService.ShoppingListBinder binder) {
         this.binder = null;
+        notifyDataSetChanged();
     }
 
     public void onBinderConnected(ShoppingListService.ShoppingListBinder binder) {
         this.binder = binder;
+        notifyDataSetChanged();
     }
 
     public void onItemSwap(int startPosition, int endPosition) {

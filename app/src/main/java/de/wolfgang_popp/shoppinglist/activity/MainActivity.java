@@ -28,12 +28,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -79,8 +76,14 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        listView = (DynamicListView) findViewById(R.id.shoppingListView);
+        listView.setAdapter(adapter);
+        registerForContextMenu(listView);
+
         editBar = new EditBar(this);
         editBar.addEditBarListener(this);
+        editBar.enableAutoHideFAB(listView);
 
         if (savedInstanceState != null) {
             savedScrollPosition = savedInstanceState.getInt(KEY_SAVED_SCROLL_POSITION);
@@ -88,53 +91,23 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
             editBar.restoreState(savedInstanceState);
         }
 
-    }
-
-    private void buildView() {
-        listView = (DynamicListView) findViewById(R.id.shoppingListView);
-        registerForContextMenu(listView);
-        listView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
         if (Build.VERSION.SDK_INT < 21) {
             listView.setSelection(savedScrollPosition);
         } else {
             listView.setSelectionFromTop(savedScrollPosition, savedTopPadding);
         }
+        setItemCheckedListener();
+    }
 
-        final GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
-            private final int slop = ViewConfiguration.get(MainActivity.this).getScaledPagingTouchSlop();
-
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                final float start = e1.getY();
-                final float end = e2.getY();
-
-                if (end - start > slop) {
-                    editBar.showFAB();
-                } else if (end - start < -slop) {
-                    editBar.hideFAB();
+    private synchronized void setItemCheckedListener() {
+        if (listView != null && binder != null) {
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    binder.toggleItemChecked(position);
                 }
-                return super.onScroll(e1, e2, distanceX, distanceY);
-            }
-        };
-
-        final GestureDetector detector = new GestureDetector(MainActivity.this, gestureListener);
-
-        listView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                detector.onTouchEvent(event);
-                return false;
-            }
-        });
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                binder.toggleItemChecked(position);
-            }
-        });
-
+            });
+        }
     }
 
     @Override
@@ -234,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
             binder = ((ShoppingListService.ShoppingListBinder) iBinder);
             binder.getShoppingList().addListChangeListener(listener);
             adapter.onBinderConnected(binder);
-            buildView();
+            setItemCheckedListener();
         }
 
         @Override

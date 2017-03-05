@@ -23,7 +23,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -63,7 +66,7 @@ public class EditBar {
                 String desc = descriptionText.getText().toString();
                 String qty = quantityText.getText().toString();
 
-                if (desc.equals("")){
+                if (desc.equals("")) {
                     Toast.makeText(EditBar.this.activity, R.string.error_description_empty, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -111,17 +114,46 @@ public class EditBar {
         }
     }
 
-    public void showFAB() {
+    public void enableAutoHideFAB(View view) {
+        final GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
+            private final int slop = ViewConfiguration.get(activity).getScaledPagingTouchSlop();
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                final float start = e1.getY();
+                final float end = e2.getY();
+
+                if (end - start > slop) {
+                    showFAB();
+                } else if (end - start < -slop) {
+                    hideFAB();
+                }
+                return super.onScroll(e1, e2, distanceX, distanceY);
+            }
+        };
+
+        final GestureDetector detector = new GestureDetector(activity, gestureListener);
+
+        view.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                detector.onTouchEvent(event);
+                return false;
+            }
+        });
+    }
+
+    private void showFAB() {
         if (!isVisible()) {
             fab.show();
         }
     }
 
-    public void hideFAB() {
+    private void hideFAB() {
         fab.hide();
     }
 
-    private void show(){
+    private void show() {
         layout.setVisibility(View.VISIBLE);
         descriptionText.requestFocus();
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -138,7 +170,7 @@ public class EditBar {
         fab.requestFocus();
     }
 
-    public boolean isVisible(){
+    public boolean isVisible() {
         return layout.getVisibility() != View.GONE;
     }
 
