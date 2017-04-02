@@ -19,13 +19,14 @@
 
 package de.wolfgang_popp.shoppinglist.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
+
+import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
 /**
  * @author Wolfgang Popp.
  */
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends BinderActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,5 +34,15 @@ public class SettingsActivity extends Activity {
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new SettingsFragment())
                 .commit();
+    }
+
+    @Override
+    protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
+
+    }
+
+    @Override
+    protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
+
     }
 }

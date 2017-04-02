@@ -19,14 +19,9 @@
 
 package de.wolfgang_popp.shoppinglist.activity;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,11 +35,9 @@ import de.wolfgang_popp.shoppinglist.shoppinglist.ListChangedListener;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
-public class MainActivity extends AppCompatActivity implements EditBar.EditBarListener, ConfirmationDialog.ConfirmationDialogListener {
+public class MainActivity extends BinderActivity implements EditBar.EditBarListener, ConfirmationDialog.ConfirmationDialogListener {
     private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
     private static final String KEY_SAVED_TOP_PADDING = "SAVED_TOP_PADDING";
-    private final ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
-    private ShoppingListService.ShoppingListBinder binder;
     private EditBar editBar;
     private DynamicListView listView;
     private int savedScrollPosition = 0;
@@ -63,14 +56,6 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
             });
         }
     };
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Intent intent = new Intent(this, ShoppingListService.class);
-        startService(intent);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,18 +82,27 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
         } else {
             listView.setSelectionFromTop(savedScrollPosition, savedTopPadding);
         }
-        setItemCheckedListener();
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (isServiceConnected()) {
+                    getBinder().toggleItemChecked(position);
+                }
+            }
+        });
     }
 
-    private synchronized void setItemCheckedListener() {
-        if (listView != null && binder != null) {
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    binder.toggleItemChecked(position);
-                }
-            });
-        }
+    @Override
+    protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
+        binder.getShoppingList().addListChangeListener(listener);
+        adapter.onBinderConnected(binder);
+    }
+
+    @Override
+    protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
+        adapter.onBinderDisconnected(binder);
+        binder.getShoppingList().removeListChangeListener(listener);
     }
 
     @Override
@@ -130,12 +124,6 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
         outState.putInt(KEY_SAVED_SCROLL_POSITION, savedScrollPosition);
         outState.putInt(KEY_SAVED_TOP_PADDING, savedTopPadding);
         editBar.saveState(outState);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(serviceConnection);
     }
 
     @Override
@@ -169,11 +157,11 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.context_menu_edit:
-                ListItem listItem = binder.getShoppingList().get(info.position);
+                ListItem listItem = getShoppingList().get(info.position);
                 editBar.showEdit(info.position, listItem.getDescription(), listItem.getQuantity());
                 return true;
             case R.id.context_menu_delete:
-                binder.removeItem(info.position);
+                getBinder().removeItem(info.position);
                 return true;
         }
         return super.onContextItemSelected(item);
@@ -181,41 +169,24 @@ public class MainActivity extends AppCompatActivity implements EditBar.EditBarLi
 
     @Override
     public void onEditSave(int position, String description, String quantity) {
-        binder.edit(position, description, quantity);
+        getBinder().edit(position, description, quantity);
         editBar.hide();
         listView.smoothScrollToPosition(position);
     }
 
     @Override
     public void onNewItem(String description, String quantity) {
-        binder.addItem(description, quantity);
+        getBinder().addItem(description, quantity);
         listView.smoothScrollToPosition(listView.getAdapter().getCount() - 1);
     }
 
     @Override
     public void onPositiveButtonClicked() {
-        binder.removeAllCheckedItems();
+        getBinder().removeAllCheckedItems();
     }
 
     @Override
     public void onNegativeButtonClicked() {
     }
 
-    private class ShoppingListServiceConnection implements ServiceConnection {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder iBinder) {
-            binder = ((ShoppingListService.ShoppingListBinder) iBinder);
-            binder.getShoppingList().addListChangeListener(listener);
-            adapter.onBinderConnected(binder);
-            setItemCheckedListener();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            adapter.onBinderDisconnected(binder);
-            binder.getShoppingList().removeListChangeListener(listener);
-            binder = null;
-        }
-    }
 }
