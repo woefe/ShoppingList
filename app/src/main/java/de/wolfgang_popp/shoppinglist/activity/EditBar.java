@@ -117,18 +117,32 @@ public class EditBar {
     public void enableAutoHideFAB(View view) {
         final GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             private final int slop = ViewConfiguration.get(activity).getScaledPagingTouchSlop();
+            private float start = -1;
+            private float triggerPosition = -1;
 
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                final float start = e1.getY();
+                if (isNewEvent(e1)) {
+                    start = e1.getY();
+                }
                 final float end = e2.getY();
 
                 if (end - start > slop) {
                     showFAB();
+                    start = end;
                 } else if (end - start < -slop) {
                     hideFAB();
+                    start = end;
                 }
                 return super.onScroll(e1, e2, distanceX, distanceY);
+            }
+
+            private boolean isNewEvent(MotionEvent e1) {
+                boolean isNewEvent = !(e1.getY() == triggerPosition);
+                if (isNewEvent) {
+                    triggerPosition = e1.getY();
+                }
+                return isNewEvent;
             }
         };
 
