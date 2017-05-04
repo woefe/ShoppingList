@@ -42,6 +42,8 @@ public class ShoppingList {
     private static final Pattern HEADER = Pattern.compile("\\[(.*)\\]");
 
     private final List<ListChangedListener> listeners = new LinkedList<>();
+
+    @SuppressWarnings({"FieldCanBeLocal"})
     private FileObserver fileObserver;
 
     private String name;
@@ -73,7 +75,7 @@ public class ShoppingList {
         notifyListChanged();
     }
 
-    private int generateID(){
+    private int generateID() {
         return ++currentID;
     }
 

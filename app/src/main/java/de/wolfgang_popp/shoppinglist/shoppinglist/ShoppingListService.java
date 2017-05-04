@@ -19,13 +19,17 @@
 
 package de.wolfgang_popp.shoppinglist.shoppinglist;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -45,6 +49,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
     private ShoppingList shoppingList = null;
     private final IBinder binder = new ShoppingListBinder();
+    private SharedPreferences sharedPreferences;
 
     @Nullable
     @Override
@@ -66,47 +71,57 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        try {
-            shoppingList.init(getListFileName(sharedPreferences));
-        } catch (IOException e) {
-            Log.e(TAG, "Could not initialize the shoppinglist", e);
-        }
+        initShoppingList();
     }
 
-    private String getListFileName(SharedPreferences sharedPreferences){
+    private String getListFileName() {
         String filename = sharedPreferences.getString(SettingsFragment.KEY_FILE_LOCATION, "");
-        String defaultFilename = getApplicationContext().getFileStreamPath(DEFAULT_FILENAME).getAbsolutePath();
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        if (filename.equals("")) {
-            return defaultFilename;
+        if (filename.equals("") || permission != PackageManager.PERMISSION_GRANTED) {
+            return createDefaultFile();
         }
 
-        File listFile = new File(filename);
         try {
-            listFile.createNewFile();
+            new File(filename).createNewFile();
             return filename;
         } catch (IOException e) {
             Log.e(TAG, "onSharedPrefChanged", e);
             toastErrorCreateFile(filename);
-            return defaultFilename;
+            return createDefaultFile();
         }
+    }
+
+    @NonNull
+    private String createDefaultFile() {
+        String defaultFilename = getApplicationContext().getFileStreamPath(DEFAULT_FILENAME).getAbsolutePath();
+        try {
+            new File(defaultFilename).createNewFile();
+        } catch (IOException e) {
+            Log.wtf(TAG, "Failed to create file in internal storage!", e);
+        }
+        return defaultFilename;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         shoppingList = new ShoppingList();
+        initShoppingList();
+
+        Log.v(TAG, "onCreate() called");
+    }
+
+    private void initShoppingList() {
         try {
-            shoppingList.init(getListFileName(sharedPreferences));
+            shoppingList.init(getListFileName());
         } catch (IOException e) {
             Log.e(TAG, "Could not initialize the shoppinglist", e);
         }
-
-        Log.v(TAG, "onCreate() called");
     }
 
     @Override
@@ -127,11 +142,11 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     }
 
     private void toastErrorWhileSave() {
-        Toast.makeText(ShoppingListService.this, R.string.error_saving, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.error_saving, Toast.LENGTH_SHORT).show();
     }
 
     private void toastErrorCreateFile(String filename) {
-        Toast.makeText(ShoppingListService.this, getResources().getString(R.string.error_create) + filename, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, getResources().getString(R.string.error_create) + filename, Toast.LENGTH_LONG).show();
     }
 
 
@@ -155,6 +170,10 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
         public void edit(int index, String newDescription, String newQuantity) {
             shoppingList.editItem(index, newDescription, newQuantity);
+        }
+
+        public void onPermissionsGranted() {
+            initShoppingList();
         }
 
         public ShoppingList getShoppingList() {

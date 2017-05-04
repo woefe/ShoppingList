@@ -19,6 +19,7 @@
 
 package de.wolfgang_popp.shoppinglist.activity;
 
+import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import de.wolfgang_popp.shoppinglist.R;
+import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
 /**
  * @author Wolfgang Popp.
@@ -46,7 +48,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+        getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
         // show the current value in the settings screen
         for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
@@ -57,7 +59,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     @Override
     public void onDestroy() {
         super.onDestroy();
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+        getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
     private void initSummary(Preference p) {
@@ -78,21 +80,34 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         }
     }
 
-    private void requestExternalStoragePermission(){
-        int result = ContextCompat.checkSelfPermission(getActivity(), "android.permission.WRITE_EXTERNAL_STORAGE");
+    private void requestExternalStoragePermission() {
+        int result = ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
         if (result == PackageManager.PERMISSION_DENIED) {
-            FragmentCompat.requestPermissions(this, new String[]{ "android.permission.WRITE_EXTERNAL_STORAGE" }, REQUEST_CODE_EXT_STORAGE);
+            FragmentCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_CODE_EXT_STORAGE);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_CODE_EXT_STORAGE) {
-            if (grantResults.length == 0 || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                ShoppingListService.ShoppingListBinder binder = ((SettingsActivity) getActivity()).getBinder();
+                if (binder != null) {
+                    binder.onPermissionsGranted();
+                }
+            } else {
                 Toast.makeText(getActivity(), "permisson denied", Toast.LENGTH_SHORT).show();
-                PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putString(KEY_FILE_LOCATION, "").commit();
+                getSharedPreferences().edit().putString(KEY_FILE_LOCATION, "").apply();
             }
         }
+    }
+
+    private SharedPreferences getSharedPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(getActivity());
     }
 
     @Override
@@ -100,12 +115,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         if (key.equals(KEY_FILE_LOCATION)) {
             Preference p = findPreference(key);
             updatePreferences(p);
-            if (!sharedPreferences.getString(KEY_FILE_LOCATION, "").equals("")){
+            if (!sharedPreferences.getString(KEY_FILE_LOCATION, "").equals("")) {
                 requestExternalStoragePermission();
             } else {
                 p.setSummary("");
             }
-
         }
     }
 }
