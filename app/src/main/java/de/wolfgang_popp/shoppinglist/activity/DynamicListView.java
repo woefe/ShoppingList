@@ -521,7 +521,7 @@ public class DynamicListView extends ListView {
         int listViewTop = getTop();
         int listViewBottom = getBottom();
 
-        double beginScrollOffset = getHeight() / 4;
+        double beginScrollOffset = getHeight() / 10;
 
         if (hoverViewTop < listViewTop + beginScrollOffset && offset > 1) {
             int topOffset = hoverViewTop - listViewTop;

@@ -89,7 +89,7 @@ public class DynamicListViewAdapter extends BaseAdapter {
             quantity.setTextColor(context.getResources().getColor(R.color.textColorDefault));
         }
 
-        //view.setVisibility(View.VISIBLE);
+        view.setVisibility(View.VISIBLE);
 
         return view;
     }
