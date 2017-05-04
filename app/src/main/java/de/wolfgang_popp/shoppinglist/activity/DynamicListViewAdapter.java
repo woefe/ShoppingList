@@ -26,9 +26,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
@@ -37,7 +34,6 @@ public class DynamicListViewAdapter extends BaseAdapter {
 
     private ShoppingListService.ShoppingListBinder binder;
     private Context context;
-    private Map<Object, Integer> idMap = new HashMap<>();
 
     public DynamicListViewAdapter(Context context) {
         this.context = context;
@@ -118,24 +114,4 @@ public class DynamicListViewAdapter extends BaseAdapter {
             binder.getShoppingList().move(startPosition, endPosition);
         }
     }
-
-    /*
-        @Override
-        public int getDragHandler() {
-            return R.id.drag_n_drop_handler;
-        }
-
-        @Override
-        public void onItemDrag(DragNDropListView parent, View view, int position, long id) {
-            dragStartPosition = position;
-            startView = view;
-        }
-
-        @Override
-        public void onItemDrop(DragNDropListView parent, View view, int startPosition, int endPosition, long id) {
-            binder.getShoppingList().move(startPosition, endPosition);
-            dragStartPosition = -1;
-            startView = null;
-        }
-        */
 }
