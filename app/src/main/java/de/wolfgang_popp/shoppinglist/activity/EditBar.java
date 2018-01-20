@@ -19,7 +19,6 @@
 
 package de.wolfgang_popp.shoppinglist.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -40,7 +39,8 @@ public class EditBar {
     private static final String KEY_SAVED_QUANTITY = "SAVED_QUANTITY";
     private static final String KEY_SAVED_MODE = "SAVED_MODE";
     private static final String KEY_SAVE_IS_VISIBLE = "SAVE_IS_VISIBLE";
-    private Activity activity;
+    private View boundView;
+    private Context ctx;
     private RelativeLayout layout;
     private Button button;
     private EditText descriptionText;
@@ -50,12 +50,13 @@ public class EditBar {
     private FloatingActionButton fab;
     private int position;
 
-    public EditBar(Activity activity) {
-        this.activity = activity;
-        this.layout = (RelativeLayout) this.activity.findViewById(R.id.layout_add_item);
-        this.button = (Button) this.activity.findViewById(R.id.button_add_new_item);
-        this.descriptionText = ((EditText) this.activity.findViewById(R.id.new_item_description));
-        this.quantityText = ((EditText) this.activity.findViewById(R.id.new_item_quantity));
+    public EditBar(View boundView, final Context ctx) {
+        this.boundView = boundView;
+        this.ctx = ctx;
+        this.layout = this.boundView.findViewById(R.id.layout_add_item);
+        this.button = this.boundView.findViewById(R.id.button_add_new_item);
+        this.descriptionText = this.boundView.findViewById(R.id.new_item_description);
+        this.quantityText = this.boundView.findViewById(R.id.new_item_quantity);
         this.mode = Mode.ADD;
 
         layout.setVisibility(View.GONE);
@@ -67,7 +68,7 @@ public class EditBar {
                 String qty = quantityText.getText().toString();
 
                 if (desc.equals("")) {
-                    Toast.makeText(EditBar.this.activity, R.string.error_description_empty, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ctx, R.string.error_description_empty, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -82,7 +83,7 @@ public class EditBar {
                 quantityText.setText("");
             }
         });
-        fab = (FloatingActionButton) activity.findViewById(R.id.fab_add);
+        fab = boundView.findViewById(R.id.fab_add);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -116,7 +117,7 @@ public class EditBar {
 
     public void enableAutoHideFAB(View view) {
         final GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
-            private final int slop = ViewConfiguration.get(activity).getScaledPagingTouchSlop();
+            private final int slop = ViewConfiguration.get(ctx).getScaledPagingTouchSlop();
             private float start = -1;
             private float triggerPosition = -1;
 
@@ -146,7 +147,7 @@ public class EditBar {
             }
         };
 
-        final GestureDetector detector = new GestureDetector(activity, gestureListener);
+        final GestureDetector detector = new GestureDetector(ctx, gestureListener);
 
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -170,7 +171,7 @@ public class EditBar {
     private void show() {
         layout.setVisibility(View.VISIBLE);
         descriptionText.requestFocus();
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
 
@@ -178,7 +179,7 @@ public class EditBar {
         descriptionText.clearFocus();
         quantityText.clearFocus();
         layout.setVisibility(View.GONE);
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(layout.getWindowToken(), 0);
         fab.show();
         fab.requestFocus();

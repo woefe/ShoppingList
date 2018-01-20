@@ -19,111 +19,98 @@
 
 package de.wolfgang_popp.shoppinglist.activity;
 
+import android.app.FragmentManager;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.ContextMenu;
+import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ListChangedListener;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
-public class MainActivity extends BinderActivity implements EditBar.EditBarListener, ConfirmationDialog.ConfirmationDialogListener {
-    private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
-    private static final String KEY_SAVED_TOP_PADDING = "SAVED_TOP_PADDING";
-    private EditBar editBar;
-    private DynamicListView listView;
-    private int savedScrollPosition = 0;
-    private int savedTopPadding = 0;
-
-    private final DynamicListViewAdapter adapter = new DynamicListViewAdapter(this);
-
-    private final ListChangedListener listener = new ListChangedListener() {
-        @Override
-        public void listChanged() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    adapter.notifyDataSetChanged();
-                }
-            });
-        }
-    };
+public class MainActivity extends BinderActivity implements ConfirmationDialog.ConfirmationDialogListener {
+    private DrawerLayout drawerLayout;
+    private ListView drawerList;
+    private ShoppingListFragment currentFragment;
+    private ActionBarDrawerToggle drawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerList = findViewById(R.id.left_drawer);
 
-        listView = (DynamicListView) findViewById(R.id.shoppingListView);
-        listView.setDragHandler(R.id.dragNDropHandler);
-        listView.setAdapter(adapter);
-        registerForContextMenu(listView);
-
-        editBar = new EditBar(this);
-        editBar.addEditBarListener(this);
-        editBar.enableAutoHideFAB(listView);
-
-        if (savedInstanceState != null) {
-            savedScrollPosition = savedInstanceState.getInt(KEY_SAVED_SCROLL_POSITION);
-            savedTopPadding = savedInstanceState.getInt(KEY_SAVED_TOP_PADDING);
-            editBar.restoreState(savedInstanceState);
-        }
-
-        if (Build.VERSION.SDK_INT < 21) {
-            listView.setSelection(savedScrollPosition);
-        } else {
-            listView.setSelectionFromTop(savedScrollPosition, savedTopPadding);
-        }
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        String[] dummies = {"list1", "list2", "list3"};
+        drawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, dummies));
+        drawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (isServiceConnected()) {
-                    getBinder().toggleItemChecked(position);
-                }
+                selectList(position);
             }
         });
+
+        final Toolbar toolbar = findViewById(R.id.toolbar_main);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
+        drawerToggle.setDrawerIndicatorEnabled(true);
+        drawerLayout.addDrawerListener(drawerToggle);
+
+    }
+
+    @Override
+    public void onPostCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+        super.onPostCreate(savedInstanceState, persistentState);
+        drawerToggle.syncState();
+    }
+
+    private void selectList(int position) {
+        currentFragment = new ShoppingListFragment();
+        //TODO set bundle args
+        FragmentManager manager = getFragmentManager();
+        manager.beginTransaction().replace(R.id.content_frame, currentFragment).commit();
+        if (isServiceConnected()) {
+            currentFragment.onServiceConnected(getBinder());
+        }
+
+        drawerList.setItemChecked(position, true);
+        //TODO Get actual name of the current list
+        setTitle("test");
+        drawerLayout.closeDrawer(drawerList);
     }
 
     @Override
     protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
-        binder.getShoppingList().addListChangeListener(listener);
-        adapter.onBinderConnected(binder);
-    }
-
-    @Override
-    protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
-        adapter.onBinderDisconnected(binder);
-        binder.getShoppingList().removeListChangeListener(listener);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (editBar.isVisible()) {
-            editBar.hide();
-        } else {
-            super.onBackPressed();
+        if (currentFragment != null) {
+            currentFragment.onServiceConnected(binder);
         }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        ListView listView = (ListView) findViewById(R.id.shoppingListView);
-        View v = listView.getChildAt(0);
-        int savedScrollPosition = listView.getFirstVisiblePosition();
-        int savedTopPadding = (v == null) ? 0 : (v.getTop() - listView.getPaddingTop());
-        outState.putInt(KEY_SAVED_SCROLL_POSITION, savedScrollPosition);
-        outState.putInt(KEY_SAVED_TOP_PADDING, savedTopPadding);
-        editBar.saveState(outState);
+    protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
+        if (currentFragment != null) {
+            currentFragment.onServiceDisconnected(binder);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!currentFragment.onBackPressed()) {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -144,40 +131,6 @@ public class MainActivity extends BinderActivity implements EditBar.EditBarListe
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.context_menu, menu);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case R.id.context_menu_edit:
-                ListItem listItem = getShoppingList().get(info.position);
-                editBar.showEdit(info.position, listItem.getDescription(), listItem.getQuantity());
-                return true;
-            case R.id.context_menu_delete:
-                getBinder().removeItem(info.position);
-                return true;
-        }
-        return super.onContextItemSelected(item);
-    }
-
-    @Override
-    public void onEditSave(int position, String description, String quantity) {
-        getBinder().edit(position, description, quantity);
-        editBar.hide();
-        listView.smoothScrollToPosition(position);
-    }
-
-    @Override
-    public void onNewItem(String description, String quantity) {
-        getBinder().addItem(description, quantity);
-        listView.smoothScrollToPosition(listView.getAdapter().getCount() - 1);
     }
 
     @Override

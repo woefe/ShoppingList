@@ -74,8 +74,8 @@ public class DynamicListViewAdapter extends BaseAdapter {
             view = inflater.inflate(R.layout.list_item, parent, false);
         }
 
-        TextView description = (TextView) view.findViewById(R.id.text_description);
-        TextView quantity = (TextView) view.findViewById(R.id.text_quantity);
+        TextView description = view.findViewById(R.id.text_description);
+        TextView quantity = view.findViewById(R.id.text_quantity);
 
         ListItem item = binder.getShoppingList().get(position);
         description.setText(item.getDescription());
@@ -89,7 +89,7 @@ public class DynamicListViewAdapter extends BaseAdapter {
             quantity.setTextColor(context.getResources().getColor(R.color.textColorDefault));
         }
 
-        view.setVisibility(View.VISIBLE);
+        //view.setVisibility(View.VISIBLE);
 
         return view;
     }

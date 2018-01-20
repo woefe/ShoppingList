@@ -32,4 +32,6 @@
     <string name="error_saving">An error occurred while saving.</string>
     <string name="error_create">"Cannot create file: "</string>
     <string name="error_description_empty">Item description may not be empty!</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 </resources>

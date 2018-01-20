@@ -96,20 +96,20 @@ public class DynamicListView extends ListView {
 
     public DynamicListView(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public DynamicListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context);
+        init();
     }
 
     public DynamicListView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
-    public void init(Context context) {
+    private void init() {
         setOnScrollListener(mScrollListener);
     }
 
@@ -494,7 +494,7 @@ public class DynamicListView extends ListView {
                     interpolate(startValue.bottom, endValue.bottom, fraction));
         }
 
-        public int interpolate(int start, int end, float fraction) {
+        int interpolate(int start, int end, float fraction) {
             return (int) (start + fraction * (end - start));
         }
     };
@@ -607,7 +607,7 @@ public class DynamicListView extends ListView {
          * Determines if the listview scrolled up enough to reveal a new cell at the
          * top of the list. If so, then the appropriate parameters are updated.
          */
-        public void checkAndHandleFirstVisibleCellChange() {
+        void checkAndHandleFirstVisibleCellChange() {
             if (mCurrentFirstVisibleItem != mPreviousFirstVisibleItem) {
                 if (mCellIsMobile && mMobileItemId != INVALID_ID) {
                     updateNeighborViewsForID(mMobileItemId);
@@ -620,7 +620,7 @@ public class DynamicListView extends ListView {
          * Determines if the listview scrolled down enough to reveal a new cell at the
          * bottom of the list. If so, then the appropriate parameters are updated.
          */
-        public void checkAndHandleLastVisibleCellChange() {
+        void checkAndHandleLastVisibleCellChange() {
             int currentLastVisibleItem = mCurrentFirstVisibleItem + mCurrentVisibleItemCount;
             int previousLastVisibleItem = mPreviousFirstVisibleItem + mPreviousVisibleItemCount;
             if (currentLastVisibleItem != previousLastVisibleItem) {
