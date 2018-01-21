@@ -23,6 +23,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -30,6 +31,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import de.wolfgang_popp.shoppinglist.R;
@@ -61,9 +63,9 @@ public class EditBar {
 
         layout.setVisibility(View.GONE);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        final Runnable confirmationAction = new Runnable() {
             @Override
-            public void onClick(View v) {
+            public void run() {
                 String desc = descriptionText.getText().toString();
                 String qty = quantityText.getText().toString();
 
@@ -81,6 +83,21 @@ public class EditBar {
 
                 descriptionText.setText("");
                 quantityText.setText("");
+            }
+        };
+
+        quantityText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                confirmationAction.run();
+                return true;
+            }
+        });
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                confirmationAction.run();
             }
         });
         fab = boundView.findViewById(R.id.fab_add);
