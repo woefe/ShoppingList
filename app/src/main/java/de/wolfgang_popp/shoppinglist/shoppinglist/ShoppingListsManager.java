@@ -145,6 +145,10 @@ public class ShoppingListsManager {
         return shoppingListsMetadata.keySet();
     }
 
+    int size() {
+        return shoppingListsMetadata.size();
+    }
+
     private class ShoppingListMetadata {
         private ShoppingList shoppingList;
         private String filename;

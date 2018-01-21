@@ -88,10 +88,16 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
 
     private void selectList(int position) {
         fragmentPosition = position;
+        FragmentManager manager = getFragmentManager();
+
+        if (position >= getBinder().size()) {
+            manager.beginTransaction().replace(R.id.content_frame, new InvalidFragment()).commit();
+            return;
+        }
+
         String name = drawerAdapter.getItem(position);
         currentFragment = ShoppingListFragment.newInstance(name);
 
-        FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.content_frame, currentFragment).commit();
 
         if (isServiceConnected()) {

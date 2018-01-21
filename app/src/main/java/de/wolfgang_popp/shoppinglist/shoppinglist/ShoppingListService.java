@@ -151,6 +151,10 @@ public class ShoppingListService extends Service implements SharedPreferences.On
             return names;
         }
 
+        public int size() {
+            return manager.size();
+        }
+
         public void onPermissionsGranted() {
             initShoppingList();
         }

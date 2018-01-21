@@ -39,4 +39,5 @@
     <string name="confirm_delete_list">Delete list &lt;b>%1$s&lt;/b>?</string>
     <string name="add_new_list">Add a new list</string>
     <string name="add_list_hint">Name of new list</string>
+    <string name="fragment_invalid_text">No lists are available.</string>
 </resources>
