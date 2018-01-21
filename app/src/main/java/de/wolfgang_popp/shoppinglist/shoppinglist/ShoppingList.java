@@ -72,7 +72,7 @@ public class ShoppingList extends ArrayList<ListItem> {
 
     @Override
     public ListItem remove(int index) {
-        ListItem res = remove(index);
+        ListItem res = super.remove(index);
         notifyListChanged();
         return res;
     }
