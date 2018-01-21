@@ -39,11 +39,13 @@ import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
 public class MainActivity extends BinderActivity implements ConfirmationDialog.ConfirmationDialogListener {
+    public static final String KEY_CURRENT_FRAGMENT_POS = "KEY_CURRENT_FRAGMENT_POS";
     private DrawerLayout drawerLayout;
     private ListView drawerList;
     private ArrayAdapter<String> drawerAdapter;
     private ShoppingListFragment currentFragment;
     private ActionBarDrawerToggle drawerToggle;
+    private int fragmentPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,9 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         drawerToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(drawerToggle);
 
+        if (savedInstanceState != null) {
+            fragmentPosition = savedInstanceState.getInt(KEY_CURRENT_FRAGMENT_POS, 0);
+        }
     }
 
     @Override
@@ -79,6 +84,7 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
     }
 
     private void selectList(int position) {
+        fragmentPosition = position;
         String name = drawerAdapter.getItem(position);
         currentFragment = ShoppingListFragment.newInstance(name);
 
@@ -95,9 +101,16 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt(KEY_CURRENT_FRAGMENT_POS, fragmentPosition);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
         drawerAdapter.clear();
         drawerAdapter.addAll(binder.getListNames());
+        selectList(fragmentPosition);
         if (currentFragment != null) {
             currentFragment.onServiceConnected(binder);
         }
