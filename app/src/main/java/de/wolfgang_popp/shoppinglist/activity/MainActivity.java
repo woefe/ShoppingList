@@ -34,11 +34,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.Arrays;
+
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
+import de.wolfgang_popp.shoppinglist.dialog.TextInputDialog;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
-public class MainActivity extends BinderActivity implements ConfirmationDialog.ConfirmationDialogListener {
+public class MainActivity extends BinderActivity implements ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.Listener {
     public static final String KEY_CURRENT_FRAGMENT_POS = "KEY_CURRENT_FRAGMENT_POS";
     private DrawerLayout drawerLayout;
     private ListView drawerList;
@@ -108,12 +111,16 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
 
     @Override
     protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
-        drawerAdapter.clear();
-        drawerAdapter.addAll(binder.getListNames());
+        updateDrawer();
         selectList(fragmentPosition);
         if (currentFragment != null) {
             currentFragment.onServiceConnected(binder);
         }
+    }
+
+    private void updateDrawer() {
+        drawerAdapter.clear();
+        drawerAdapter.addAll(getBinder().getListNames());
     }
 
     @Override
@@ -145,21 +152,51 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
                 startActivity(intent);
                 return true;
             case R.id.action_delete_checked:
-                ConfirmationDialog.show(this, getString(R.string.remove_checked_items));
+                String message = getString(R.string.remove_checked_items);
+                ConfirmationDialog.show(this, message, R.id.action_delete_checked);
+                return true;
+            case R.id.action_delete_list:
+                message = getString(R.string.confirm_delete_list, getTitle());
+                ConfirmationDialog.show(this, message, R.id.action_delete_list);
+                return true;
+            case R.id.action_new_list:
+                message = getString(R.string.add_new_list);
+                String hint = getString(R.string.add_list_hint);
+                TextInputDialog.show(this, message, hint, R.id.action_new_list);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onPositiveButtonClicked() {
-        if (currentFragment != null) {
-            currentFragment.removeAllCheckedItems();
+    public void onPositiveButtonClicked(int action) {
+        switch (action) {
+            case R.id.action_delete_checked:
+                if (currentFragment != null) {
+                    currentFragment.removeAllCheckedItems();
+                }
+                break;
+            case R.id.action_delete_list:
+                getBinder().removeList(getTitle().toString());
+                updateDrawer();
+                selectList(0);
+                break;
         }
     }
 
     @Override
-    public void onNegativeButtonClicked() {
+    public void onNegativeButtonClicked(int action) {
+    }
+
+    @Override
+    public void onInputComplete(String input, int action) {
+        if (isServiceConnected()) {
+            getBinder().addList(input);
+            updateDrawer();
+            //TODO get fragmentPos from a more reliable source
+            int fragmentPos = Arrays.binarySearch(getBinder().getListNames(), input);
+            selectList(fragmentPos);
+        }
     }
 
 }

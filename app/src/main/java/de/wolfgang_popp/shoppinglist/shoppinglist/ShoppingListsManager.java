@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +38,7 @@ public class ShoppingListsManager {
 
     private String directory;
     private final Map<String, ShoppingListMetadata> shoppingListsMetadata = new HashMap<>();
+    private final Map<String, ShoppingListMetadata> trashcan = new HashMap<>();
 
     ShoppingListsManager() {
     }
@@ -120,6 +120,10 @@ public class ShoppingListsManager {
                 Log.d(getClass().getSimpleName(), "Wrote file " + metadata.filename);
             }
         }
+
+        for (ShoppingListMetadata metadata : trashcan.values()) {
+            new File(metadata.filename).delete();
+        }
     }
 
     void addList(String name) {
@@ -129,7 +133,8 @@ public class ShoppingListsManager {
     }
 
     void removeList(String name) {
-        shoppingListsMetadata.remove(name);
+        ShoppingListMetadata toRemove = shoppingListsMetadata.remove(name);
+        trashcan.put(toRemove.shoppingList.getName(), toRemove);
     }
 
     ShoppingList getList(String name) {

@@ -34,4 +34,9 @@
     <string name="error_description_empty">Item description may not be empty!</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="new_list">Create new list</string>
+    <string name="delete_list">Delete list</string>
+    <string name="confirm_delete_list">Delete list &lt;b>%1$s&lt;/b>?</string>
+    <string name="add_new_list">Add a new list</string>
+    <string name="add_list_hint">Name of new list</string>
 </resources>
