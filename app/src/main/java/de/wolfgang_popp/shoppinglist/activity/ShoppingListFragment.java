@@ -23,7 +23,6 @@ import android.app.Fragment;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -35,7 +34,6 @@ import android.widget.ListView;
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingList;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
 public class ShoppingListFragment extends Fragment implements EditBar.EditBarListener {
     private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
@@ -48,55 +46,24 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
     private EditBar editBar;
     private DynamicListView listView;
     private DynamicListViewAdapter adapter;
-    private ShoppingListService.ShoppingListBinder binder;
     private View rootView;
     private ShoppingList shoppingList;
-    private String listName;
 
-    private void connectService() {
-        if (getActivity() != null && this.binder != null && listName != null) {
-            Log.d(getClass().getSimpleName(), "successfully connected to service");
-
-            shoppingList = binder.getList(listName);
-            adapter = new DynamicListViewAdapter(getActivity());
-            adapter.connectShoppingList(shoppingList);
-        }
-    }
-
-    private void disconnectService() {
-        if (adapter != null) {
-            adapter.disconnectShoppingList();
-            adapter = null;
-        }
-
-        if (binder != null) {
-            binder = null;
-        }
-
-        if (shoppingList != null) {
-            shoppingList = null;
-        }
-    }
-
-    public static ShoppingListFragment newInstance(String name) {
+    public static ShoppingListFragment newInstance(String name, ShoppingList shoppingList) {
         ShoppingListFragment fragment = new ShoppingListFragment();
+        fragment.setShoppingList(shoppingList);
         Bundle args = new Bundle();
         args.putString(ARG_LIST_NAME, name);
         fragment.setArguments(args);
         return fragment;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        listName = getArguments().getString(ARG_LIST_NAME, "");
-        connectService();
-    }
-
-    @Override
-    public void onDestroy() {
-        disconnectService();
-        super.onDestroy();
+    public void setShoppingList(ShoppingList shoppingList) {
+        if (adapter != null) {
+            adapter.disconnectShoppingList();
+            adapter.connectShoppingList(shoppingList);
+        }
+        this.shoppingList = shoppingList;
     }
 
     @Override
@@ -105,7 +72,6 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
 
         listView = rootView.findViewById(R.id.shoppingListView);
         listView.setDragHandler(R.id.dragNDropHandler);
-        listView.setAdapter(adapter);
         registerForContextMenu(listView);
 
         editBar = new EditBar(rootView, getActivity());
@@ -134,13 +100,15 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
         return rootView;
     }
 
-    protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
-        this.binder = binder;
-        connectService();
-    }
-
-    protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
-        disconnectService();
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        adapter = new DynamicListViewAdapter(getActivity());
+        if (shoppingList != null) {
+            adapter.disconnectShoppingList();
+            adapter.connectShoppingList(shoppingList);
+        }
+        listView.setAdapter(adapter);
     }
 
     public boolean onBackPressed() {

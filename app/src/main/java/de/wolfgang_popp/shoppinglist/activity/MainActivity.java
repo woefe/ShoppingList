@@ -19,6 +19,7 @@
 
 package de.wolfgang_popp.shoppinglist.activity;
 
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,13 +43,14 @@ import de.wolfgang_popp.shoppinglist.dialog.TextInputDialog;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
 public class MainActivity extends BinderActivity implements ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.Listener {
-    public static final String KEY_CURRENT_FRAGMENT_POS = "KEY_CURRENT_FRAGMENT_POS";
+    public static final String KEY_FRAGMENT = "FRAGMENT";
+    public static final String KEY_LIST_NAME = "LIST_NAME";
     private DrawerLayout drawerLayout;
     private ListView drawerList;
     private ArrayAdapter<String> drawerAdapter;
-    private ShoppingListFragment currentFragment;
     private ActionBarDrawerToggle drawerToggle;
-    private int fragmentPosition = 0;
+    private Fragment currentFragment;
+    private String currentListName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +78,9 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         drawerLayout.addDrawerListener(drawerToggle);
 
         if (savedInstanceState != null) {
-            fragmentPosition = savedInstanceState.getInt(KEY_CURRENT_FRAGMENT_POS, 0);
+            Fragment fragment = getFragmentManager().getFragment(savedInstanceState, KEY_FRAGMENT);
+            String name = savedInstanceState.getString(KEY_LIST_NAME);
+            setFragment(fragment, name);
         }
     }
 
@@ -86,60 +90,34 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         drawerToggle.syncState();
     }
 
-    private void selectList(int position) {
-        fragmentPosition = position;
-        FragmentManager manager = getFragmentManager();
-
-        if (position >= getBinder().size()) {
-            manager.beginTransaction().replace(R.id.content_frame, new InvalidFragment()).commit();
-            return;
-        }
-
-        String name = drawerAdapter.getItem(position);
-        currentFragment = ShoppingListFragment.newInstance(name);
-
-        manager.beginTransaction().replace(R.id.content_frame, currentFragment).commit();
-
-        if (isServiceConnected()) {
-            currentFragment.onServiceConnected(getBinder());
-        }
-
-        drawerList.setItemChecked(position, true);
-        setTitle(name);
-        drawerLayout.closeDrawer(drawerList);
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt(KEY_CURRENT_FRAGMENT_POS, fragmentPosition);
+        getFragmentManager().putFragment(outState, KEY_FRAGMENT, currentFragment);
+        outState.putString(KEY_LIST_NAME, currentListName);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
         updateDrawer();
-        selectList(fragmentPosition);
-        if (currentFragment != null) {
-            currentFragment.onServiceConnected(binder);
+        if (currentFragment == null){
+            selectList(0);
         }
-    }
-
-    private void updateDrawer() {
-        drawerAdapter.clear();
-        drawerAdapter.addAll(getBinder().getListNames());
+        if (currentFragment != null && currentFragment instanceof ShoppingListFragment) {
+            ((ShoppingListFragment) currentFragment).setShoppingList(binder.getList(currentListName));
+        }
     }
 
     @Override
     protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
-        if (currentFragment != null) {
-            currentFragment.onServiceDisconnected(binder);
-        }
         drawerAdapter.clear();
     }
 
     @Override
     public void onBackPressed() {
-        if (!currentFragment.onBackPressed()) {
+        if (currentFragment instanceof ShoppingListFragment &&
+                !((ShoppingListFragment) currentFragment).onBackPressed()) {
+
             super.onBackPressed();
         }
     }
@@ -178,8 +156,8 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
     public void onPositiveButtonClicked(int action) {
         switch (action) {
             case R.id.action_delete_checked:
-                if (currentFragment != null) {
-                    currentFragment.removeAllCheckedItems();
+                if (currentFragment != null && currentFragment instanceof ShoppingListFragment) {
+                    ((ShoppingListFragment) currentFragment).removeAllCheckedItems();
                 }
                 break;
             case R.id.action_delete_list:
@@ -203,6 +181,33 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
             int fragmentPos = Arrays.binarySearch(getBinder().getListNames(), input);
             selectList(fragmentPos);
         }
+    }
+
+    private void setFragment(Fragment fragment, String name) {
+        this.currentListName = name;
+        this.currentFragment = fragment;
+        setTitle(name);
+        FragmentManager manager = getFragmentManager();
+        manager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+    }
+
+    private void selectList(int position) {
+        if (position >= getBinder().size()) {
+            setFragment(new InvalidFragment(), getString(R.string.app_name));
+            return;
+        }
+
+        String name = drawerAdapter.getItem(position);
+        Fragment fragment = ShoppingListFragment.newInstance(name, getBinder().getList(name));
+        setFragment(fragment, name);
+
+        drawerList.setItemChecked(position, true);
+        drawerLayout.closeDrawer(drawerList);
+    }
+
+    private void updateDrawer() {
+        drawerAdapter.clear();
+        drawerAdapter.addAll(getBinder().getListNames());
     }
 
 }

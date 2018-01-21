@@ -112,8 +112,10 @@ public class DynamicListViewAdapter extends BaseAdapter {
     }
 
     public void disconnectShoppingList() {
-        this.shoppingList.removeListener(this.listener);
-        this.shoppingList = null;
+        if (shoppingList != null) {
+            this.shoppingList.removeListener(this.listener);
+            this.shoppingList = null;
+        }
         notifyDataSetChanged();
     }
 
