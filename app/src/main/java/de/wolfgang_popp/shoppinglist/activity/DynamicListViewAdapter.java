@@ -19,6 +19,7 @@
 
 package de.wolfgang_popp.shoppinglist.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,37 +29,48 @@ import android.widget.TextView;
 
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
+import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingList;
 
 public class DynamicListViewAdapter extends BaseAdapter {
 
-    private ShoppingListService.ShoppingListBinder binder;
-    private Context context;
+    private Activity activity;
+    private ShoppingList shoppingList;
+    private ShoppingList.ShoppingListListener listener = new ShoppingList.ShoppingListListener() {
+        @Override
+        public void update() {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
+        }
+    };
 
-    public DynamicListViewAdapter(Context context) {
-        this.context = context;
+    public DynamicListViewAdapter(Activity activity) {
+        this.activity = activity;
     }
 
     @Override
     public int getCount() {
-        if (binder != null) {
-            return binder.getShoppingList().size();
+        if (shoppingList != null) {
+            return shoppingList.size();
         }
         return 0;
     }
 
     @Override
     public Object getItem(int position) {
-        if (binder != null) {
-            return binder.getShoppingList().get(position);
+        if (shoppingList != null) {
+            return shoppingList.get(position);
         }
         return null;
     }
 
     @Override
     public long getItemId(int position) {
-        if (binder != null) {
-            return binder.getShoppingList().getId(position);
+        if (shoppingList != null) {
+            return shoppingList.getId(position);
         }
         return -1;
     }
@@ -70,23 +82,23 @@ public class DynamicListViewAdapter extends BaseAdapter {
         if (convertView != null) {
             view = convertView;
         } else {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.list_item, parent, false);
         }
 
         TextView description = view.findViewById(R.id.text_description);
         TextView quantity = view.findViewById(R.id.text_quantity);
 
-        ListItem item = binder.getShoppingList().get(position);
+        ListItem item = shoppingList.get(position);
         description.setText(item.getDescription());
         quantity.setText(item.getQuantity());
 
         if (item.isChecked()) {
-            description.setTextColor(context.getResources().getColor(R.color.textColorChecked));
-            quantity.setTextColor(context.getResources().getColor(R.color.textColorChecked));
+            description.setTextColor(activity.getResources().getColor(R.color.textColorChecked));
+            quantity.setTextColor(activity.getResources().getColor(R.color.textColorChecked));
         } else {
-            description.setTextColor(context.getResources().getColor(R.color.textColorDefault));
-            quantity.setTextColor(context.getResources().getColor(R.color.textColorDefault));
+            description.setTextColor(activity.getResources().getColor(R.color.textColorDefault));
+            quantity.setTextColor(activity.getResources().getColor(R.color.textColorDefault));
         }
 
         //view.setVisibility(View.VISIBLE);
@@ -99,19 +111,21 @@ public class DynamicListViewAdapter extends BaseAdapter {
         return true;
     }
 
-    public void onBinderDisconnected(ShoppingListService.ShoppingListBinder binder) {
-        this.binder = null;
+    public void disconnectShoppingList() {
+        this.shoppingList.removeListener(this.listener);
+        this.shoppingList = null;
         notifyDataSetChanged();
     }
 
-    public void onBinderConnected(ShoppingListService.ShoppingListBinder binder) {
-        this.binder = binder;
+    public void connectShoppingList(ShoppingList shoppingList) {
+        this.shoppingList = shoppingList;
+        shoppingList.addListener(this.listener);
         notifyDataSetChanged();
     }
 
     public void onItemSwap(int startPosition, int endPosition) {
-        if (binder != null) {
-            binder.getShoppingList().move(startPosition, endPosition);
+        if (shoppingList != null) {
+            shoppingList.move(startPosition, endPosition);
         }
     }
 }

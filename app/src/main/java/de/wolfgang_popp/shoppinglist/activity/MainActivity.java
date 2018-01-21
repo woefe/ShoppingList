@@ -41,6 +41,7 @@ import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 public class MainActivity extends BinderActivity implements ConfirmationDialog.ConfirmationDialogListener {
     private DrawerLayout drawerLayout;
     private ListView drawerList;
+    private ArrayAdapter<String> drawerAdapter;
     private ShoppingListFragment currentFragment;
     private ActionBarDrawerToggle drawerToggle;
 
@@ -48,11 +49,11 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         drawerLayout = findViewById(R.id.drawer_layout);
         drawerList = findViewById(R.id.left_drawer);
-
-        String[] dummies = {"list1", "list2", "list3"};
-        drawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, dummies));
+        drawerAdapter = new ArrayAdapter<>(this, R.layout.drawer_list_item);
+        drawerList.setAdapter(drawerAdapter);
         drawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -78,22 +79,25 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
     }
 
     private void selectList(int position) {
-        currentFragment = new ShoppingListFragment();
-        //TODO set bundle args
+        String name = drawerAdapter.getItem(position);
+        currentFragment = ShoppingListFragment.newInstance(name);
+
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.content_frame, currentFragment).commit();
+
         if (isServiceConnected()) {
             currentFragment.onServiceConnected(getBinder());
         }
 
         drawerList.setItemChecked(position, true);
-        //TODO Get actual name of the current list
-        setTitle("test");
+        setTitle(name);
         drawerLayout.closeDrawer(drawerList);
     }
 
     @Override
     protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
+        drawerAdapter.clear();
+        drawerAdapter.addAll(binder.getListNames());
         if (currentFragment != null) {
             currentFragment.onServiceConnected(binder);
         }
@@ -104,6 +108,7 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         if (currentFragment != null) {
             currentFragment.onServiceDisconnected(binder);
         }
+        drawerAdapter.clear();
     }
 
     @Override
@@ -135,7 +140,9 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
 
     @Override
     public void onPositiveButtonClicked() {
-        getBinder().removeAllCheckedItems();
+        if (currentFragment != null) {
+            currentFragment.removeAllCheckedItems();
+        }
     }
 
     @Override

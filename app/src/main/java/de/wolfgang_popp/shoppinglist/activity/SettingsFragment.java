@@ -41,7 +41,7 @@ import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
  */
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final String KEY_FILE_LOCATION = "FILE_LOCATION";
+    public static final String KEY_DIRECTORY_LOCATION = "FILE_LOCATION";
     private static final int REQUEST_CODE_EXT_STORAGE = 32537;
 
     @Override
@@ -101,7 +101,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                 }
             } else {
                 Toast.makeText(getActivity(), "permisson denied", Toast.LENGTH_SHORT).show();
-                getSharedPreferences().edit().putString(KEY_FILE_LOCATION, "").apply();
+                getSharedPreferences().edit().putString(KEY_DIRECTORY_LOCATION, "").apply();
             }
         }
     }
@@ -112,10 +112,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(KEY_FILE_LOCATION)) {
+        if (key.equals(KEY_DIRECTORY_LOCATION)) {
             Preference p = findPreference(key);
             updatePreferences(p);
-            if (!sharedPreferences.getString(KEY_FILE_LOCATION, "").equals("")) {
+            if (!sharedPreferences.getString(KEY_DIRECTORY_LOCATION, "").equals("")) {
                 requestExternalStoragePermission();
             } else {
                 p.setSummary("");

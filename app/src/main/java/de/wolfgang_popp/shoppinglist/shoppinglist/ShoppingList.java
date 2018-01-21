@@ -19,217 +19,196 @@
 
 package de.wolfgang_popp.shoppinglist.shoppinglist;
 
-import android.os.FileObserver;
-import android.util.Log;
+import android.os.Build;
+import android.support.annotation.NonNull;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
-/**
- * @author Wolfgang Popp.
- */
-public class ShoppingList {
-    private static final String TAG = ShoppingList.class.getSimpleName();
-    private static final Pattern EMPTY_LINE = Pattern.compile("^\\s*$");
-    private static final Pattern HEADER = Pattern.compile("\\[(.*)\\]");
-
-    private final List<ListChangedListener> listeners = new LinkedList<>();
-
-    @SuppressWarnings({"FieldCanBeLocal"})
-    private FileObserver fileObserver;
+public class ShoppingList extends ArrayList<ListItem> {
 
     private String name;
-    private String filename;
-    private List<ListItem.ListItemWithID> items;
-    private boolean isFileDirty;
-    private int currentID = 0;
+    private static int currentID;
+    private final List<ShoppingListListener> listeners = new LinkedList<>();
 
-    public ShoppingList() {
+    public ShoppingList(String name) {
+        super();
+        this.name = name;
     }
 
-    public void addListChangeListener(ListChangedListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListChangeListener(ListChangedListener listener) {
-        listeners.remove(listener);
-    }
-
-    private void notifyListChanged() {
-        for (ListChangedListener listener : listeners) {
-            listener.listChanged();
-        }
-    }
-
-    public void init(String filename) throws IOException {
-        setFilename(filename);
-        readListFromFile(filename);
-        notifyListChanged();
-    }
-
-    private int generateID() {
-        return ++currentID;
-    }
-
-    private void setFilename(final String filename) {
-        this.filename = filename;
-        fileObserver = new FileObserver(filename) {
-            @Override
-            public void onEvent(int event, String path) {
-                switch (event) {
-                    case FileObserver.CLOSE_WRITE:
-                    case FileObserver.CREATE:
-                    case FileObserver.ATTRIB:
-                        try {
-                            readListFromFile(filename);
-                        } catch (IOException e) {
-                            Log.e(TAG, "FileObserver could not read file.", e);
-                        }
-                        notifyListChanged();
-                        break;
-                }
-            }
-        };
-        fileObserver.startWatching();
-    }
-
-    private void readListFromFile(String filename) throws IOException {
-        items = new LinkedList<>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-            String firstLine = reader.readLine();
-
-            if (firstLine != null) {
-                Matcher matcher = HEADER.matcher(firstLine);
-                if (matcher.matches()) {
-                    name = matcher.group(1).trim();
-                } else {
-                    name = "ShoppingList";
-                }
-            }
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!EMPTY_LINE.matcher(line).matches()) {
-                    items.add(createListItem(generateID(), line));
-                }
-            }
-
-            isFileDirty = false;
-        }
-    }
-
-    private ListItem.ListItemWithID createListItem(int id, String item) {
-        boolean isChecked = item.startsWith("//");
-        int index;
-        String quantity;
-        String name;
-
-        if (isChecked) {
-            item = item.substring(2);
-        }
-
-        index = item.lastIndexOf("#");
-
-        if (index != -1) {
-            quantity = item.substring(index + 1).trim();
-            name = item.substring(0, index).trim();
-        } else {
-            quantity = "";
-            name = item.trim();
-        }
-
-        return new ListItem.ListItemWithID(id, isChecked, name.trim(), quantity);
-    }
-
-    public void writeIfDirty() throws IOException {
-        if (!isFileDirty) {
-            return;
-        }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false))) {
-            List<String> lines = new LinkedList<>();
-            lines.add("[ " + name + " ]\n");
-            lines.add("\n");
-
-            for (ListItem item : items) {
-                lines.add((item.isChecked() ? "// " : "") + item.getDescription() + " #" + item.getQuantity() + "\n");
-            }
-
-            for (String line : lines) {
-                writer.write(line);
-            }
-            isFileDirty = false;
-            Log.v(TAG, "data written");
-        }
-    }
-
-    public void add(ListItem item) {
-        items.add(new ListItem.ListItemWithID(generateID(), item));
-        isFileDirty = true;
-        notifyListChanged();
+    public ShoppingList(String name, Collection<ListItem> collection) {
+        super(collection);
+        this.name = name;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setChecked(int index, boolean isChecked) {
-        items.get(index).setChecked(isChecked);
-        isFileDirty = true;
+    public void setName(String name) {
+        this.name = name;
         notifyListChanged();
-    }
-
-    public void remove(int index) {
-        items.remove(index);
-        isFileDirty = true;
-        notifyListChanged();
-    }
-
-    public void move(int oldIndex, int newIndex) {
-        items.add(newIndex, items.remove(oldIndex));
-        isFileDirty = true;
-        notifyListChanged();
-    }
-
-    public int size() {
-        return items.size();
-    }
-
-    public ListItem get(int index) {
-        return items.get(index);
     }
 
     public int getId(int index) {
-        return items.get(index).getId();
+        return ((ListItem.ListItemWithID) get(index)).getId();
+    }
+
+    @Override
+    public boolean add(ListItem item) {
+        boolean res = super.add(new ListItem.ListItemWithID(generateID(), item));
+        notifyListChanged();
+        return res;
+    }
+
+    public boolean add(String description, String quantity) {
+        return add(new ListItem(false, description, quantity));
+    }
+
+    @Override
+    public ListItem remove(int index) {
+        ListItem res = remove(index);
+        notifyListChanged();
+        return res;
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        boolean b = super.remove(o);
+        if (b) {
+            notifyListChanged();
+        }
+        return b;
+    }
+
+    @Override
+    protected void removeRange(int fromIndex, int toIndex) {
+        super.removeRange(fromIndex, toIndex);
+        notifyListChanged();
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        boolean b = super.removeAll(c);
+        if (b) {
+            notifyListChanged();
+        }
+        return b;
+    }
+
+    @Override
+    public boolean removeIf(Predicate<? super ListItem> filter) {
+        boolean b = false;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            b = super.removeIf(filter);
+        }
+        if (b) {
+            notifyListChanged();
+        }
+        return b;
+    }
+
+    @Override
+    public void replaceAll(UnaryOperator<ListItem> operator) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            super.replaceAll(operator);
+            notifyListChanged();
+        }
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        boolean b = super.retainAll(c);
+        if (b) {
+            notifyListChanged();
+        }
+        return b;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends ListItem> c) {
+        boolean b = super.addAll(c);
+        notifyListChanged();
+        return b;
+    }
+
+    @Override
+    public boolean addAll(int index, Collection<? extends ListItem> c) {
+        boolean b = super.addAll(index, c);
+        notifyListChanged();
+        return b;
+    }
+
+    @NonNull
+    @Override
+    public Iterator<ListItem> iterator() {
+        return super.iterator();
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        notifyListChanged();
+    }
+
+    public void setChecked(int index, boolean isChecked) {
+        get(index).setChecked(isChecked);
+        notifyListChanged();
+    }
+
+    public void toggleChecked(int index) {
+        setChecked(index, !get(index).isChecked());
+    }
+
+    public void move(int oldIndex, int newIndex) {
+        super.add(newIndex, super.remove(oldIndex));
+        notifyListChanged();
     }
 
     public void editItem(int index, String newDescription, String newQuantity) {
-        ListItem listItem = items.get(index);
+        ListItem listItem = get(index);
         listItem.setDescription(newDescription);
         listItem.setQuantity(newQuantity);
-        isFileDirty = true;
         notifyListChanged();
     }
 
 
     public void removeAllCheckedItems() {
-        Iterator<ListItem.ListItemWithID> iterator = items.iterator();
+        Iterator<ListItem> it = iterator();
 
-        while (iterator.hasNext()) {
-            ListItem item = iterator.next();
+        while (it.hasNext()) {
+            ListItem item = it.next();
             if (item.isChecked()) {
-                iterator.remove();
+                it.remove();
             }
         }
         notifyListChanged();
+    }
+
+    public void addListener(ShoppingListListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(ShoppingListListener listener) {
+        listeners.remove(listener);
+    }
+
+    private synchronized int generateID() {
+        return ++currentID;
+    }
+
+    private void notifyListChanged() {
+        for (ShoppingListListener listener : listeners) {
+            listener.update();
+        }
+    }
+
+    public interface ShoppingListListener {
+        void update();
     }
 }

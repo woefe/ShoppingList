@@ -19,7 +19,6 @@
 
 package de.wolfgang_popp.shoppinglist.activity;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,7 +33,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import de.wolfgang_popp.shoppinglist.R;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ListChangedListener;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingList;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
@@ -42,50 +40,56 @@ import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 public class ShoppingListFragment extends Fragment implements EditBar.EditBarListener {
     private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
     private static final String KEY_SAVED_TOP_PADDING = "SAVED_TOP_PADDING";
-    private EditBar editBar;
-    private DynamicListView listView;
+    private static final String ARG_LIST_NAME = "ARG_LIST_NAME";
+
     private int savedScrollPosition = 0;
     private int savedTopPadding = 0;
+
+    private EditBar editBar;
+    private DynamicListView listView;
+    private DynamicListViewAdapter adapter;
     private ShoppingListService.ShoppingListBinder binder;
     private View rootView;
-
-    private DynamicListViewAdapter adapter;
-
-    private final ListChangedListener listener = new ListChangedListener() {
-        @Override
-        public void listChanged() {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    adapter.notifyDataSetChanged();
-                }
-            });
-        }
-    };
+    private ShoppingList shoppingList;
+    private String listName;
 
     private void connectService() {
-        if (getActivity() != null && this.binder != null) {
+        if (getActivity() != null && this.binder != null && listName != null) {
             Log.d(getClass().getSimpleName(), "successfully connected to service");
+
+            shoppingList = binder.getList(listName);
             adapter = new DynamicListViewAdapter(getActivity());
-            binder.getShoppingList().addListChangeListener(listener);
-            adapter.onBinderConnected(binder);
+            adapter.connectShoppingList(shoppingList);
         }
     }
 
     private void disconnectService() {
         if (adapter != null) {
-            adapter.onBinderDisconnected(binder);
+            adapter.disconnectShoppingList();
             adapter = null;
         }
+
         if (binder != null) {
-            binder.getShoppingList().removeListChangeListener(listener);
-            this.binder = null;
+            binder = null;
         }
+
+        if (shoppingList != null) {
+            shoppingList = null;
+        }
+    }
+
+    public static ShoppingListFragment newInstance(String name) {
+        ShoppingListFragment fragment = new ShoppingListFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_LIST_NAME, name);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        listName = getArguments().getString(ARG_LIST_NAME, "");
         connectService();
     }
 
@@ -123,7 +127,7 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                getBinder().toggleItemChecked(position);
+                shoppingList.toggleChecked(position);
             }
         });
 
@@ -137,10 +141,6 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
 
     protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
         disconnectService();
-    }
-
-    public ShoppingListService.ShoppingListBinder getBinder() {
-        return binder;
     }
 
     public boolean onBackPressed() {
@@ -174,11 +174,11 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.context_menu_edit:
-                ListItem listItem = getBinder().getShoppingList().get(info.position);
+                ListItem listItem = shoppingList.get(info.position);
                 editBar.showEdit(info.position, listItem.getDescription(), listItem.getQuantity());
                 return true;
             case R.id.context_menu_delete:
-                getBinder().removeItem(info.position);
+                shoppingList.remove(info.position);
                 return true;
         }
         return super.onContextItemSelected(item);
@@ -186,15 +186,18 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
 
     @Override
     public void onEditSave(int position, String description, String quantity) {
-        getBinder().edit(position, description, quantity);
+        shoppingList.editItem(position, description, quantity);
         editBar.hide();
         listView.smoothScrollToPosition(position);
     }
 
     @Override
     public void onNewItem(String description, String quantity) {
-        getBinder().addItem(description, quantity);
+        shoppingList.add(description, quantity);
         listView.smoothScrollToPosition(listView.getAdapter().getCount() - 1);
     }
 
+    public void removeAllCheckedItems() {
+        shoppingList.removeAllCheckedItems();
+    }
 }

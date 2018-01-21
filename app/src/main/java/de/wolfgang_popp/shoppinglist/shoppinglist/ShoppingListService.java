@@ -27,7 +27,6 @@ import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -35,6 +34,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.activity.SettingsFragment;
@@ -45,9 +46,9 @@ import de.wolfgang_popp.shoppinglist.activity.SettingsFragment;
 public class ShoppingListService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = ShoppingListService.class.getSimpleName();
 
-    private static final String DEFAULT_FILENAME = "ShoppingList.lst";
+    private static final String DEFAULT_DIRECTORY = "ShoppingLists";
 
-    private ShoppingList shoppingList = null;
+    private ShoppingListsManager manager = null;
     private final IBinder binder = new ShoppingListBinder();
     private SharedPreferences sharedPreferences;
 
@@ -61,7 +62,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     @Override
     public boolean onUnbind(Intent intent) {
         try {
-            shoppingList.writeIfDirty();
+            manager.writeAllUnsavedChanges();
         } catch (IOException e) {
             toastErrorWhileSave();
         }
@@ -74,33 +75,18 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         initShoppingList();
     }
 
-    private String getListFileName() {
-        String filename = sharedPreferences.getString(SettingsFragment.KEY_FILE_LOCATION, "");
+    private String getDirectory() {
+        String directory = sharedPreferences.getString(SettingsFragment.KEY_DIRECTORY_LOCATION, "");
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        if (filename.equals("") || permission != PackageManager.PERMISSION_GRANTED) {
-            return createDefaultFile();
+        if (directory.equals("") || permission != PackageManager.PERMISSION_GRANTED) {
+            String defaultFilename = getApplicationContext().getFileStreamPath(DEFAULT_DIRECTORY).getAbsolutePath();
+            new File(defaultFilename).mkdirs();
+            return defaultFilename;
         }
 
-        try {
-            new File(filename).createNewFile();
-            return filename;
-        } catch (IOException e) {
-            Log.e(TAG, "onSharedPrefChanged", e);
-            toastErrorCreateFile(filename);
-            return createDefaultFile();
-        }
-    }
-
-    @NonNull
-    private String createDefaultFile() {
-        String defaultFilename = getApplicationContext().getFileStreamPath(DEFAULT_FILENAME).getAbsolutePath();
-        try {
-            new File(defaultFilename).createNewFile();
-        } catch (IOException e) {
-            Log.wtf(TAG, "Failed to create file in internal storage!", e);
-        }
-        return defaultFilename;
+        new File(directory).mkdirs();
+        return directory;
     }
 
     @Override
@@ -110,7 +96,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        shoppingList = new ShoppingList();
+        manager = new ShoppingListsManager();
         initShoppingList();
 
         Log.v(TAG, "onCreate() called");
@@ -118,7 +104,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
     private void initShoppingList() {
         try {
-            shoppingList.init(getListFileName());
+            manager.init(getDirectory());
         } catch (IOException e) {
             Log.e(TAG, "Could not initialize the shoppinglist", e);
         }
@@ -129,7 +115,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         super.onDestroy();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
         try {
-            shoppingList.writeIfDirty();
+            manager.writeAllUnsavedChanges();
         } catch (IOException e) {
             toastErrorWhileSave();
         }
@@ -145,39 +131,29 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         Toast.makeText(this, R.string.error_saving, Toast.LENGTH_SHORT).show();
     }
 
-    private void toastErrorCreateFile(String filename) {
-        Toast.makeText(this, getResources().getString(R.string.error_create) + filename, Toast.LENGTH_LONG).show();
-    }
-
-
     public class ShoppingListBinder extends Binder {
-        public void addItem(String description, String quantity) {
-            shoppingList.add(new ListItem(false, description, quantity));
+
+        public void addList(String listName) {
+            manager.addList(listName);
         }
 
-        public void toggleItemChecked(int index) {
-            boolean isChecked = shoppingList.get(index).isChecked();
-            shoppingList.setChecked(index, !isChecked);
+        public void removeList(String listName) {
+            manager.removeList(listName);
         }
 
-        public void removeItem(int index) {
-            shoppingList.remove(index);
+        public ShoppingList getList(String listName) {
+            return manager.getList(listName);
         }
 
-        public void removeAllCheckedItems() {
-            shoppingList.removeAllCheckedItems();
-        }
-
-        public void edit(int index, String newDescription, String newQuantity) {
-            shoppingList.editItem(index, newDescription, newQuantity);
+        public String[] getListNames() {
+            String[] names = manager.getListNames().toArray(new String[0]);
+            Arrays.sort(names);
+            return names;
         }
 
         public void onPermissionsGranted() {
             initShoppingList();
         }
 
-        public ShoppingList getShoppingList() {
-            return shoppingList;
-        }
     }
 }
