@@ -60,7 +60,15 @@ public class ShoppingListsManager {
     }
 
     private void maybeAddInitialList() {
-        addList("Shopping List");
+        boolean foundFile = false;
+
+        for (File file : new File(directory).listFiles()) {
+            foundFile = foundFile || file.isFile();
+        }
+
+        if (!foundFile) {
+            addList("Shopping List");
+        }
     }
 
     private void loadFromDirectory(String directory) throws IOException {
