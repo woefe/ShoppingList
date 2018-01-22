@@ -30,6 +30,7 @@ import android.view.ViewConfiguration;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +45,7 @@ public class EditBar {
     private View boundView;
     private Context ctx;
     private RelativeLayout layout;
-    private Button button;
+    private ImageButton button;
     private EditText descriptionText;
     private EditText quantityText;
     private Mode mode;
@@ -125,11 +126,6 @@ public class EditBar {
         this.mode = mode;
         descriptionText.setText(description);
         quantityText.setText(quantity);
-        if (mode == Mode.ADD) {
-            button.setText("+");
-        } else if (mode == Mode.EDIT) {
-            button.setText("✔");
-        }
     }
 
     public void enableAutoHideFAB(View view) {

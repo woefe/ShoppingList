@@ -62,13 +62,18 @@
             android:singleLine="true"
             android:hint="@string/hint_new_item" />
 
-        <Button
+        <ImageButton
             android:id="@+id/button_add_new_item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:text="+" />
+            android:contentDescription="@string/done"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:src="@drawable/ic_done_black_36dp" />
 
         <EditText
             android:id="@+id/new_item_quantity"
