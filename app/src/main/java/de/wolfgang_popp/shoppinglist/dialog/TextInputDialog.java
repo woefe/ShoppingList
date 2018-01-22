@@ -25,6 +25,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -83,6 +84,16 @@ public class TextInputDialog extends DialogFragment {
         inputField = dialogRoot.findViewById(R.id.dialog_text_field);
         inputField.setHint(hint);
         inputField.setText(inputText);
+        inputField.requestFocus();
+
+        inputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                listener.onInputComplete(inputField.getText().toString(), action);
+                dismiss();
+                return true;
+            }
+        });
 
         builder.setView(dialogRoot)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
