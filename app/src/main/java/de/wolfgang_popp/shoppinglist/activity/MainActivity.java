@@ -157,6 +157,10 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
                 String hint = getString(R.string.add_list_hint);
                 TextInputDialog.show(this, message, hint, R.id.action_new_list);
                 return true;
+            case R.id.action_view_about:
+                intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

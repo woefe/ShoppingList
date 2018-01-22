@@ -40,4 +40,7 @@
     <item
         android:id="@+id/action_delete_list"
         android:title="@string/delete_list" />
+    <item
+        android:id="@+id/action_view_about"
+        android:title="@string/about" />
 </menu>
