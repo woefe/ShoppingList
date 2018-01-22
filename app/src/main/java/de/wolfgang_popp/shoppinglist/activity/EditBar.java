@@ -28,7 +28,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -42,24 +41,21 @@ public class EditBar {
     private static final String KEY_SAVED_QUANTITY = "SAVED_QUANTITY";
     private static final String KEY_SAVED_MODE = "SAVED_MODE";
     private static final String KEY_SAVE_IS_VISIBLE = "SAVE_IS_VISIBLE";
-    private View boundView;
-    private Context ctx;
-    private RelativeLayout layout;
-    private ImageButton button;
-    private EditText descriptionText;
-    private EditText quantityText;
+    private final Context ctx;
+    private final RelativeLayout layout;
+    private final EditText descriptionText;
+    private final EditText quantityText;
     private Mode mode;
     private EditBarListener listener;
-    private FloatingActionButton fab;
+    private final FloatingActionButton fab;
     private int position;
 
     public EditBar(View boundView, final Context ctx) {
-        this.boundView = boundView;
         this.ctx = ctx;
-        this.layout = this.boundView.findViewById(R.id.layout_add_item);
-        this.button = this.boundView.findViewById(R.id.button_add_new_item);
-        this.descriptionText = this.boundView.findViewById(R.id.new_item_description);
-        this.quantityText = this.boundView.findViewById(R.id.new_item_quantity);
+        this.layout = boundView.findViewById(R.id.layout_add_item);
+        ImageButton button = boundView.findViewById(R.id.button_add_new_item);
+        this.descriptionText = boundView.findViewById(R.id.new_item_description);
+        this.quantityText = boundView.findViewById(R.id.new_item_quantity);
         this.mode = Mode.ADD;
 
         layout.setVisibility(View.GONE);
@@ -185,7 +181,9 @@ public class EditBar {
         layout.setVisibility(View.VISIBLE);
         descriptionText.requestFocus();
         InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        if (imm != null) {
+            imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        }
     }
 
     public void hide() {
@@ -193,7 +191,9 @@ public class EditBar {
         quantityText.clearFocus();
         layout.setVisibility(View.GONE);
         InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(layout.getWindowToken(), 0);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(layout.getWindowToken(), 0);
+        }
         fab.show();
         fab.requestFocus();
     }

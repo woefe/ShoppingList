@@ -100,7 +100,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                     binder.onPermissionsGranted();
                 }
             } else {
-                Toast.makeText(getActivity(), "permisson denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "permission denied", Toast.LENGTH_SHORT).show();
                 getSharedPreferences().edit().putString(KEY_DIRECTORY_LOCATION, "").apply();
             }
         }

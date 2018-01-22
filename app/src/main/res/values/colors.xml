@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ ShoppingList - A simple shopping list for Android
   ~
   ~ Copyright (C) 2018.  Wolfgang Popp
@@ -21,5 +20,4 @@
 <resources>
     <color name="textColorDefault">#000000</color>
     <color name="textColorChecked">#cccccc</color>
-    <color name="edit_background">#c8e6c9</color>
 </resources>

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ ShoppingList - A simple shopping list for Android
   ~
   ~ Copyright (C) 2018.  Wolfgang Popp
@@ -53,6 +52,7 @@
         android:layout_gravity="center"
         android:src="@drawable/ic_swap_vert_black_24dp"
         android:alpha="0.4"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/swap" />
 
 </LinearLayout>

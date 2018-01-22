@@ -43,8 +43,7 @@ public class ShoppingListsManager {
     ShoppingListsManager() {
     }
 
-
-    void init(String directory) throws IOException {
+    void init(String directory) throws IOException, UnmarshallException {
         Log.d(getClass().getSimpleName(), "initializing from dir " + directory);
         shoppingListsMetadata.clear();
         setDirectory(directory);
@@ -71,11 +70,11 @@ public class ShoppingListsManager {
         }
     }
 
-    private void loadFromDirectory(String directory) throws IOException {
+    private void loadFromDirectory(String directory) throws IOException, UnmarshallException {
         File d = new File(directory);
         for (File file : d.listFiles()) {
             if (file.isFile()) {
-                final ShoppingList list = ShoppingListUnmarshaller.unmarshall(file.getPath());
+                final ShoppingList list = ShoppingListUnmarshaller.unmarshal(file.getPath());
                 Log.d(getClass().getSimpleName(), "Reading file " + file);
                 addShoppingList(list, file.getPath());
             }
@@ -104,12 +103,12 @@ public class ShoppingListsManager {
                     case FileObserver.CREATE:
                     case FileObserver.ATTRIB:
                         try {
-                            ShoppingList list = ShoppingListUnmarshaller.unmarshall(metadata.filename);
+                            ShoppingList list = ShoppingListUnmarshaller.unmarshal(metadata.filename);
                             metadata.shoppingList.clear();
                             metadata.shoppingList.addAll(list);
                             //TODO metadata.shoppingList.setName(list.getName());
                             metadata.isDirty = false;
-                        } catch (IOException e) {
+                        } catch (IOException | UnmarshallException e) {
                             Log.e(TAG, "FileObserver could not read file.", e);
                         }
                         break;
@@ -158,8 +157,8 @@ public class ShoppingListsManager {
     }
 
     private class ShoppingListMetadata {
-        private ShoppingList shoppingList;
-        private String filename;
+        private final ShoppingList shoppingList;
+        private final String filename;
         private boolean isDirty;
         private FileObserver observer;
 

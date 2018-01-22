@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ ShoppingList - A simple shopping list for Android
   ~
   ~ Copyright (C) 2018.  Wolfgang Popp
@@ -25,7 +24,6 @@
     <string name="cancel">Abbrechen</string>
     <string name="context_menu_delete">Löschen</string>
     <string name="context_menu_edit">Bearbeiten</string>
-    <string name="error_create">"Folgende Datei kann nicht erstellt werden: "</string>
     <string name="error_saving">Während des Speicherns ist ein Fehler aufgetreten</string>
     <string name="file_location">Dateipfad</string>
     <string name="ok">OK</string>
@@ -33,4 +31,14 @@
     <string name="hint_quantity">Menge</string>
     <string name="hint_new_item">Neuer Eintrag</string>
     <string name="error_description_empty">Name des Eintrags darf nicht leer sein!</string>
+    <string name="drawer_open">Navigationsleiste öffnen</string>
+    <string name="drawer_close">Navigationsleiste schließen</string>
+    <string name="new_list">Neue Liste erstellen</string>
+    <string name="delete_list">Liste löschen</string>
+    <string name="confirm_delete_list">Liste &lt;b>%1$s&lt;/b> löschen?</string>
+    <string name="add_new_list">Neue Liste hinzufügen</string>
+    <string name="add_list_hint">Name der neuen Liste</string>
+    <string name="done">Fertig</string>
+    <string name="swap">Tauschen</string>
+    <string name="fragment_invalid_text">Es sind keine Listen vorhanden.</string>
 </resources>

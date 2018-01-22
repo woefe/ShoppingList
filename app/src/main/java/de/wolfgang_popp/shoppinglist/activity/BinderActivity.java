@@ -26,7 +26,6 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListsManager;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
 /**
@@ -36,7 +35,6 @@ public abstract class BinderActivity extends AppCompatActivity {
 
     private final ShoppingListServiceConnection serviceConnection = new ShoppingListServiceConnection();
     private ShoppingListService.ShoppingListBinder binder = null;
-
 
     @Override
     protected void onStart() {

@@ -21,7 +21,6 @@ package de.wolfgang_popp.shoppinglist.shoppinglist;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,13 +29,13 @@ import java.util.regex.Pattern;
 
 public class ShoppingListUnmarshaller {
     private static final Pattern EMPTY_LINE = Pattern.compile("^\\s*$");
-    private static final Pattern HEADER = Pattern.compile("\\[(.*)\\]");
+    private static final Pattern HEADER = Pattern.compile("\\[(.*)]");
 
-    public static ShoppingList unmarshall(String filename) throws IOException {
-        return unmarshall(new FileInputStream(filename));
+    public static ShoppingList unmarshal(String filename) throws IOException, UnmarshallException {
+        return unmarshal(new FileInputStream(filename));
     }
 
-    public static ShoppingList unmarshall(InputStream inputStream) throws IOException {
+    public static ShoppingList unmarshal(InputStream inputStream) throws IOException, UnmarshallException {
         ShoppingList shoppingList;
         String name = null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -49,7 +48,11 @@ public class ShoppingListUnmarshaller {
             }
         }
 
-        shoppingList = new ShoppingList(name != null ? name : "asdf");
+        if (name == null) {
+            throw new UnmarshallException("Could not find the name of the list");
+        }
+
+        shoppingList = new ShoppingList(name);
 
         String line;
         while ((line = reader.readLine()) != null) {

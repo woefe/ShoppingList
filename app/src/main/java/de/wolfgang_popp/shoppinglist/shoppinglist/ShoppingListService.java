@@ -35,7 +35,6 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.activity.SettingsFragment;
@@ -105,8 +104,8 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     private void initShoppingList() {
         try {
             manager.init(getDirectory());
-        } catch (IOException e) {
-            Log.e(TAG, "Could not initialize the shoppinglist", e);
+        } catch (IOException | UnmarshallException e) {
+            Log.e(TAG, "Could not initialize the shopping list", e);
         }
     }
 

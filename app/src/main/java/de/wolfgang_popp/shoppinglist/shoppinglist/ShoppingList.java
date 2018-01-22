@@ -20,7 +20,6 @@
 package de.wolfgang_popp.shoppinglist.shoppinglist;
 
 import android.os.Build;
-import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -142,12 +141,6 @@ public class ShoppingList extends ArrayList<ListItem> {
         boolean b = super.addAll(index, c);
         notifyListChanged();
         return b;
-    }
-
-    @NonNull
-    @Override
-    public Iterator<ListItem> iterator() {
-        return super.iterator();
     }
 
     @Override

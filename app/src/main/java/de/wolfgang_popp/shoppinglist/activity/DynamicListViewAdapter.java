@@ -33,9 +33,9 @@ import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingList;
 
 public class DynamicListViewAdapter extends BaseAdapter {
 
-    private Activity activity;
+    private final Activity activity;
     private ShoppingList shoppingList;
-    private ShoppingList.ShoppingListListener listener = new ShoppingList.ShoppingListListener() {
+    private final ShoppingList.ShoppingListListener listener = new ShoppingList.ShoppingListListener() {
         @Override
         public void update() {
             activity.runOnUiThread(new Runnable() {

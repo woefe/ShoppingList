@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -71,8 +72,13 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         final Toolbar toolbar = findViewById(R.id.toolbar_main);
         toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+        }
+
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
         drawerToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(drawerToggle);
@@ -100,7 +106,7 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
     @Override
     protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
         updateDrawer();
-        if (currentFragment == null){
+        if (currentFragment == null) {
             selectList(0);
         }
         if (currentFragment != null && currentFragment instanceof ShoppingListFragment) {
@@ -174,7 +180,7 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
 
     @Override
     public void onInputComplete(String input, int action) {
-        if (isServiceConnected()) {
+        if (isServiceConnected() && action == R.id.action_new_list) {
             getBinder().addList(input);
             updateDrawer();
             //TODO get fragmentPos from a more reliable source

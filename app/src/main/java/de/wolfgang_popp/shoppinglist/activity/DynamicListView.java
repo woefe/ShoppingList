@@ -553,7 +553,7 @@ public class DynamicListView extends ListView {
      * scrolling takes place, the listview continuously checks if new cells became visible
      * and determines whether they are potential candidates for a cell swap.
      */
-    private OnScrollListener mScrollListener = new OnScrollListener() {
+    private final OnScrollListener mScrollListener = new OnScrollListener() {
 
         private int mPreviousFirstVisibleItem = -1;
         private int mPreviousVisibleItemCount = -1;

@@ -65,11 +65,6 @@ public class ListItem {
             this.id = id;
         }
 
-        public ListItemWithID(int id, boolean isChecked, String description, String quantity) {
-            super(isChecked, description, quantity);
-            this.id = id;
-        }
-
         public int getId() {
             return id;
         }

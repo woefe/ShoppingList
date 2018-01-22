@@ -30,7 +30,6 @@
     <string name="ok">OK</string>
     <string name="file_location">File location</string>
     <string name="error_saving">An error occurred while saving.</string>
-    <string name="error_create">"Cannot create file: "</string>
     <string name="error_description_empty">Item description may not be empty!</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
@@ -41,4 +40,5 @@
     <string name="add_list_hint">Name of new list</string>
     <string name="fragment_invalid_text">No lists are available.</string>
     <string name="done">Done</string>
+    <string name="swap">Swap</string>
 </resources>
