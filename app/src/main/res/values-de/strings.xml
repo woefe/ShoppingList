@@ -41,4 +41,5 @@
     <string name="done">Fertig</string>
     <string name="swap">Tauschen</string>
     <string name="fragment_invalid_text">Es sind keine Listen vorhanden.</string>
+    <string name="lists">Listen</string>
 </resources>

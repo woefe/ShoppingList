@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ ShoppingList - A simple shopping list for Android
   ~
   ~ Copyright (C) 2018.  Wolfgang Popp
@@ -17,14 +17,9 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<resources>
-
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">#388e3c</item>
-        <item name="colorPrimaryDark">#1b5e20</item>
-        <item name="colorAccent">#ff8f00</item>
-        <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
-    </style>
-
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/colorSecondaryLight" android:state_activated="true" />
+    <item android:drawable="@color/colorSecondaryLight" android:state_checked="true" />
+    <item android:drawable="@color/colorSecondaryLight" android:state_pressed="true" />
+    <item android:drawable="@android:color/transparent" />
+</selector>

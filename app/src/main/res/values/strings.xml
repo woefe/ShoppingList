@@ -41,4 +41,5 @@
     <string name="fragment_invalid_text">No lists are available.</string>
     <string name="done">Done</string>
     <string name="swap">Swap</string>
+    <string name="lists">Lists</string>
 </resources>

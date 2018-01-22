@@ -34,6 +34,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import java.util.Arrays;
@@ -48,6 +49,7 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
     public static final String KEY_LIST_NAME = "LIST_NAME";
     private DrawerLayout drawerLayout;
     private ListView drawerList;
+    private LinearLayout drawerContainer;
     private ArrayAdapter<String> drawerAdapter;
     private ActionBarDrawerToggle drawerToggle;
     private Fragment currentFragment;
@@ -59,7 +61,8 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         setContentView(R.layout.activity_main);
 
         drawerLayout = findViewById(R.id.drawer_layout);
-        drawerList = findViewById(R.id.left_drawer);
+        drawerContainer = findViewById(R.id.nav_drawer_container);
+        drawerList = findViewById(R.id.nav_drawer_content);
         drawerAdapter = new ArrayAdapter<>(this, R.layout.drawer_list_item);
         drawerList.setAdapter(drawerAdapter);
         drawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
@@ -208,7 +211,7 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         setFragment(fragment, name);
 
         drawerList.setItemChecked(position, true);
-        drawerLayout.closeDrawer(drawerList);
+        drawerLayout.closeDrawer(drawerContainer);
     }
 
     private void updateDrawer() {
