@@ -33,29 +33,44 @@ import java.util.Set;
 /**
  * @author Wolfgang Popp.
  */
-public class ShoppingListsManager {
+class ShoppingListsManager {
     private static final String TAG = ShoppingListsManager.class.getSimpleName();
 
     private String directory;
     private final Map<String, ShoppingListMetadata> shoppingListsMetadata = new HashMap<>();
     private final Map<String, ShoppingListMetadata> trashcan = new HashMap<>();
 
-    ShoppingListsManager() {
-    }
-
-    void init(String directory) throws IOException, UnmarshallException {
-        Log.d(getClass().getSimpleName(), "initializing from dir " + directory);
-        shoppingListsMetadata.clear();
-        setDirectory(directory);
-        maybeAddInitialList();
-        loadFromDirectory(directory);
-    }
-
-    private void setDirectory(final String directory) throws IOException {
-        if (!new File(directory).isDirectory()) {
-            throw new IOException(directory + " is not a directory");
-        }
+    ShoppingListsManager(String directory) {
         this.directory = directory;
+    }
+
+    void onStart() {
+        Log.d(getClass().getSimpleName(), "initializing from dir " + directory);
+        maybeAddInitialList();
+
+        try {
+            loadFromDirectory(directory);
+        } catch (IOException | UnmarshallException e) {
+            Log.e(getClass().getSimpleName(), "Loading failed", e);
+        }
+    }
+
+    void onStop() {
+        for (ShoppingListMetadata metadata : trashcan.values()) {
+            metadata.observer.stopWatching();
+        }
+        for (ShoppingListMetadata metadata : shoppingListsMetadata.values()) {
+            metadata.observer.stopWatching();
+        }
+
+        try {
+            writeAllUnsavedChanges();
+        } catch (IOException e) {
+            Log.v(getClass().getSimpleName(), "Writing of changes failed", e);
+        }
+
+        shoppingListsMetadata.clear();
+        trashcan.clear();
     }
 
     private void maybeAddInitialList() {
@@ -123,7 +138,7 @@ public class ShoppingListsManager {
         metadata.observer = fileObserver;
     }
 
-    void writeAllUnsavedChanges() throws IOException {
+    private void writeAllUnsavedChanges() throws IOException {
         // first empty trashcan and then write lists. This makes sure that a list that has been
         // removed and was later re-added is not actually deleted.
         for (ShoppingListMetadata metadata : trashcan.values()) {

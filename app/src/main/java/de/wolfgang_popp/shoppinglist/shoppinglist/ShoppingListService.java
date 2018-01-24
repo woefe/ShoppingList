@@ -33,7 +33,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 import de.wolfgang_popp.shoppinglist.R;
@@ -55,79 +54,52 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     @Override
     public IBinder onBind(Intent intent) {
         Log.v(TAG, "onBind() called: " + intent.toString());
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        String directory = getDirectory();
+        new File(directory).mkdirs();
+
+        manager = new ShoppingListsManager(directory);
+        manager.onStart();
+
         return binder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        try {
-            manager.writeAllUnsavedChanges();
-        } catch (IOException e) {
-            toastErrorWhileSave();
-        }
         Log.v(TAG, "onUnbind() called: " + intent.toString());
-        return true;
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        manager.onStop();
+        return false;
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        initShoppingList();
+        manager.onStop();
+        manager.onStart();
     }
 
     private String getDirectory() {
         String directory = sharedPreferences.getString(SettingsFragment.KEY_DIRECTORY_LOCATION, "");
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        File file = new File(directory);
 
-        if (directory.equals("") || permission != PackageManager.PERMISSION_GRANTED) {
-            String defaultFilename = getApplicationContext().getFileStreamPath(DEFAULT_DIRECTORY).getAbsolutePath();
-            new File(defaultFilename).mkdirs();
-            return defaultFilename;
+        if (directory.equals("")
+                || permission != PackageManager.PERMISSION_GRANTED
+                || !file.isDirectory()
+                || !file.canWrite()) {
+
+            return getApplicationContext().getFileStreamPath(DEFAULT_DIRECTORY).getAbsolutePath();
         }
 
-        new File(directory).mkdirs();
         return directory;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-        manager = new ShoppingListsManager();
-        initShoppingList();
-
-        Log.v(TAG, "onCreate() called");
-    }
-
-    private void initShoppingList() {
-        try {
-            manager.init(getDirectory());
-        } catch (IOException | UnmarshallException e) {
-            Log.e(TAG, "Could not initialize the shopping list", e);
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
-        try {
-            manager.writeAllUnsavedChanges();
-        } catch (IOException e) {
-            toastErrorWhileSave();
-        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v(TAG, "onStartCommand() called");
         return START_NOT_STICKY;
-    }
-
-    private void toastErrorWhileSave() {
-        Toast.makeText(this, R.string.error_saving, Toast.LENGTH_SHORT).show();
     }
 
     public class ShoppingListBinder extends Binder {
@@ -159,7 +131,8 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         }
 
         public void onPermissionsGranted() {
-            initShoppingList();
+            manager.onStop();
+            manager.onStart();
         }
 
     }
