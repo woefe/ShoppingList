@@ -47,12 +47,7 @@ class ShoppingListsManager {
     void onStart() {
         Log.d(getClass().getSimpleName(), "initializing from dir " + directory);
         maybeAddInitialList();
-
-        try {
-            loadFromDirectory(directory);
-        } catch (IOException | UnmarshallException e) {
-            Log.e(getClass().getSimpleName(), "Loading failed", e);
-        }
+        loadFromDirectory(directory);
     }
 
     void onStop() {
@@ -89,16 +84,18 @@ class ShoppingListsManager {
         }
     }
 
-    private void loadFromDirectory(String directory) throws IOException, UnmarshallException {
+    private void loadFromDirectory(String directory) {
         File d = new File(directory);
         for (File file : d.listFiles()) {
             if (file.isFile()) {
-                final ShoppingList list = ShoppingListUnmarshaller.unmarshal(file.getPath());
-                Log.d(getClass().getSimpleName(), "Reading file " + file);
-                addShoppingList(list, file.getPath());
+                try {
+                    final ShoppingList list = ShoppingListUnmarshaller.unmarshal(file.getPath());
+                    addShoppingList(list, file.getPath());
+                } catch (IOException | UnmarshallException e) {
+                    Log.e(getClass().getSimpleName(), "Failed to parse file " + file);
+                }
             }
         }
-
     }
 
     private void addShoppingList(ShoppingList list, String filename) {
@@ -119,8 +116,6 @@ class ShoppingListsManager {
             public void onEvent(int event, String path) {
                 switch (event) {
                     case FileObserver.CLOSE_WRITE:
-                    case FileObserver.CREATE:
-                    case FileObserver.ATTRIB:
                         try {
                             ShoppingList list = ShoppingListUnmarshaller.unmarshal(metadata.filename);
                             metadata.shoppingList.clear();
