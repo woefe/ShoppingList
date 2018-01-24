@@ -44,4 +44,6 @@
     <string name="lists">Listen</string>
     <string name="about_text">&lt;h1&gt;Über&lt;/h1&gt; &lt;h3&gt;Version&lt;/h3&gt; Sie benutzen gerade Version &lt;tt&gt;v%1$s&lt;/tt&gt; &lt;h3&gt;Maintainer&lt;/h3&gt; Wolfgang Popp &lt;h3&gt;Quellcode, Probleme, Mitmachen&lt;/h3&gt; Dieses Projekt wird auf &lt;a href=&quot;https://github.com/woefe/ShoppingList&quot;&gt;Github&lt;/a&gt; verwaltet. &lt;h3&gt;Lizenz&lt;/h3&gt; ShoppingList unter &lt;a href=&quot;https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING&quot;&gt;GPLv3+&lt;/a&gt; lizenziert.</string>
     <string name="about">Über</string>
+    <string name="error_list_name_empty">Der Listenname darf nicht leer sein!</string>
+    <string name="error_list_exists">Diese Liste existiert bereits</string>
 </resources>

@@ -132,7 +132,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
     public class ShoppingListBinder extends Binder {
 
-        public void addList(String listName) {
+        public void addList(String listName) throws ShoppingListException {
             manager.addList(listName);
         }
 
@@ -142,6 +142,10 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
         public ShoppingList getList(String listName) {
             return manager.getList(listName);
+        }
+
+        public boolean hasList(String listName) {
+            return manager.hasList(listName);
         }
 
         public String[] getListNames() {

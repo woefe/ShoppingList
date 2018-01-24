@@ -29,6 +29,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,12 +37,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.Arrays;
 
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
 import de.wolfgang_popp.shoppinglist.dialog.TextInputDialog;
+import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListException;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
 public class MainActivity extends BinderActivity implements ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.Listener {
@@ -155,7 +158,7 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
             case R.id.action_new_list:
                 message = getString(R.string.add_new_list);
                 String hint = getString(R.string.add_list_hint);
-                TextInputDialog.show(this, message, hint, R.id.action_new_list);
+                NewListDialog.show(this, message, hint, R.id.action_new_list, NewListDialog.class);
                 return true;
             case R.id.action_view_about:
                 intent = new Intent(this, AboutActivity.class);
@@ -188,7 +191,11 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
     @Override
     public void onInputComplete(String input, int action) {
         if (isServiceConnected() && action == R.id.action_new_list) {
-            getBinder().addList(input);
+            try {
+                getBinder().addList(input);
+            } catch (ShoppingListException e) {
+                Log.e(getClass().getSimpleName(), "List already exists", e);
+            }
             updateDrawer();
             //TODO get fragmentPos from a more reliable source
             int fragmentPos = Arrays.binarySearch(getBinder().getListNames(), input);
@@ -223,4 +230,25 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         drawerAdapter.addAll(getBinder().getListNames());
     }
 
+    public static class NewListDialog extends TextInputDialog {
+        @Override
+        public boolean onValidateInput(String input) {
+            MainActivity activity = (MainActivity) getActivity();
+            boolean isValid = input != null && !input.equals("");
+
+            if (!isValid) {
+                Toast.makeText(activity, R.string.error_list_name_empty, Toast.LENGTH_SHORT).show();
+                return isValid;
+            }
+
+            isValid = isValid && activity.isServiceConnected();
+            isValid = isValid && !activity.getBinder().hasList(input);
+
+            if (!isValid) {
+                Toast.makeText(activity, R.string.error_list_exists, Toast.LENGTH_SHORT).show();
+            }
+
+            return isValid;
+        }
+    }
 }

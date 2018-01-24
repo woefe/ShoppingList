@@ -20,14 +20,14 @@
 package de.wolfgang_popp.shoppinglist.dialog;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -49,8 +49,15 @@ public class TextInputDialog extends DialogFragment {
         void onInputComplete(String input, int action);
     }
 
-    public static void show(Activity activity, String message, String hint, int action) {
-        TextInputDialog dialog = new TextInputDialog();
+    public static void show(Activity activity, String message, String hint, int action,
+                            Class<? extends TextInputDialog> clazz) {
+
+        TextInputDialog dialog;
+        try {
+            dialog = clazz.newInstance();
+        } catch (java.lang.InstantiationException | IllegalAccessException e) {
+            throw new IllegalStateException("Cannot start dialog" + clazz.getSimpleName());
+        }
         dialog.message = message;
         dialog.action = action;
         dialog.hint = hint;
@@ -63,9 +70,10 @@ public class TextInputDialog extends DialogFragment {
         listener = (Listener) activity;
     }
 
+    @Nullable
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        super.onCreateDialog(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
 
         String inputText = "";
         if (savedInstanceState != null) {
@@ -74,11 +82,10 @@ public class TextInputDialog extends DialogFragment {
             inputText = savedInstanceState.getString(KEY_INPUT);
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialogRoot = inflater.inflate(R.layout.dialog_text_input, null);
         TextView label = dialogRoot.findViewById(R.id.dialog_label);
+        Button cancelButton = dialogRoot.findViewById(R.id.button_dialog_cancel);
+        Button okButton = dialogRoot.findViewById(R.id.button_dialog_ok);
         label.setText(message);
 
         inputField = dialogRoot.findViewById(R.id.dialog_text_field);
@@ -95,20 +102,29 @@ public class TextInputDialog extends DialogFragment {
             }
         });
 
-        builder.setView(dialogRoot)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        listener.onInputComplete(inputField.getText().toString(), action);
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
 
-        return builder.create();
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String input = inputField.getText().toString();
+                if (onValidateInput(input)) {
+                    listener.onInputComplete(input, action);
+                    dismiss();
+                }
+            }
+        });
+
+        return dialogRoot;
+    }
+
+    public boolean onValidateInput(String input) {
+        return true;
     }
 
     @Override

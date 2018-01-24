@@ -44,4 +44,6 @@
     <string name="lists">Lists</string>
     <string name="about_text">&lt;h1&gt;About&lt;/h1&gt; &lt;h3&gt;Version&lt;/h3&gt; You are using version &lt;tt&gt;v%1$s&lt;/tt&gt; &lt;h3&gt;Maintainer&lt;/h3&gt; Wolfgang Popp &lt;h3&gt;Source code, Issues, Contributing&lt;/h3&gt; This project is hosted on &lt;a href=&quot;https://github.com/woefe/ShoppingList&quot;&gt;Github&lt;/a&gt; &lt;h3&gt;License&lt;/h3&gt; ShoppingList is licensed under &lt;a href=&quot;https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING&quot;&gt;GPLv3+&lt;/a&gt;</string>
     <string name="about">About</string>
+    <string name="error_list_name_empty">The list name may not be empty!</string>
+    <string name="error_list_exists">This list already exists</string>
 </resources>

@@ -66,7 +66,11 @@ public class ShoppingListsManager {
         }
 
         if (!foundFile) {
-            addList("Shopping List");
+            try {
+                addList("Shopping List");
+            } catch (ShoppingListException e) {
+                Log.e(getClass().getSimpleName(), "Failed to add initial list", e);
+            }
         }
     }
 
@@ -120,6 +124,12 @@ public class ShoppingListsManager {
     }
 
     void writeAllUnsavedChanges() throws IOException {
+        // first empty trashcan and then write lists. This makes sure that a list that has been
+        // removed and was later re-added is not actually deleted.
+        for (ShoppingListMetadata metadata : trashcan.values()) {
+            new File(metadata.filename).delete();
+        }
+
         for (ShoppingListMetadata metadata : shoppingListsMetadata.values()) {
             if (metadata.isDirty) {
                 OutputStream os = new FileOutputStream(metadata.filename);
@@ -127,13 +137,13 @@ public class ShoppingListsManager {
                 Log.d(getClass().getSimpleName(), "Wrote file " + metadata.filename);
             }
         }
-
-        for (ShoppingListMetadata metadata : trashcan.values()) {
-            new File(metadata.filename).delete();
-        }
     }
 
-    void addList(String name) {
+    void addList(String name) throws ShoppingListException {
+        if (shoppingListsMetadata.containsKey(name)) {
+            throw new ShoppingListException("List already exists");
+        }
+
         String filename = new File(this.directory, name + ".lst").getPath();
         addShoppingList(new ShoppingList(name), filename);
         shoppingListsMetadata.get(name).isDirty = true;
@@ -154,6 +164,10 @@ public class ShoppingListsManager {
 
     int size() {
         return shoppingListsMetadata.size();
+    }
+
+    boolean hasList(String name) {
+        return shoppingListsMetadata.containsKey(name);
     }
 
     private class ShoppingListMetadata {
