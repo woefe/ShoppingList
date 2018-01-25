@@ -1,4 +1,4 @@
-# <img src="https://github.com/popeye123/ShoppingList/blob/master/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" width="50" height="50" /> ShoppingList
+# <img src="app/src/main/res/mipmap-xxhdpi/ic_launcher.png" width="50" height="50" /> ShoppingList
 A simple shopping list for Android
 
 ## ShoppingList text file
