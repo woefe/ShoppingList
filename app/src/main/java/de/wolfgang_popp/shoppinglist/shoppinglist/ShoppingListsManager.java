@@ -20,12 +20,14 @@
 package de.wolfgang_popp.shoppinglist.shoppinglist;
 
 import android.os.FileObserver;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -36,21 +38,44 @@ import java.util.Set;
 class ShoppingListsManager {
     private static final String TAG = ShoppingListsManager.class.getSimpleName();
 
-    private String directory;
-    private final Map<String, ShoppingListMetadata> shoppingListsMetadata = new HashMap<>();
+    private final String directory;
     private final Map<String, ShoppingListMetadata> trashcan = new HashMap<>();
+    private final MetadataContainer shoppingListsMetadata = new MetadataContainer();
+    private final FileObserver directoryObserver;
 
-    ShoppingListsManager(String directory) {
+    ShoppingListsManager(final String directory) {
         this.directory = directory;
+        this.directoryObserver = new FileObserver(directory) {
+            @Override
+            public void onEvent(int event, @Nullable String path) {
+                if (path == null) {
+                    return;
+                }
+                File file = new File(directory, path);
+                switch (event) {
+                    case FileObserver.DELETE:
+                        shoppingListsMetadata.removeByFile(file.getPath());
+                        Log.v("FileWatcher", "deleted " + path);
+                        break;
+                    case FileObserver.CREATE:
+                        loadFromFile(file);
+                        Log.v("FileWatcher", "read " + path);
+                        break;
+                }
+            }
+        };
     }
 
     void onStart() {
         Log.d(getClass().getSimpleName(), "initializing from dir " + directory);
         maybeAddInitialList();
         loadFromDirectory(directory);
+        directoryObserver.startWatching();
     }
 
     void onStop() {
+        directoryObserver.stopWatching();
+
         for (ShoppingListMetadata metadata : trashcan.values()) {
             metadata.observer.stopWatching();
         }
@@ -84,16 +109,20 @@ class ShoppingListsManager {
         }
     }
 
+    private void loadFromFile(File file) {
+        try {
+            final ShoppingList list = ShoppingListUnmarshaller.unmarshal(file.getPath());
+            addShoppingList(list, file.getPath());
+        } catch (IOException | UnmarshallException e) {
+            Log.e(getClass().getSimpleName(), "Failed to parse file " + file, e);
+        }
+    }
+
     private void loadFromDirectory(String directory) {
         File d = new File(directory);
         for (File file : d.listFiles()) {
             if (file.isFile()) {
-                try {
-                    final ShoppingList list = ShoppingListUnmarshaller.unmarshal(file.getPath());
-                    addShoppingList(list, file.getPath());
-                } catch (IOException | UnmarshallException e) {
-                    Log.e(getClass().getSimpleName(), "Failed to parse file " + file);
-                }
+                loadFromFile(file);
             }
         }
     }
@@ -107,7 +136,7 @@ class ShoppingListsManager {
             }
         });
         setupObserver(metadata);
-        shoppingListsMetadata.put(metadata.shoppingList.getName(), metadata);
+        shoppingListsMetadata.add(metadata);
     }
 
     private void setupObserver(final ShoppingListMetadata metadata) {
@@ -150,26 +179,26 @@ class ShoppingListsManager {
     }
 
     void addList(String name) throws ShoppingListException {
-        if (shoppingListsMetadata.containsKey(name)) {
+        if (hasList(name)) {
             throw new ShoppingListException("List already exists");
         }
 
         String filename = new File(this.directory, name + ".lst").getPath();
         addShoppingList(new ShoppingList(name), filename);
-        shoppingListsMetadata.get(name).isDirty = true;
+        shoppingListsMetadata.getByName(name).isDirty = true;
     }
 
     void removeList(String name) {
-        ShoppingListMetadata toRemove = shoppingListsMetadata.remove(name);
+        ShoppingListMetadata toRemove = shoppingListsMetadata.removeByName(name);
         trashcan.put(toRemove.shoppingList.getName(), toRemove);
     }
 
     ShoppingList getList(String name) {
-        return shoppingListsMetadata.get(name).shoppingList;
+        return shoppingListsMetadata.getByName(name).shoppingList;
     }
 
     Set<String> getListNames() {
-        return shoppingListsMetadata.keySet();
+        return shoppingListsMetadata.getListNames();
     }
 
     int size() {
@@ -177,7 +206,7 @@ class ShoppingListsManager {
     }
 
     boolean hasList(String name) {
-        return shoppingListsMetadata.containsKey(name);
+        return shoppingListsMetadata.hasName(name);
     }
 
     private class ShoppingListMetadata {
@@ -190,6 +219,56 @@ class ShoppingListsManager {
             this.shoppingList = shoppingList;
             this.filename = filename;
             this.isDirty = false;
+        }
+    }
+
+    private class MetadataContainer {
+        private Map<String, ShoppingListMetadata> byName = new HashMap<>();
+        private Map<String, String> filenameResolver = new HashMap<>();
+
+        private void add(ShoppingListMetadata metadata) {
+            String name = metadata.shoppingList.getName();
+            byName.put(name, metadata);
+            filenameResolver.put(metadata.filename, name);
+        }
+
+        private void clear() {
+            filenameResolver.clear();
+            byName.clear();
+        }
+
+        private ShoppingListMetadata removeByName(String name) {
+            ShoppingListMetadata toRemove = byName.remove(name);
+            filenameResolver.remove(toRemove.filename);
+            return toRemove;
+        }
+
+        private ShoppingListMetadata removeByFile(String filename) {
+            return byName.remove(filenameResolver.remove(filename));
+        }
+
+        private ShoppingListMetadata getByName(String name) {
+            return byName.get(name);
+        }
+
+        private ShoppingListMetadata getByFile(String filename) {
+            return getByName(filenameResolver.get(filename));
+        }
+
+        private boolean hasName(String name) {
+            return byName.containsKey(name);
+        }
+
+        private Collection<ShoppingListMetadata> values() {
+            return byName.values();
+        }
+
+        private Set<String> getListNames() {
+            return byName.keySet();
+        }
+
+        private int size() {
+            return byName.size();
         }
     }
 }
