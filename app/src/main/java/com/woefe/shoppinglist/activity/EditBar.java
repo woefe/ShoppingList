@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.activity;
+package com.woefe.shoppinglist.activity;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -34,7 +34,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import de.wolfgang_popp.shoppinglist.R;
+import com.woefe.shoppinglist.R;
 
 public class EditBar {
     private static final String KEY_SAVED_DESCRIPTION = "SAVED_DESCRIPTION";

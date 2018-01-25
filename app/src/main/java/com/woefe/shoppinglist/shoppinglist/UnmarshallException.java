@@ -17,21 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.activity;
+package com.woefe.shoppinglist.shoppinglist;
 
-import android.app.Fragment;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+/**
+ * @author Wolfgang Popp
+ */
 
-import de.wolfgang_popp.shoppinglist.R;
-
-public class InvalidFragment extends Fragment {
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_invalid, container, false);
+class UnmarshallException extends Exception {
+    public UnmarshallException(String s) {
+        super(s);
     }
 }

@@ -19,7 +19,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.wolfgang_popp.shoppinglist">
+    package="com.woefe.shoppinglist">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.dialog;
+package com.woefe.shoppinglist.dialog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -27,7 +27,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Html;
 
-import de.wolfgang_popp.shoppinglist.R;
+import com.woefe.shoppinglist.R;
 
 /**
  * @author Wolfgang Popp.

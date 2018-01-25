@@ -17,10 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.shoppinglist;
+package com.woefe.shoppinglist.shoppinglist;
 
-public class ShoppingListException extends Exception {
-    public ShoppingListException(String message) {
-        super(message);
-    }
+/**
+ * @author Wolfgang Popp
+ */
+public interface ListsChangeListener {
+    void onListsChanged();
 }

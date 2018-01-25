@@ -24,7 +24,7 @@
     android:orientation="vertical"
     tools:context=".activity.MainActivity">
 
-    <de.wolfgang_popp.shoppinglist.activity.DynamicListView
+    <com.woefe.shoppinglist.activity.DynamicListView
         android:id="@+id/shoppingListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

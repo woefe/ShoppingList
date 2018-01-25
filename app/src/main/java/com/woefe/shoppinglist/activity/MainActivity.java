@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.activity;
+package com.woefe.shoppinglist.activity;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -45,14 +45,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import de.wolfgang_popp.shoppinglist.R;
-import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
-import de.wolfgang_popp.shoppinglist.dialog.TextInputDialog;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ListsChangeListener;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingList;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListException;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListMarshaller;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
+import com.woefe.shoppinglist.R;
+import com.woefe.shoppinglist.dialog.ConfirmationDialog;
+import com.woefe.shoppinglist.dialog.TextInputDialog;
+import com.woefe.shoppinglist.shoppinglist.ListsChangeListener;
+import com.woefe.shoppinglist.shoppinglist.ShoppingList;
+import com.woefe.shoppinglist.shoppinglist.ShoppingListException;
+import com.woefe.shoppinglist.shoppinglist.ShoppingListMarshaller;
+import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
 
 public class MainActivity extends BinderActivity implements
         ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.Listener, ListsChangeListener {

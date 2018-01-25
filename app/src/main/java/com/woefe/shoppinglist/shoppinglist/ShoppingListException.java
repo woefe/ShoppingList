@@ -17,14 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.shoppinglist;
+package com.woefe.shoppinglist.shoppinglist;
 
-/**
- * @author Wolfgang Popp
- */
-
-class UnmarshallException extends Exception {
-    public UnmarshallException(String s) {
-        super(s);
+public class ShoppingListException extends Exception {
+    public ShoppingListException(String message) {
+        super(message);
     }
 }

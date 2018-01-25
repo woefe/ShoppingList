@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.shoppinglist;
+package com.woefe.shoppinglist.shoppinglist;
 
 import android.os.FileObserver;
 import android.os.SystemClock;

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.activity;
+package com.woefe.shoppinglist.activity;
 
 import android.Manifest;
 import android.content.SharedPreferences;
@@ -33,8 +33,8 @@ import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
-import de.wolfgang_popp.shoppinglist.R;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
+import com.woefe.shoppinglist.R;
+import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
 
 /**
  * @author Wolfgang Popp.

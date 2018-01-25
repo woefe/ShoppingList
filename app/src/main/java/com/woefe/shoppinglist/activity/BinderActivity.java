@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.activity;
+package com.woefe.shoppinglist.activity;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,7 +26,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
+import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
 
 /**
  * @author Wolfgang Popp

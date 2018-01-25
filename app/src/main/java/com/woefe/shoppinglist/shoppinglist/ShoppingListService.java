@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.shoppinglist;
+package com.woefe.shoppinglist.shoppinglist;
 
 import android.Manifest;
 import android.app.Service;
@@ -34,7 +34,7 @@ import android.util.Log;
 import java.io.File;
 import java.util.Arrays;
 
-import de.wolfgang_popp.shoppinglist.activity.SettingsFragment;
+import com.woefe.shoppinglist.activity.SettingsFragment;
 
 /**
  * @author Wolfgang Popp.

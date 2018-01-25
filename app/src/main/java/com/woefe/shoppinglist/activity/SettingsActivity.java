@@ -17,16 +17,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist;
+package com.woefe.shoppinglist.activity;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.os.Bundle;
+
+import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
 
 /**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
+ * @author Wolfgang Popp.
  */
-public class ApplicationTest extends ApplicationTestCase<Application> {
-    public ApplicationTest() {
-        super(Application.class);
+public class SettingsActivity extends BinderActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getFragmentManager().beginTransaction()
+                .replace(android.R.id.content, new SettingsFragment())
+                .commit();
+    }
+
+    @Override
+    protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
+
+    }
+
+    @Override
+    protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
+
     }
 }

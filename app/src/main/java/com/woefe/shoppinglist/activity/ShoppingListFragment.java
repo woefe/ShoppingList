@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.activity;
+package com.woefe.shoppinglist.activity;
 
 import android.app.Fragment;
 import android.os.Build;
@@ -31,9 +31,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import de.wolfgang_popp.shoppinglist.R;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ListItem;
-import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingList;
+import com.woefe.shoppinglist.R;
+import com.woefe.shoppinglist.shoppinglist.ListItem;
+import com.woefe.shoppinglist.shoppinglist.ShoppingList;
 
 public class ShoppingListFragment extends Fragment implements EditBar.EditBarListener {
     private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";

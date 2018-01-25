@@ -18,7 +18,7 @@
  * This file was adapted from http://developer.android.com/shareables/devbytes/ListViewDraggingAnimation.zip
  */
 
-package de.wolfgang_popp.shoppinglist.activity;
+package com.woefe.shoppinglist.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

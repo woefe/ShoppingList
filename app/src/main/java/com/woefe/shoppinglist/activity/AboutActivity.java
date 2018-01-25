@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.activity;
+package com.woefe.shoppinglist.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -26,8 +26,8 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 
-import de.wolfgang_popp.shoppinglist.BuildConfig;
-import de.wolfgang_popp.shoppinglist.R;
+import com.woefe.shoppinglist.BuildConfig;
+import com.woefe.shoppinglist.R;
 
 /**
  * @author Wolfgang Popp

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.wolfgang_popp.shoppinglist.dialog;
+package com.woefe.shoppinglist.dialog;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -32,7 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import de.wolfgang_popp.shoppinglist.R;
+import com.woefe.shoppinglist.R;
 
 public class TextInputDialog extends DialogFragment {
     private static final String TAG = DialogFragment.class.getSimpleName();
