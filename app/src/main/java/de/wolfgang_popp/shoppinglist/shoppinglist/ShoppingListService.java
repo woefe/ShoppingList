@@ -30,12 +30,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.Arrays;
 
-import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.activity.SettingsFragment;
 
 /**
@@ -135,5 +133,12 @@ public class ShoppingListService extends Service implements SharedPreferences.On
             manager.onStart();
         }
 
+        public void addListChangeListener(ListsChangeListener listener) {
+            manager.setListChangeListener(listener);
+        }
+
+        public void removeListChangeListener(ListsChangeListener listener) {
+            manager.removeListChangeListenerListener(listener);
+        }
     }
 }

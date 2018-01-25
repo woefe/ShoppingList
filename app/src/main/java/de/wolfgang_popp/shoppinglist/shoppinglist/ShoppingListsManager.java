@@ -20,6 +20,7 @@
 package de.wolfgang_popp.shoppinglist.shoppinglist;
 
 import android.os.FileObserver;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -29,6 +30,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +45,7 @@ class ShoppingListsManager {
     private final Map<String, ShoppingListMetadata> trashcan = new HashMap<>();
     private final MetadataContainer shoppingListsMetadata = new MetadataContainer();
     private final FileObserver directoryObserver;
+    private final List<ListsChangeListener> listeners = new LinkedList<>();
 
     ShoppingListsManager(final String directory) {
         this.directory = directory;
@@ -55,15 +59,23 @@ class ShoppingListsManager {
                 switch (event) {
                     case FileObserver.DELETE:
                         shoppingListsMetadata.removeByFile(file.getPath());
-                        Log.v("FileWatcher", "deleted " + path);
                         break;
                     case FileObserver.CREATE:
+                        // workaround: When CREATE is triggered, the file might still be empty.
+                        SystemClock.sleep(100);
                         loadFromFile(file);
-                        Log.v("FileWatcher", "read " + path);
                         break;
                 }
             }
         };
+    }
+
+    void setListChangeListener(ListsChangeListener listener) {
+        this.listeners.add(listener);
+    }
+
+    void removeListChangeListenerListener(ListsChangeListener listener) {
+        this.listeners.remove(listener);
     }
 
     void onStart() {
@@ -74,6 +86,7 @@ class ShoppingListsManager {
     }
 
     void onStop() {
+        listeners.clear();
         directoryObserver.stopWatching();
 
         for (ShoppingListMetadata metadata : trashcan.values()) {
@@ -113,6 +126,7 @@ class ShoppingListsManager {
         try {
             final ShoppingList list = ShoppingListUnmarshaller.unmarshal(file.getPath());
             addShoppingList(list, file.getPath());
+            Log.v(TAG, "successfully loaded file: " + file);
         } catch (IOException | UnmarshallException e) {
             Log.e(getClass().getSimpleName(), "Failed to parse file " + file, e);
         }
@@ -230,21 +244,26 @@ class ShoppingListsManager {
             String name = metadata.shoppingList.getName();
             byName.put(name, metadata);
             filenameResolver.put(metadata.filename, name);
+            notifyListeners();
         }
 
         private void clear() {
             filenameResolver.clear();
             byName.clear();
+            notifyListeners();
         }
 
         private ShoppingListMetadata removeByName(String name) {
             ShoppingListMetadata toRemove = byName.remove(name);
             filenameResolver.remove(toRemove.filename);
+            notifyListeners();
             return toRemove;
         }
 
         private ShoppingListMetadata removeByFile(String filename) {
-            return byName.remove(filenameResolver.remove(filename));
+            ShoppingListMetadata toRemove = byName.remove(filenameResolver.remove(filename));
+            notifyListeners();
+            return toRemove;
         }
 
         private ShoppingListMetadata getByName(String name) {
@@ -269,6 +288,12 @@ class ShoppingListsManager {
 
         private int size() {
             return byName.size();
+        }
+
+        private void notifyListeners() {
+            for (ListsChangeListener listener : listeners) {
+                listener.onListsChanged();
+            }
         }
     }
 }

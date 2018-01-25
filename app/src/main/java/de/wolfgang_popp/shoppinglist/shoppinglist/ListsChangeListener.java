@@ -20,8 +20,8 @@
 package de.wolfgang_popp.shoppinglist.shoppinglist;
 
 /**
- * @author Wolfgang Popp.
+ * @author Wolfgang Popp
  */
-public interface ListChangedListener {
-    void listChanged();
+public interface ListsChangeListener {
+    void onListsChanged();
 }

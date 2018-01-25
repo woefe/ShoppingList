@@ -44,10 +44,13 @@ import java.util.Arrays;
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
 import de.wolfgang_popp.shoppinglist.dialog.TextInputDialog;
+import de.wolfgang_popp.shoppinglist.shoppinglist.ListsChangeListener;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListException;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
-public class MainActivity extends BinderActivity implements ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.Listener {
+public class MainActivity extends BinderActivity implements
+        ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.Listener, ListsChangeListener {
+
     public static final String KEY_FRAGMENT = "FRAGMENT";
     public static final String KEY_LIST_NAME = "LIST_NAME";
     private DrawerLayout drawerLayout;
@@ -118,10 +121,12 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         if (currentFragment != null && currentFragment instanceof ShoppingListFragment) {
             ((ShoppingListFragment) currentFragment).setShoppingList(binder.getList(currentListName));
         }
+        binder.addListChangeListener(this);
     }
 
     @Override
     protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
+        binder.removeListChangeListener(this);
         drawerAdapter.clear();
     }
 
@@ -203,6 +208,23 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         }
     }
 
+    @Override
+    public void onListsChanged() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateDrawer();
+                if (!getBinder().hasList(currentListName)) {
+                    selectList(0);
+                } else {
+                    //TODO get fragmentPos from a more reliable source
+                    int fragmentPos = Arrays.binarySearch(getBinder().getListNames(), currentListName);
+                    drawerList.setItemChecked(fragmentPos, true);
+                }
+            }
+        });
+    }
+
     private void setFragment(Fragment fragment, String name) {
         this.currentListName = name;
         this.currentFragment = fragment;
@@ -234,21 +256,18 @@ public class MainActivity extends BinderActivity implements ConfirmationDialog.C
         @Override
         public boolean onValidateInput(String input) {
             MainActivity activity = (MainActivity) getActivity();
-            boolean isValid = input != null && !input.equals("");
 
-            if (!isValid) {
+            if (input == null || input.equals("")) {
                 Toast.makeText(activity, R.string.error_list_name_empty, Toast.LENGTH_SHORT).show();
-                return isValid;
+                return false;
             }
 
-            isValid = isValid && activity.isServiceConnected();
-            isValid = isValid && !activity.getBinder().hasList(input);
-
-            if (!isValid) {
+            if (!activity.isServiceConnected() || activity.getBinder().hasList(input)) {
                 Toast.makeText(activity, R.string.error_list_exists, Toast.LENGTH_SHORT).show();
+                return false;
             }
 
-            return isValid;
+            return true;
         }
     }
 }
