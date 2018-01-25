@@ -22,6 +22,5 @@
     <color name="textColorChecked">#cccccc</color>
     <color name="colorPrimary">#388e3c</color>
     <color name="colorSecondaryLight">#ffc046</color>
-    <color name="colorPrimaryDark">#1b5e20</color>
     <color name="colorAccent">#ff8f00</color>
 </resources>

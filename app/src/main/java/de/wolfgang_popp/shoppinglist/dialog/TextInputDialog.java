@@ -19,6 +19,7 @@
 
 package de.wolfgang_popp.shoppinglist.dialog;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.os.Bundle;
@@ -82,6 +83,7 @@ public class TextInputDialog extends DialogFragment {
             inputText = savedInstanceState.getString(KEY_INPUT);
         }
 
+        @SuppressLint("InflateParams")
         View dialogRoot = inflater.inflate(R.layout.dialog_text_input, null);
         TextView label = dialogRoot.findViewById(R.id.dialog_label);
         Button cancelButton = dialogRoot.findViewById(R.id.button_dialog_cancel);

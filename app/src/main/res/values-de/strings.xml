@@ -24,7 +24,6 @@
     <string name="cancel">Abbrechen</string>
     <string name="context_menu_delete">Löschen</string>
     <string name="context_menu_edit">Bearbeiten</string>
-    <string name="error_saving">Während des Speicherns ist ein Fehler aufgetreten</string>
     <string name="file_location">Dateipfad</string>
     <string name="ok">OK</string>
     <string name="remove_checked_items">Alle abgehakten Eintäge löschen?</string>
