@@ -46,4 +46,5 @@
     <string name="about">Über</string>
     <string name="error_list_name_empty">Der Listenname darf nicht leer sein!</string>
     <string name="error_list_exists">Diese Liste existiert bereits</string>
+    <string name="share">Teilen</string>
 </resources>

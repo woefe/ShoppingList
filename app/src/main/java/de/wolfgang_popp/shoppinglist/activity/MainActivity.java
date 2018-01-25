@@ -25,9 +25,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -39,13 +41,17 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 import de.wolfgang_popp.shoppinglist.R;
 import de.wolfgang_popp.shoppinglist.dialog.ConfirmationDialog;
 import de.wolfgang_popp.shoppinglist.dialog.TextInputDialog;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ListsChangeListener;
+import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingList;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListException;
+import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListMarshaller;
 import de.wolfgang_popp.shoppinglist.shoppinglist.ShoppingListService;
 
 public class MainActivity extends BinderActivity implements
@@ -60,6 +66,7 @@ public class MainActivity extends BinderActivity implements
     private ActionBarDrawerToggle drawerToggle;
     private Fragment currentFragment;
     private String currentListName;
+    private ShareActionProvider actionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,7 +149,28 @@ public class MainActivity extends BinderActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem item = menu.findItem(R.id.action_share);
+        actionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
         return true;
+    }
+
+    private void doShare() {
+        ShoppingList list = getBinder().getList(currentListName);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            ShoppingListMarshaller.marshall(outputStream, list);
+        } catch (IOException ignored) {
+            return;
+        }
+
+        String text = outputStream.toString();
+        Intent intent = new Intent()
+                .setAction(Intent.ACTION_SEND)
+                .putExtra(Intent.EXTRA_TEXT, text)
+                .setType("text/plain");
+        if (actionProvider != null) {
+            actionProvider.setShareIntent(intent);
+        }
     }
 
     @Override
@@ -168,6 +196,9 @@ public class MainActivity extends BinderActivity implements
             case R.id.action_view_about:
                 intent = new Intent(this, AboutActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.action_share:
+                doShare();
                 return true;
         }
         return super.onOptionsItemSelected(item);
