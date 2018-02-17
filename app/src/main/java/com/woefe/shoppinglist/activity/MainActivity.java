@@ -41,10 +41,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-
 import com.woefe.shoppinglist.R;
 import com.woefe.shoppinglist.dialog.ConfirmationDialog;
 import com.woefe.shoppinglist.dialog.TextInputDialog;
@@ -53,6 +49,9 @@ import com.woefe.shoppinglist.shoppinglist.ShoppingList;
 import com.woefe.shoppinglist.shoppinglist.ShoppingListException;
 import com.woefe.shoppinglist.shoppinglist.ShoppingListMarshaller;
 import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class MainActivity extends BinderActivity implements
         ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.Listener, ListsChangeListener {
@@ -233,10 +232,7 @@ public class MainActivity extends BinderActivity implements
             } catch (ShoppingListException e) {
                 Log.e(getClass().getSimpleName(), "List already exists", e);
             }
-            updateDrawer();
-            //TODO get fragmentPos from a more reliable source
-            int fragmentPos = Arrays.binarySearch(getBinder().getListNames(), input);
-            selectList(fragmentPos);
+            selectList(getBinder().indexOf(input));
         }
     }
 
@@ -248,10 +244,6 @@ public class MainActivity extends BinderActivity implements
                 updateDrawer();
                 if (!getBinder().hasList(currentListName)) {
                     selectList(0);
-                } else {
-                    //TODO get fragmentPos from a more reliable source
-                    int fragmentPos = Arrays.binarySearch(getBinder().getListNames(), currentListName);
-                    drawerList.setItemChecked(fragmentPos, true);
                 }
             }
         });
@@ -261,6 +253,7 @@ public class MainActivity extends BinderActivity implements
         this.currentListName = name;
         this.currentFragment = fragment;
         setTitle(name);
+        updateDrawer();
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
@@ -275,13 +268,17 @@ public class MainActivity extends BinderActivity implements
         Fragment fragment = ShoppingListFragment.newInstance(getBinder().getList(name));
         setFragment(fragment, name);
 
-        drawerList.setItemChecked(position, true);
         drawerLayout.closeDrawer(drawerContainer);
     }
 
     private void updateDrawer() {
         drawerAdapter.clear();
         drawerAdapter.addAll(getBinder().getListNames());
+
+        int fragmentPos = getBinder().indexOf(currentListName);
+        if (fragmentPos >= 0) {
+            drawerList.setItemChecked(fragmentPos, true);
+        }
     }
 
     public static class NewListDialog extends TextInputDialog {

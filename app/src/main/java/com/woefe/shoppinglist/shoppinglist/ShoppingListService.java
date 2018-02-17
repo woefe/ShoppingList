@@ -122,6 +122,13 @@ public class ShoppingListService extends Service implements SharedPreferences.On
             return names;
         }
 
+        public int indexOf(String listName) {
+            if (listName == null) {
+                return -1;
+            }
+            return Arrays.binarySearch(getListNames(), listName);
+        }
+
         public int size() {
             return manager.size();
         }
