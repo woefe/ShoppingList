@@ -40,6 +40,7 @@ import java.util.Set;
  */
 class ShoppingListsManager {
     private static final String TAG = ShoppingListsManager.class.getSimpleName();
+    public static final String FILE_ENDING = ".lst";
 
     private final String directory;
     private final Map<String, ShoppingListMetadata> trashcan = new HashMap<>();
@@ -163,8 +164,10 @@ class ShoppingListsManager {
                             ShoppingList list = ShoppingListUnmarshaller.unmarshal(metadata.filename);
                             metadata.shoppingList.clear();
                             metadata.shoppingList.addAll(list);
-                            //TODO metadata.shoppingList.setName(list.getName());
                             metadata.isDirty = false;
+
+                            String oldName = metadata.shoppingList.getName();
+                            rename(oldName, list.getName());
                         } catch (IOException | UnmarshallException e) {
                             Log.e(TAG, "FileObserver could not read file.", e);
                         }
@@ -197,7 +200,7 @@ class ShoppingListsManager {
             throw new ShoppingListException("List already exists");
         }
 
-        String filename = new File(this.directory, name + ".lst").getPath();
+        String filename = new File(this.directory, name + FILE_ENDING).getPath();
         addShoppingList(new ShoppingList(name), filename);
         shoppingListsMetadata.getByName(name).isDirty = true;
     }
@@ -221,6 +224,14 @@ class ShoppingListsManager {
 
     boolean hasList(String name) {
         return shoppingListsMetadata.hasName(name);
+    }
+
+    void rename(String oldName, String newName) {
+        if (!oldName.equals(newName)) {
+            ShoppingListMetadata metadata = shoppingListsMetadata.removeByName(oldName);
+            metadata.shoppingList.setName(newName);
+            shoppingListsMetadata.add(metadata);
+        }
     }
 
     private class ShoppingListMetadata {

@@ -122,7 +122,8 @@ public class MainActivity extends BinderActivity implements
     @Override
     protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
         updateDrawer();
-        if (currentFragment == null) {
+
+        if (currentFragment == null || !binder.hasList(currentListName)) {
             selectList(0);
         }
         if (currentFragment != null && currentFragment instanceof ShoppingListFragment) {
