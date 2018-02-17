@@ -272,7 +272,7 @@ public class MainActivity extends BinderActivity implements
         }
 
         String name = drawerAdapter.getItem(position);
-        Fragment fragment = ShoppingListFragment.newInstance(name, getBinder().getList(name));
+        Fragment fragment = ShoppingListFragment.newInstance(getBinder().getList(name));
         setFragment(fragment, name);
 
         drawerList.setItemChecked(position, true);

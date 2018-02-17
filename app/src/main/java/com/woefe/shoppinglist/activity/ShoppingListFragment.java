@@ -38,7 +38,6 @@ import com.woefe.shoppinglist.shoppinglist.ShoppingList;
 public class ShoppingListFragment extends Fragment implements EditBar.EditBarListener {
     private static final String KEY_SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
     private static final String KEY_SAVED_TOP_PADDING = "SAVED_TOP_PADDING";
-    private static final String ARG_LIST_NAME = "ARG_LIST_NAME";
 
     private int savedScrollPosition = 0;
     private int savedTopPadding = 0;
@@ -49,21 +48,15 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
     private View rootView;
     private ShoppingList shoppingList;
 
-    public static ShoppingListFragment newInstance(String name, ShoppingList shoppingList) {
+    public static ShoppingListFragment newInstance(ShoppingList shoppingList) {
         ShoppingListFragment fragment = new ShoppingListFragment();
         fragment.setShoppingList(shoppingList);
-        Bundle args = new Bundle();
-        args.putString(ARG_LIST_NAME, name);
-        fragment.setArguments(args);
         return fragment;
     }
 
     public void setShoppingList(ShoppingList shoppingList) {
-        if (adapter != null) {
-            adapter.disconnectShoppingList();
-            adapter.connectShoppingList(shoppingList);
-        }
         this.shoppingList = shoppingList;
+        connectList();
     }
 
     @Override
@@ -100,14 +93,18 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
         return rootView;
     }
 
+    private void connectList() {
+        if (shoppingList != null && adapter != null) {
+            adapter.disconnectShoppingList();
+            adapter.connectShoppingList(shoppingList);
+        }
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         adapter = new DynamicListViewAdapter(getActivity());
-        if (shoppingList != null) {
-            adapter.disconnectShoppingList();
-            adapter.connectShoppingList(shoppingList);
-        }
+        connectList();
         listView.setAdapter(adapter);
     }
 
