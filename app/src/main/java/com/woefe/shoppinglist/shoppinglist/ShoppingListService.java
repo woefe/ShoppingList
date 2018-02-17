@@ -55,11 +55,8 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        String directory = getDirectory();
-        new File(directory).mkdirs();
-
-        manager = new ShoppingListsManager(directory);
-        manager.onStart();
+        manager = new ShoppingListsManager();
+        manager.onStart(getDirectory());
 
         return binder;
     }
@@ -75,7 +72,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         manager.onStop();
-        manager.onStart();
+        manager.onStart(getDirectory());
     }
 
     private String getDirectory() {
@@ -91,6 +88,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
             return getApplicationContext().getFileStreamPath(DEFAULT_DIRECTORY).getAbsolutePath();
         }
 
+        new File(directory).mkdirs();
         return directory;
     }
 
@@ -130,7 +128,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
         public void onPermissionsGranted() {
             manager.onStop();
-            manager.onStart();
+            manager.onStart(getDirectory());
         }
 
         public void addListChangeListener(ListsChangeListener listener) {

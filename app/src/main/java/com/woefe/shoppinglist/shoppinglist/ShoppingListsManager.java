@@ -42,15 +42,26 @@ class ShoppingListsManager {
     private static final String TAG = ShoppingListsManager.class.getSimpleName();
     public static final String FILE_ENDING = ".lst";
 
-    private final String directory;
     private final Map<String, ShoppingListMetadata> trashcan = new HashMap<>();
     private final MetadataContainer shoppingListsMetadata = new MetadataContainer();
-    private final FileObserver directoryObserver;
     private final List<ListsChangeListener> listeners = new LinkedList<>();
+    private FileObserver directoryObserver;
+    private String directory;
 
-    ShoppingListsManager(final String directory) {
+    ShoppingListsManager() {
+    }
+
+    void setListChangeListener(ListsChangeListener listener) {
+        this.listeners.add(listener);
+    }
+
+    void removeListChangeListenerListener(ListsChangeListener listener) {
+        this.listeners.remove(listener);
+    }
+
+    void onStart(final String directory) {
         this.directory = directory;
-        this.directoryObserver = new FileObserver(directory) {
+        directoryObserver = new FileObserver(directory) {
             @Override
             public void onEvent(int event, @Nullable String path) {
                 if (path == null) {
@@ -69,17 +80,7 @@ class ShoppingListsManager {
                 }
             }
         };
-    }
 
-    void setListChangeListener(ListsChangeListener listener) {
-        this.listeners.add(listener);
-    }
-
-    void removeListChangeListenerListener(ListsChangeListener listener) {
-        this.listeners.remove(listener);
-    }
-
-    void onStart() {
         Log.d(getClass().getSimpleName(), "initializing from dir " + directory);
         maybeAddInitialList();
         loadFromDirectory(directory);
@@ -89,6 +90,7 @@ class ShoppingListsManager {
     void onStop() {
         listeners.clear();
         directoryObserver.stopWatching();
+        directoryObserver = null;
 
         for (ShoppingListMetadata metadata : trashcan.values()) {
             metadata.observer.stopWatching();
