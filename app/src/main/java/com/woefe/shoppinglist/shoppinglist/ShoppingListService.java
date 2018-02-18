@@ -29,6 +29,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * @author Wolfgang Popp.
@@ -94,7 +95,12 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
         public String[] getListNames() {
             String[] names = manager.getListNames().toArray(new String[0]);
-            Arrays.sort(names);
+            Arrays.sort(names, new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return o1.compareToIgnoreCase(o2);
+                }
+            });
             return names;
         }
 
