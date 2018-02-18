@@ -156,14 +156,15 @@ public class MainActivity extends BinderActivity implements
 
     private void doShare() {
         ShoppingList list = getBinder().getList(currentListName);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
+        String text;
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ShoppingListMarshaller.marshall(outputStream, list);
+            text = outputStream.toString();
         } catch (IOException ignored) {
             return;
         }
 
-        String text = outputStream.toString();
         Intent intent = new Intent()
                 .setAction(Intent.ACTION_SEND)
                 .putExtra(Intent.EXTRA_TEXT, text)

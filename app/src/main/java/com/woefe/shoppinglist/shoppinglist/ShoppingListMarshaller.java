@@ -23,23 +23,33 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.LinkedList;
-import java.util.List;
 
 public class ShoppingListMarshaller {
     public static void marshall(OutputStream stream, ShoppingList list) throws IOException {
 
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream))) {
-            List<String> lines = new LinkedList<>();
-            lines.add("[ " + list.getName() + " ]\n");
-            lines.add("\n");
+            writer.write("[ ");
+            writer.write(list.getName());
+            writer.write(" ]\n\n");
 
             for (ListItem item : list) {
-                lines.add((item.isChecked() ? "// " : "") + item.getDescription() + " #" + item.getQuantity() + "\n");
-            }
+                String quantity = item.getQuantity();
+                String description = item.getDescription();
 
-            for (String line : lines) {
-                writer.write(line);
+                if (item.isChecked()) {
+                    writer.write("// ");
+                }
+
+                if (description != null) {
+                    writer.write(description);
+                }
+
+                if (quantity != null && !quantity.equals("")) {
+                    writer.write(" #");
+                    writer.write(quantity);
+                }
+
+                writer.write("\n");
             }
         }
     }
