@@ -57,7 +57,6 @@ public class DirectoryStatus {
         } else if (!file.canWrite()) {
             init(Status.CANNOT_WRITE, defaultDir);
         } else {
-            new File(directory).mkdirs();
             init(Status.IS_OK, directory);
         }
     }
@@ -65,6 +64,7 @@ public class DirectoryStatus {
     private void init(Status reason, String directory) {
         this.reason = reason;
         this.directory = directory;
+        new File(directory).mkdirs();
     }
 
     public boolean isFallback() {
