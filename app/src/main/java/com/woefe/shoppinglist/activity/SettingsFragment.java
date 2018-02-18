@@ -29,9 +29,9 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
-import android.widget.Toast;
 
 import com.woefe.shoppinglist.R;
 import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
@@ -54,6 +54,12 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
             initSummary(getPreferenceScreen().getPreference(i));
         }
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        requestExternalStoragePermission();
     }
 
     @Override
@@ -84,7 +90,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         int result = ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        if (result == PackageManager.PERMISSION_DENIED) {
+        if (!getSharedPreferences().getString(KEY_DIRECTORY_LOCATION, "").equals("")
+                && result == PackageManager.PERMISSION_DENIED) {
+
             FragmentCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_CODE_EXT_STORAGE);
@@ -99,9 +107,6 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                 if (binder != null) {
                     binder.onPermissionsGranted();
                 }
-            } else {
-                Toast.makeText(getActivity(), "permission denied", Toast.LENGTH_SHORT).show();
-                getSharedPreferences().edit().putString(KEY_DIRECTORY_LOCATION, "").apply();
             }
         }
     }
@@ -115,11 +120,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         if (key.equals(KEY_DIRECTORY_LOCATION)) {
             Preference p = findPreference(key);
             updatePreferences(p);
-            if (!sharedPreferences.getString(KEY_DIRECTORY_LOCATION, "").equals("")) {
-                requestExternalStoragePermission();
-            } else {
-                p.setSummary("");
-            }
+            requestExternalStoragePermission();
         }
     }
 }

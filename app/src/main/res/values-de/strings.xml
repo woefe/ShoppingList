@@ -46,4 +46,8 @@
     <string name="error_list_name_empty">Der Listenname darf nicht leer sein!</string>
     <string name="error_list_exists">Diese Liste existiert bereits</string>
     <string name="share">Teilen</string>
+    <string name="warn_ignore_directory">Ignoriere festgelegtes Datenverzeichnis!</string>
+    <string name="warn_missing_permission">Berechtigung für externen Speicher fehlt!</string>
+    <string name="warn_not_a_directory">Der festgelegte Pfad ist kein Verzeichnis!</string>
+    <string name="warn_cannot_write">Das festgelegte Datenverzeichnis is nicht beschreibbar!</string>
 </resources>

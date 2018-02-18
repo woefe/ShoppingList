@@ -273,6 +273,11 @@ public class MainActivity extends BinderActivity implements
 
     private void updateDrawer() {
         drawerAdapter.clear();
+
+        if (!isServiceConnected()) {
+            return;
+        }
+
         drawerAdapter.addAll(getBinder().getListNames());
 
         int fragmentPos = getBinder().indexOf(currentListName);

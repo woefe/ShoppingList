@@ -19,22 +19,16 @@
 
 package com.woefe.shoppinglist.shoppinglist;
 
-import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import java.io.File;
 import java.util.Arrays;
-
-import com.woefe.shoppinglist.activity.SettingsFragment;
 
 /**
  * @author Wolfgang Popp.
@@ -42,7 +36,6 @@ import com.woefe.shoppinglist.activity.SettingsFragment;
 public class ShoppingListService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = ShoppingListService.class.getSimpleName();
 
-    private static final String DEFAULT_DIRECTORY = "ShoppingLists";
 
     private ShoppingListsManager manager = null;
     private final IBinder binder = new ShoppingListBinder();
@@ -56,7 +49,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         manager = new ShoppingListsManager();
-        manager.onStart(getDirectory());
+        manager.onStart(new DirectoryStatus(this).getDirectory());
 
         return binder;
     }
@@ -72,24 +65,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         manager.onStop();
-        manager.onStart(getDirectory());
-    }
-
-    private String getDirectory() {
-        String directory = sharedPreferences.getString(SettingsFragment.KEY_DIRECTORY_LOCATION, "");
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        File file = new File(directory);
-
-        if (directory.equals("")
-                || permission != PackageManager.PERMISSION_GRANTED
-                || !file.isDirectory()
-                || !file.canWrite()) {
-
-            return getApplicationContext().getFileStreamPath(DEFAULT_DIRECTORY).getAbsolutePath();
-        }
-
-        new File(directory).mkdirs();
-        return directory;
+        manager.onStart(new DirectoryStatus(this).getDirectory());
     }
 
     @Override
@@ -135,7 +111,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
         public void onPermissionsGranted() {
             manager.onStop();
-            manager.onStart(getDirectory());
+            manager.onStart(new DirectoryStatus(getApplicationContext()).getDirectory());
         }
 
         public void addListChangeListener(ListsChangeListener listener) {
