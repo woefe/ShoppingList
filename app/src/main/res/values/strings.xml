@@ -50,4 +50,7 @@
     <string name="warn_missing_permission">Missing permission to write external storage!</string>
     <string name="warn_not_a_directory">Configured path is not a directory!</string>
     <string name="warn_cannot_write">Cannot write to configured directory!</string>
+    <string name="sort">Sort</string>
+    <string name="ascending">Ascending</string>
+    <string name="descending">Descending</string>
 </resources>

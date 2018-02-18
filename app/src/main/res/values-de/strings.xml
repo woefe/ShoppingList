@@ -50,4 +50,7 @@
     <string name="warn_missing_permission">Berechtigung für externen Speicher fehlt!</string>
     <string name="warn_not_a_directory">Der festgelegte Pfad ist kein Verzeichnis!</string>
     <string name="warn_cannot_write">Das festgelegte Datenverzeichnis is nicht beschreibbar!</string>
+    <string name="sort">Sortieren</string>
+    <string name="ascending">Aufsteigend</string>
+    <string name="descending">Absteigend</string>
 </resources>

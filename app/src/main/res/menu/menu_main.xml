@@ -23,7 +23,7 @@
     tools:context=".activity.MainActivity">
     <item
         android:id="@+id/action_delete_checked"
-        android:icon="@drawable/ic_delete_white_24dp"
+        android:icon="@drawable/ic_delete_sweep_white_24dp"
         android:title="@string/action_delete_checked"
         app:showAsAction="ifRoom" />
     <item
@@ -31,6 +31,19 @@
         android:icon="@drawable/ic_playlist_add_white_24dp"
         android:title="@string/new_list"
         app:showAsAction="ifRoom" />
+    <item
+        android:icon="@drawable/ic_sort_white_24dp"
+        app:showAsAction="ifRoom"
+        android:title="@string/sort">
+        <menu>
+            <item
+                android:id="@+id/action_sort_ascending"
+                android:title="@string/ascending" />
+            <item
+                android:id="@+id/action_sort_descending"
+                android:title="@string/descending" />
+        </menu>
+    </item>
     <item
         android:id="@+id/action_share"
         android:title="@string/share"
@@ -44,7 +57,6 @@
         android:title="@string/about" />
     <item
         android:id="@+id/action_settings"
-        android:icon="@drawable/ic_settings_white_24dp"
         android:orderInCategory="100"
         android:title="@string/action_settings" />
 </menu>

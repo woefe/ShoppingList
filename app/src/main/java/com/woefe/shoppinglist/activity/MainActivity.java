@@ -44,6 +44,7 @@ import android.widget.Toast;
 import com.woefe.shoppinglist.R;
 import com.woefe.shoppinglist.dialog.ConfirmationDialog;
 import com.woefe.shoppinglist.dialog.TextInputDialog;
+import com.woefe.shoppinglist.shoppinglist.ListItem;
 import com.woefe.shoppinglist.shoppinglist.ListsChangeListener;
 import com.woefe.shoppinglist.shoppinglist.ShoppingList;
 import com.woefe.shoppinglist.shoppinglist.ShoppingListException;
@@ -52,6 +53,7 @@ import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
 
 public class MainActivity extends BinderActivity implements
         ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.Listener, ListsChangeListener {
@@ -201,8 +203,25 @@ public class MainActivity extends BinderActivity implements
             case R.id.action_share:
                 doShare();
                 return true;
+            case R.id.action_sort_ascending:
+                sort(true);
+                return true;
+            case R.id.action_sort_descending:
+                sort(false);
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sort(final boolean ascending) {
+        ShoppingList list = getBinder().getList(currentListName);
+        list.sort(new Comparator<ListItem>() {
+            @Override
+            public int compare(ListItem o1, ListItem o2) {
+                int i = o1.getDescription().compareToIgnoreCase(o2.getDescription());
+                return i * (ascending ? 1 : -1);
+            }
+        });
     }
 
     @Override
