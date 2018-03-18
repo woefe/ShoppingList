@@ -25,6 +25,7 @@
         <item name="colorPrimaryDark">#1b5e20</item>
         <item name="colorAccent">#ff8f00</item>
         <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
 </resources>

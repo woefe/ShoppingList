@@ -23,15 +23,14 @@ import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.preference.EditTextPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceCategory;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceManager;
 
 import com.woefe.shoppinglist.R;
 import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
@@ -39,7 +38,7 @@ import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
 /**
  * @author Wolfgang Popp.
  */
-public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String KEY_DIRECTORY_LOCATION = "FILE_LOCATION";
     private static final int REQUEST_CODE_EXT_STORAGE = 32537;
@@ -54,6 +53,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
             initSummary(getPreferenceScreen().getPreference(i));
         }
+    }
+
+    @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+
     }
 
     @Override
@@ -93,7 +97,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         if (!getSharedPreferences().getString(KEY_DIRECTORY_LOCATION, "").equals("")
                 && result == PackageManager.PERMISSION_DENIED) {
 
-            FragmentCompat.requestPermissions(this,
+            requestPermissions(
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_CODE_EXT_STORAGE);
         }
