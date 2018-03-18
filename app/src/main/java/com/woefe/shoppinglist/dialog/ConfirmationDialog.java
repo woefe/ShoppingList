@@ -19,12 +19,14 @@
 
 package com.woefe.shoppinglist.dialog;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 
 import com.woefe.shoppinglist.R;
@@ -46,19 +48,20 @@ public class ConfirmationDialog extends DialogFragment {
         void onNegativeButtonClicked(int action);
     }
 
-    public static void show(Activity activity, String message, int action) {
+    public static void show(AppCompatActivity activity, String message, int action) {
         ConfirmationDialog dialog = new ConfirmationDialog();
         dialog.message = message;
         dialog.action = action;
-        dialog.show(activity.getFragmentManager(), TAG);
+        dialog.show(activity.getSupportFragmentManager(), TAG);
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        listener = (ConfirmationDialogListener) activity;
+    public void onAttach(Context ctx) {
+        super.onAttach(ctx);
+        listener = (ConfirmationDialogListener) ctx;
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);

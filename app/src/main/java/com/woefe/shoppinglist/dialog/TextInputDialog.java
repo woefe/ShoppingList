@@ -20,10 +20,12 @@
 package com.woefe.shoppinglist.dialog;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.DialogFragment;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +52,7 @@ public class TextInputDialog extends DialogFragment {
         void onInputComplete(String input, int action);
     }
 
-    public static void show(Activity activity, String message, String hint, int action,
+    public static void show(AppCompatActivity activity, String message, String hint, int action,
                             Class<? extends TextInputDialog> clazz) {
 
         TextInputDialog dialog;
@@ -62,18 +64,18 @@ public class TextInputDialog extends DialogFragment {
         dialog.message = message;
         dialog.action = action;
         dialog.hint = hint;
-        dialog.show(activity.getFragmentManager(), TAG);
+        dialog.show(activity.getSupportFragmentManager(), TAG);
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        listener = (Listener) activity;
+    public void onAttach(Context ctx) {
+        super.onAttach(ctx);
+        listener = (Listener) ctx;
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
         String inputText = "";
