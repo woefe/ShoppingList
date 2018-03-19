@@ -19,7 +19,6 @@
 
 package com.woefe.shoppinglist.dialog;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -85,8 +84,7 @@ public class TextInputDialog extends DialogFragment {
             inputText = savedInstanceState.getString(KEY_INPUT);
         }
 
-        @SuppressLint("InflateParams")
-        View dialogRoot = inflater.inflate(R.layout.dialog_text_input, null);
+        View dialogRoot = inflater.inflate(R.layout.dialog_text_input, container, false);
         TextView label = dialogRoot.findViewById(R.id.dialog_label);
         Button cancelButton = dialogRoot.findViewById(R.id.button_dialog_cancel);
         Button okButton = dialogRoot.findViewById(R.id.button_dialog_ok);

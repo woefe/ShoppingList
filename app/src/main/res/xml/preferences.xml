@@ -18,7 +18,7 @@
   -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference
+    <Preference
         android:key="FILE_LOCATION"
         android:title="@string/file_location"
         android:inputType="text" />

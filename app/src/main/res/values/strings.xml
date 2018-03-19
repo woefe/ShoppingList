@@ -53,4 +53,6 @@
     <string name="sort">Sort</string>
     <string name="ascending">Ascending</string>
     <string name="descending">Descending</string>
+    <string name="select_directory_title">Select a directory</string>
+    <string name="warn_no_dir_access">Cannot access selected directory!</string>
 </resources>

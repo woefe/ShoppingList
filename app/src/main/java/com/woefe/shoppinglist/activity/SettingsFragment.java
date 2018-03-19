@@ -33,12 +33,15 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
 import com.woefe.shoppinglist.R;
+import com.woefe.shoppinglist.dialog.DirectoryChooserDialog;
 import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
 
 /**
  * @author Wolfgang Popp.
  */
-public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsFragment extends PreferenceFragmentCompat implements
+        SharedPreferences.OnSharedPreferenceChangeListener,
+        DirectoryChooserDialog.DirectoryChooserListener {
 
     public static final String KEY_DIRECTORY_LOCATION = "FILE_LOCATION";
     private static final int REQUEST_CODE_EXT_STORAGE = 32537;
@@ -63,7 +66,20 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        requestExternalStoragePermission();
+
+        final Preference fileLocationPref = findPreference("FILE_LOCATION");
+
+        fileLocationPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                requestExternalStoragePermission();
+                DirectoryChooserDialog.show(getActivity(), SettingsFragment.this, 0);
+                return true;
+            }
+        });
+
+
+        maybeRequestExternalStoragePermission();
     }
 
     @Override
@@ -84,27 +100,38 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     }
 
     private void updatePreferences(Preference p) {
+        if (KEY_DIRECTORY_LOCATION.equals(p.getKey())) {
+            String path = getSharedPreferences().getString(KEY_DIRECTORY_LOCATION, "");
+            p.setSummary(path);
+        }
         if (p instanceof EditTextPreference) {
             EditTextPreference editTextPref = (EditTextPreference) p;
             p.setSummary(editTextPref.getText());
         }
     }
 
+
     private void requestExternalStoragePermission() {
         int result = ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        if (!getSharedPreferences().getString(KEY_DIRECTORY_LOCATION, "").equals("")
-                && result == PackageManager.PERMISSION_DENIED) {
-
+        if (result == PackageManager.PERMISSION_DENIED) {
             requestPermissions(
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_CODE_EXT_STORAGE);
         }
     }
 
+    private void maybeRequestExternalStoragePermission() {
+        if (!getSharedPreferences().getString(KEY_DIRECTORY_LOCATION, "").equals("")) {
+            requestExternalStoragePermission();
+        }
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
         if (requestCode == REQUEST_CODE_EXT_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 ShoppingListService.ShoppingListBinder binder = ((SettingsActivity) getActivity()).getBinder();
@@ -124,7 +151,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         if (key.equals(KEY_DIRECTORY_LOCATION)) {
             Preference p = findPreference(key);
             updatePreferences(p);
-            requestExternalStoragePermission();
+            maybeRequestExternalStoragePermission();
         }
+    }
+
+    @Override
+    public void onDirectorySelected(String path) {
+        SharedPreferences.Editor editor = getSharedPreferences().edit();
+        editor.putString(KEY_DIRECTORY_LOCATION, path).apply();
     }
 }
