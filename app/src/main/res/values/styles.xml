@@ -37,6 +37,7 @@
         <item name="buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
         <item name="android:windowMinWidthMajor">65%</item>
         <item name="android:windowMinWidthMinor">95%</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="AppAlertTheme" parent="Theme.AppCompat.Dialog.Alert">
@@ -44,6 +45,14 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorPrimary">@color/textColorDefault</item>
+        <item name="android:textColorAlertDialogListItem">@color/textColorDefault</item>
         <item name="buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/colorAccent</item>
     </style>
 </resources>

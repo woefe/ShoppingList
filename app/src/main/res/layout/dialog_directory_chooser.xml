@@ -20,21 +20,35 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="3dp">
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="@string/selected_directory" />
 
     <TextView
         android:id="@+id/title"
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="match_parent"
-        android:padding="5dp"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/label"
+        android:padding="5dp" />
+
+    <View
+        android:id="@+id/divider"
+        style="@style/Divider"
+        android:layout_below="@+id/title" />
 
     <ListView
         android:id="@+id/directoryListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/button_dialog_cancel"
-        android:layout_below="@+id/title" />
+        android:layout_below="@+id/divider" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add"

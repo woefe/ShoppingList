@@ -20,6 +20,8 @@
 package com.woefe.shoppinglist.activity;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -33,18 +35,18 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
 import com.woefe.shoppinglist.R;
-import com.woefe.shoppinglist.dialog.DirectoryChooserDialog;
+import com.woefe.shoppinglist.dialog.DirectoryChooser;
 import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
 
 /**
  * @author Wolfgang Popp.
  */
 public class SettingsFragment extends PreferenceFragmentCompat implements
-        SharedPreferences.OnSharedPreferenceChangeListener,
-        DirectoryChooserDialog.DirectoryChooserListener {
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String KEY_DIRECTORY_LOCATION = "FILE_LOCATION";
     private static final int REQUEST_CODE_EXT_STORAGE = 32537;
+    private static final int REQUEST_CODE_CHOOSE_DIR = 123;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,7 +75,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 requestExternalStoragePermission();
-                DirectoryChooserDialog.show(getActivity(), SettingsFragment.this, 0);
+                Intent intent = new Intent(getContext(), DirectoryChooser.class);
+                startActivityForResult(intent, REQUEST_CODE_CHOOSE_DIR);
                 return true;
             }
         });
@@ -156,8 +159,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     }
 
     @Override
-    public void onDirectorySelected(String path) {
-        SharedPreferences.Editor editor = getSharedPreferences().edit();
-        editor.putString(KEY_DIRECTORY_LOCATION, path).apply();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case (REQUEST_CODE_CHOOSE_DIR): {
+                if (resultCode == Activity.RESULT_OK) {
+                    String path = data.getStringExtra(DirectoryChooser.SELECTED_PATH);
+                    SharedPreferences.Editor editor = getSharedPreferences().edit();
+                    editor.putString(KEY_DIRECTORY_LOCATION, path).apply();
+                }
+                break;
+            }
+        }
     }
 }

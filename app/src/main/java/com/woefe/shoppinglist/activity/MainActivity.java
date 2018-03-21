@@ -56,10 +56,10 @@ import java.io.IOException;
 import java.util.Comparator;
 
 public class MainActivity extends BinderActivity implements
-        ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.Listener, ListsChangeListener {
+        ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.TextInputDialogListener, ListsChangeListener {
 
-    public static final String KEY_FRAGMENT = "FRAGMENT";
-    public static final String KEY_LIST_NAME = "LIST_NAME";
+    private static final String KEY_FRAGMENT = "FRAGMENT";
+    private static final String KEY_LIST_NAME = "LIST_NAME";
     private DrawerLayout drawerLayout;
     private ListView drawerList;
     private LinearLayout drawerContainer;
@@ -115,7 +115,9 @@ public class MainActivity extends BinderActivity implements
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        getFragmentManager().putFragment(outState, KEY_FRAGMENT, currentFragment);
+        if (currentFragment != null) {
+            getFragmentManager().putFragment(outState, KEY_FRAGMENT, currentFragment);
+        }
         outState.putString(KEY_LIST_NAME, currentListName);
         super.onSaveInstanceState(outState);
     }
@@ -192,9 +194,11 @@ public class MainActivity extends BinderActivity implements
                 ConfirmationDialog.show(this, message, R.id.action_delete_list);
                 return true;
             case R.id.action_new_list:
-                message = getString(R.string.add_new_list);
-                String hint = getString(R.string.add_list_hint);
-                NewListDialog.show(this, message, hint, R.id.action_new_list, NewListDialog.class);
+                NewListDialog.Builder builder = new TextInputDialog.Builder(this, NewListDialog.class);
+                builder.setAction(R.id.action_new_list)
+                        .setMessage(R.string.add_new_list)
+                        .setHint(R.string.add_list_hint)
+                        .show();
                 return true;
             case R.id.action_view_about:
                 intent = new Intent(this, AboutActivity.class);
@@ -316,6 +320,7 @@ public class MainActivity extends BinderActivity implements
                 return false;
             }
 
+            assert activity != null;
             if (!activity.isServiceConnected() || activity.getBinder().hasList(input)) {
                 Toast.makeText(activity, R.string.error_list_exists, Toast.LENGTH_SHORT).show();
                 return false;

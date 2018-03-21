@@ -23,8 +23,12 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,36 +44,28 @@ public class TextInputDialog extends DialogFragment {
     private static final String KEY_MESSAGE = "MESSAGE";
     private static final String KEY_INPUT = "INPUT";
     private static final String KEY_HINT = "INPUT";
-    private Listener listener;
+    private TextInputDialogListener listener;
     private String message;
     private String hint;
     private int action;
     private EditText inputField;
 
 
-    public interface Listener {
+    public interface TextInputDialogListener {
         void onInputComplete(String input, int action);
-    }
-
-    public static void show(AppCompatActivity activity, String message, String hint, int action,
-                            Class<? extends TextInputDialog> clazz) {
-
-        TextInputDialog dialog;
-        try {
-            dialog = clazz.newInstance();
-        } catch (java.lang.InstantiationException | IllegalAccessException e) {
-            throw new IllegalStateException("Cannot start dialog" + clazz.getSimpleName());
-        }
-        dialog.message = message;
-        dialog.action = action;
-        dialog.hint = hint;
-        dialog.show(activity.getSupportFragmentManager(), TAG);
     }
 
     @Override
     public void onAttach(Context ctx) {
         super.onAttach(ctx);
-        listener = (Listener) ctx;
+        Fragment owner = getParentFragment();
+        if (ctx instanceof TextInputDialogListener) {
+            listener = (TextInputDialogListener) ctx;
+        } else if (owner instanceof TextInputDialogListener) {
+            listener = (TextInputDialogListener) owner;
+        } else {
+            Log.e(TAG, "Dialog not attached");
+        }
     }
 
     @Nullable
@@ -98,8 +94,7 @@ public class TextInputDialog extends DialogFragment {
         inputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                listener.onInputComplete(inputField.getText().toString(), action);
-                dismiss();
+                onInputComplete();
                 return true;
             }
         });
@@ -114,15 +109,19 @@ public class TextInputDialog extends DialogFragment {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String input = inputField.getText().toString();
-                if (onValidateInput(input)) {
-                    listener.onInputComplete(input, action);
-                    dismiss();
-                }
+                onInputComplete();
             }
         });
 
         return dialogRoot;
+    }
+
+    private void onInputComplete() {
+        String input = inputField.getText().toString();
+        if (onValidateInput(input)) {
+            listener.onInputComplete(input, action);
+            dismiss();
+        }
     }
 
     public boolean onValidateInput(String input) {
@@ -135,5 +134,60 @@ public class TextInputDialog extends DialogFragment {
         outState.putString(KEY_MESSAGE, message);
         outState.putString(KEY_HINT, hint);
         outState.putString(KEY_INPUT, inputField.getText().toString());
+    }
+
+    public static class Builder {
+        private final FragmentActivity activity;
+        private TextInputDialog dialog;
+        private FragmentManager fragmentManager;
+
+        public Builder(FragmentActivity activity, Class<? extends TextInputDialog> clazz) {
+            this.activity = activity;
+            try {
+                this.dialog = clazz.newInstance();
+            } catch (java.lang.InstantiationException | IllegalAccessException e) {
+                throw new IllegalStateException("Cannot start dialog" + clazz.getSimpleName());
+            }
+        }
+
+        public Builder setMessage(String message) {
+            dialog.message = message;
+            return this;
+        }
+
+        public Builder setMessage(@StringRes int messageID) {
+            return setMessage(activity.getString(messageID));
+        }
+
+        public Builder setHint(String hint) {
+            dialog.hint = hint;
+            return this;
+        }
+
+        public Builder setHint(@StringRes int hintID) {
+            return setHint(activity.getString(hintID));
+        }
+
+        public Builder setAction(int action) {
+            dialog.action = action;
+            return this;
+        }
+
+        public Builder setFragmentManager(FragmentManager manager) {
+            fragmentManager = manager;
+            return this;
+        }
+
+        public Builder setTargetFragment(Fragment fragment, int requestCode) {
+            dialog.setTargetFragment(fragment, requestCode);
+            return this;
+        }
+
+        public void show() {
+            if (fragmentManager == null) {
+                fragmentManager = activity.getSupportFragmentManager();
+            }
+            dialog.show(fragmentManager, TAG);
+        }
     }
 }
