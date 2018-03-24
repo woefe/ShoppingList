@@ -26,10 +26,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
@@ -227,6 +229,14 @@ public class ShoppingList extends ArrayList<ListItem> {
         notifyListChanged();
     }
 
+    public Set<String> createDescriptionIndex() {
+        Set<String> descriptionIndex = new HashSet<>();
+        for (ListItem listItem : this) {
+            descriptionIndex.add(listItem.getDescription().toLowerCase());
+        }
+        return descriptionIndex;
+    }
+
     public void addListener(ShoppingListListener listener) {
         listeners.add(listener);
     }
@@ -241,12 +251,12 @@ public class ShoppingList extends ArrayList<ListItem> {
 
     private void notifyListChanged() {
         for (ShoppingListListener listener : listeners) {
-            listener.update();
+            listener.onShoppingListUpdate(this);
         }
     }
 
     public interface ShoppingListListener {
-        void update();
+        void onShoppingListUpdate(ShoppingList list);
     }
 
     private class Itr implements Iterator<ListItem> {

@@ -22,6 +22,8 @@ package com.woefe.shoppinglist.activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -35,8 +37,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.woefe.shoppinglist.R;
+import com.woefe.shoppinglist.shoppinglist.ShoppingList;
 
-public class EditBar {
+import java.util.HashSet;
+import java.util.Set;
+
+public class EditBar implements ShoppingList.ShoppingListListener {
     private static final String KEY_SAVED_DESCRIPTION = "SAVED_DESCRIPTION";
     private static final String KEY_SAVED_QUANTITY = "SAVED_QUANTITY";
     private static final String KEY_SAVED_MODE = "SAVED_MODE";
@@ -45,48 +51,29 @@ public class EditBar {
     private final RelativeLayout layout;
     private final EditText descriptionText;
     private final EditText quantityText;
+    private final TextView duplicateWarnText;
     private Mode mode;
     private EditBarListener listener;
     private final FloatingActionButton fab;
     private int position;
+    private final Set<String> descriptionIndex = new HashSet<>();
+    private ShoppingList shoppingList;
 
     public EditBar(View boundView, final Context ctx) {
         this.ctx = ctx;
         this.layout = boundView.findViewById(R.id.layout_add_item);
-        ImageButton button = boundView.findViewById(R.id.button_add_new_item);
+        final ImageButton button = boundView.findViewById(R.id.button_add_new_item);
         this.descriptionText = boundView.findViewById(R.id.new_item_description);
         this.quantityText = boundView.findViewById(R.id.new_item_quantity);
+        this.duplicateWarnText = boundView.findViewById(R.id.text_warn);
         this.mode = Mode.ADD;
 
         layout.setVisibility(View.GONE);
 
-        final Runnable confirmationAction = new Runnable() {
-            @Override
-            public void run() {
-                String desc = descriptionText.getText().toString();
-                String qty = quantityText.getText().toString();
-
-                if (desc.equals("")) {
-                    Toast.makeText(ctx, R.string.error_description_empty, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (mode == Mode.ADD) {
-                    listener.onNewItem(desc, qty);
-                    descriptionText.requestFocus();
-                } else if (mode == Mode.EDIT) {
-                    listener.onEditSave(position, desc, qty);
-                }
-
-                descriptionText.setText("");
-                quantityText.setText("");
-            }
-        };
-
         quantityText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                confirmationAction.run();
+                onConfirm();
                 return true;
             }
         });
@@ -94,9 +81,34 @@ public class EditBar {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                confirmationAction.run();
+                onConfirm();
             }
         });
+
+        setButtonEnabled(button, false);
+        descriptionText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String str = s.toString();
+                if (str.equals("")) {
+                    setButtonEnabled(button, false);
+                } else {
+                    setButtonEnabled(button, true);
+                }
+                checkDuplicate(str);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         fab = boundView.findViewById(R.id.fab_add);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +117,44 @@ public class EditBar {
                 showAdd();
             }
         });
+    }
+
+    private void checkDuplicate(String str) {
+        if (mode != Mode.ADD) {
+            return;
+        }
+        if (descriptionIndex.contains(str.toLowerCase())) {
+            duplicateWarnText.setText(ctx.getString(R.string.duplicate_warning, str));
+            duplicateWarnText.setVisibility(View.VISIBLE);
+        } else {
+            duplicateWarnText.setVisibility(View.GONE);
+        }
+    }
+
+    private void setButtonEnabled(ImageButton button, boolean enabled) {
+        button.setEnabled(enabled);
+        button.setClickable(enabled);
+        button.setImageAlpha(enabled ? 255 : 100);
+    }
+
+    private void onConfirm() {
+        String desc = descriptionText.getText().toString();
+        String qty = quantityText.getText().toString();
+
+        if (desc.equals("")) {
+            Toast.makeText(ctx, R.string.error_description_empty, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (mode == Mode.ADD) {
+            listener.onNewItem(desc, qty);
+            descriptionText.requestFocus();
+        } else if (mode == Mode.EDIT) {
+            listener.onEditSave(position, desc, qty);
+        }
+
+        descriptionText.setText("");
+        quantityText.setText("");
     }
 
     public void showEdit(int position, String description, String quantity) {
@@ -120,8 +170,9 @@ public class EditBar {
 
     private void prepare(Mode mode, String description, String quantity) {
         this.mode = mode;
-        descriptionText.setText(description);
         quantityText.setText(quantity);
+        descriptionText.setText("");
+        descriptionText.append(description);
     }
 
     public void enableAutoHideFAB(View view) {
@@ -182,7 +233,7 @@ public class EditBar {
         descriptionText.requestFocus();
         InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
-            imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
+            imm.showSoftInput(descriptionText, InputMethodManager.SHOW_IMPLICIT);
         }
     }
 
@@ -228,6 +279,28 @@ public class EditBar {
             layout.setVisibility(View.VISIBLE);
             fab.hide();
         }
+    }
+
+    public void connectShoppingList(ShoppingList shoppingList) {
+        this.shoppingList = shoppingList;
+        this.shoppingList.addListener(this);
+        onShoppingListUpdate(shoppingList);
+    }
+
+    public void disconnectShoppingList() {
+        this.shoppingList.removeListener(this);
+        this.shoppingList = null;
+    }
+
+    @Override
+    public void onShoppingListUpdate(ShoppingList list) {
+        if (mode == Mode.EDIT) {
+            hide();
+            return;
+        }
+        descriptionIndex.clear();
+        descriptionIndex.addAll(list.createDescriptionIndex());
+        checkDuplicate(descriptionText.getText().toString());
     }
 
     public interface EditBarListener {

@@ -148,7 +148,7 @@ class ShoppingListsManager {
         final ShoppingListMetadata metadata = new ShoppingListMetadata(list, filename);
         list.addListener(new ShoppingList.ShoppingListListener() {
             @Override
-            public void update() {
+            public void onShoppingListUpdate(ShoppingList list) {
                 metadata.isDirty = true;
             }
         });

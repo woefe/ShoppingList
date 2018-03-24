@@ -37,7 +37,7 @@ public class DynamicListViewAdapter extends BaseAdapter {
     private ShoppingList shoppingList;
     private final ShoppingList.ShoppingListListener listener = new ShoppingList.ShoppingListListener() {
         @Override
-        public void update() {
+        public void onShoppingListUpdate(ShoppingList list) {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

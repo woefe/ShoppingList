@@ -93,11 +93,27 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
         return rootView;
     }
 
+    @Override
+    public void onDestroyView() {
+        editBar.removeEditBarListener(this);
+        editBar.hide();
+        super.onDestroyView();
+    }
+
     private void connectList() {
         if (shoppingList != null && adapter != null) {
-            adapter.disconnectShoppingList();
             adapter.connectShoppingList(shoppingList);
         }
+        if (shoppingList != null && editBar != null) {
+            editBar.connectShoppingList(shoppingList);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        adapter.disconnectShoppingList();
+        editBar.disconnectShoppingList();
+        super.onDestroy();
     }
 
     @Override
