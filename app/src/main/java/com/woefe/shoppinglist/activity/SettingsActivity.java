@@ -20,13 +20,12 @@
 package com.woefe.shoppinglist.activity;
 
 import android.os.Bundle;
-
-import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
+import android.support.v7.app.AppCompatActivity;
 
 /**
  * @author Wolfgang Popp.
  */
-public class SettingsActivity extends BinderActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +33,5 @@ public class SettingsActivity extends BinderActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new SettingsFragment())
                 .commit();
-    }
-
-    @Override
-    protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
-
-    }
-
-    @Override
-    protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
-
     }
 }

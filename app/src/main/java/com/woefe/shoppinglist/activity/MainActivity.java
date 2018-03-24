@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -133,6 +134,19 @@ public class MainActivity extends BinderActivity implements
             ((ShoppingListFragment) currentFragment).setShoppingList(binder.getList(currentListName));
         }
         binder.addListChangeListener(this);
+
+        if (binder.usesFallbackDir()) {
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.content_frame),
+                    R.string.warn_ignore_directory, Snackbar.LENGTH_LONG);
+
+            snackbar.setAction(R.string.action_settings, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openSettings();
+                }
+            });
+            snackbar.show();
+        }
     }
 
     @Override
@@ -178,12 +192,16 @@ public class MainActivity extends BinderActivity implements
         }
     }
 
+    private void openSettings() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
+                openSettings();
                 return true;
             case R.id.action_delete_checked:
                 String message = getString(R.string.remove_checked_items);
@@ -201,7 +219,7 @@ public class MainActivity extends BinderActivity implements
                         .show();
                 return true;
             case R.id.action_view_about:
-                intent = new Intent(this, AboutActivity.class);
+                Intent intent = new Intent(this, AboutActivity.class);
                 startActivity(intent);
                 return true;
             case R.id.action_share:

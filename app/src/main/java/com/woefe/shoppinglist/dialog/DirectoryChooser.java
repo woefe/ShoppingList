@@ -19,13 +19,17 @@
 
 package com.woefe.shoppinglist.dialog;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -55,6 +59,7 @@ public class DirectoryChooser extends AppCompatActivity implements TextInputDial
     private static final String KEY_CURRENT_DIR = "CURRENT_DIR";
     private static final int ACTION_READ_INPUT = 1;
     private static final String PARENT_DIR = "..";
+    private static final int REQUEST_CODE_EXT_STORAGE = 2;
 
     private ArrayAdapter<String> directoryViewAdapter;
     private File currentDirectory;
@@ -132,6 +137,20 @@ public class DirectoryChooser extends AppCompatActivity implements TextInputDial
         }
 
         changeDirectory(directory);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        int result = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (result == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_CODE_EXT_STORAGE);
+        }
     }
 
     @Override

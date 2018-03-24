@@ -41,6 +41,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     private ShoppingListsManager manager = null;
     private final IBinder binder = new ShoppingListBinder();
     private SharedPreferences sharedPreferences;
+    private DirectoryStatus directoryStatus;
 
     @Nullable
     @Override
@@ -50,7 +51,8 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         manager = new ShoppingListsManager();
-        manager.onStart(new DirectoryStatus(this).getDirectory());
+        directoryStatus = new DirectoryStatus(this);
+        manager.onStart(directoryStatus.getDirectory());
 
         return binder;
     }
@@ -66,7 +68,8 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         manager.onStop();
-        manager.onStart(new DirectoryStatus(this).getDirectory());
+        directoryStatus = new DirectoryStatus(this);
+        manager.onStart(directoryStatus.getDirectory());
     }
 
     @Override
@@ -76,6 +79,10 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     }
 
     public class ShoppingListBinder extends Binder {
+
+        public boolean usesFallbackDir() {
+            return directoryStatus.isFallback();
+        }
 
         public void addList(String listName) throws ShoppingListException {
             manager.addList(listName);
@@ -113,11 +120,6 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
         public int size() {
             return manager.size();
-        }
-
-        public void onPermissionsGranted() {
-            manager.onStop();
-            manager.onStart(new DirectoryStatus(getApplicationContext()).getDirectory());
         }
 
         public void addListChangeListener(ListsChangeListener listener) {

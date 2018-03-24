@@ -46,14 +46,10 @@
     <string name="error_list_name_empty">The list name may not be empty!</string>
     <string name="error_list_exists">This list already exists</string>
     <string name="share">Share</string>
-    <string name="warn_ignore_directory">Ignoring configured directory!</string>
-    <string name="warn_missing_permission">Missing permission to write external storage!</string>
-    <string name="warn_not_a_directory">Configured path is not a directory!</string>
-    <string name="warn_cannot_write">Cannot write to configured directory!</string>
+    <string name="warn_ignore_directory">Cannot access configured directory!</string>
     <string name="sort">Sort</string>
     <string name="ascending">Ascending</string>
     <string name="descending">Descending</string>
-    <string name="select_directory_title">Select a directory</string>
     <string name="warn_no_dir_access">Cannot access selected directory!</string>
     <string name="err_create_dir">Cannot create \'%s\'</string>
     <string name="err_illegal_char">Filename contains illegal character \'/\'</string>

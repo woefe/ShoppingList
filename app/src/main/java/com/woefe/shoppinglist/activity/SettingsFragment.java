@@ -19,15 +19,12 @@
 
 package com.woefe.shoppinglist.activity;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceCategory;
@@ -36,7 +33,6 @@ import android.support.v7.preference.PreferenceManager;
 
 import com.woefe.shoppinglist.R;
 import com.woefe.shoppinglist.dialog.DirectoryChooser;
-import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
 
 /**
  * @author Wolfgang Popp.
@@ -45,7 +41,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String KEY_DIRECTORY_LOCATION = "FILE_LOCATION";
-    private static final int REQUEST_CODE_EXT_STORAGE = 32537;
     private static final int REQUEST_CODE_CHOOSE_DIR = 123;
 
     @Override
@@ -74,15 +69,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         fileLocationPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                requestExternalStoragePermission();
                 Intent intent = new Intent(getContext(), DirectoryChooser.class);
                 startActivityForResult(intent, REQUEST_CODE_CHOOSE_DIR);
                 return true;
             }
         });
-
-
-        maybeRequestExternalStoragePermission();
     }
 
     @Override
@@ -113,40 +104,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         }
     }
 
-
-    private void requestExternalStoragePermission() {
-        int result = ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (result == PackageManager.PERMISSION_DENIED) {
-            requestPermissions(
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_CODE_EXT_STORAGE);
-        }
-    }
-
-    private void maybeRequestExternalStoragePermission() {
-        if (!getSharedPreferences().getString(KEY_DIRECTORY_LOCATION, "").equals("")) {
-            requestExternalStoragePermission();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-
-        if (requestCode == REQUEST_CODE_EXT_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                ShoppingListService.ShoppingListBinder binder = ((SettingsActivity) getActivity()).getBinder();
-                if (binder != null) {
-                    binder.onPermissionsGranted();
-                }
-            }
-        }
-    }
-
     private SharedPreferences getSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(getActivity());
+        FragmentActivity activity = getActivity();
+        assert activity != null;
+        return PreferenceManager.getDefaultSharedPreferences(activity);
     }
 
     @Override
@@ -154,7 +115,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         if (key.equals(KEY_DIRECTORY_LOCATION)) {
             Preference p = findPreference(key);
             updatePreferences(p);
-            maybeRequestExternalStoragePermission();
         }
     }
 
