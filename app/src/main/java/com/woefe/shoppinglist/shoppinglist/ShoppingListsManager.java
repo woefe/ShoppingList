@@ -81,7 +81,7 @@ class ShoppingListsManager {
             }
         };
 
-        Log.d(getClass().getSimpleName(), "initializing from dir " + directory);
+        Log.d(getClass().getSimpleName(), "Initializing from dir " + directory);
         maybeAddInitialList();
         loadFromDirectory(directory);
         directoryObserver.startWatching();
@@ -129,9 +129,9 @@ class ShoppingListsManager {
         try {
             final ShoppingList list = ShoppingListUnmarshaller.unmarshal(file.getPath());
             addShoppingList(list, file.getPath());
-            Log.v(TAG, "successfully loaded file: " + file);
+            Log.v(TAG, "Successfully loaded file: " + file);
         } catch (IOException | UnmarshallException e) {
-            Log.e(getClass().getSimpleName(), "Failed to parse file " + file, e);
+            Log.v(getClass().getSimpleName(), "Ignoring file " + file);
         }
     }
 

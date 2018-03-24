@@ -48,8 +48,8 @@
     <string name="share">Share</string>
     <string name="warn_ignore_directory">Cannot access configured directory!</string>
     <string name="sort">Sort</string>
-    <string name="ascending">Ascending</string>
-    <string name="descending">Descending</string>
+    <string name="ascending">A-Z</string>
+    <string name="descending">Z-A</string>
     <string name="warn_no_dir_access">Cannot access selected directory!</string>
     <string name="err_create_dir">Cannot create \'%s\'</string>
     <string name="err_illegal_char">Filename contains illegal character \'/\'</string>
@@ -58,4 +58,6 @@
     <string name="name_of_new_dir">Name of new directory</string>
     <string name="selected_directory">Selected directory:</string>
     <string name="duplicate_warning">%s is already on the list</string>
+    <string name="checked_first">Checked first</string>
+    <string name="unchecked_first">Unchecked first</string>
 </resources>

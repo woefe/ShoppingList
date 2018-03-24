@@ -27,23 +27,29 @@
         android:title="@string/action_delete_checked"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_new_list"
-        android:icon="@drawable/ic_playlist_add_white_24dp"
-        android:title="@string/new_list"
-        app:showAsAction="ifRoom" />
-    <item
         android:icon="@drawable/ic_sort_white_24dp"
         app:showAsAction="ifRoom"
         android:title="@string/sort">
         <menu>
             <item
-                android:id="@+id/action_sort_ascending"
+                android:id="@+id/action_sort_a_to_z"
                 android:title="@string/ascending" />
             <item
-                android:id="@+id/action_sort_descending"
+                android:id="@+id/action_sort_z_to_a"
                 android:title="@string/descending" />
+            <item
+                android:id="@+id/action_sort_by_checked_desc"
+                android:title="@string/unchecked_first" />
+            <item
+                android:id="@+id/action_sort_by_checked_asc"
+                android:title="@string/checked_first" />
         </menu>
     </item>
+    <item
+        android:id="@+id/action_new_list"
+        android:icon="@drawable/ic_playlist_add_white_24dp"
+        android:title="@string/new_list"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_share"
         android:title="@string/share"

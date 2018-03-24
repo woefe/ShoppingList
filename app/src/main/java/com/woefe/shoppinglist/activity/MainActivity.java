@@ -225,11 +225,17 @@ public class MainActivity extends BinderActivity implements
             case R.id.action_share:
                 doShare();
                 return true;
-            case R.id.action_sort_ascending:
+            case R.id.action_sort_a_to_z:
                 sort(true);
                 return true;
-            case R.id.action_sort_descending:
+            case R.id.action_sort_z_to_a:
                 sort(false);
+                return true;
+            case R.id.action_sort_by_checked_asc:
+                sortByChecked(false);
+                return true;
+            case R.id.action_sort_by_checked_desc:
+                sortByChecked(true);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -244,6 +250,23 @@ public class MainActivity extends BinderActivity implements
                 return i * (ascending ? 1 : -1);
             }
         });
+    }
+
+    private void sortByChecked(final boolean checkedFirst) {
+        ShoppingList list = getBinder().getList(currentListName);
+        list.sort(new Comparator<ListItem>() {
+            @Override
+            public int compare(ListItem o1, ListItem o2) {
+                if (o1.isChecked() && !o2.isChecked()) {
+                    return checkedFirst ? 1 : -1;
+                }
+                if (!o1.isChecked() && o2.isChecked()) {
+                    return checkedFirst ? -1 : 1;
+                }
+                return o1.getDescription().compareToIgnoreCase(o2.getDescription());
+            }
+        });
+
     }
 
     @Override

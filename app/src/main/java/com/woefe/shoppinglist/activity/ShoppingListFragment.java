@@ -110,10 +110,10 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
     }
 
     @Override
-    public void onDestroy() {
+    public void onStop() {
         adapter.disconnectShoppingList();
         editBar.disconnectShoppingList();
-        super.onDestroy();
+        super.onStop();
     }
 
     @Override
