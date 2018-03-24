@@ -49,10 +49,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@android:color/background_light"
-        android:padding="2dp"
         android:elevation="16dp"
-        >
-        <!--android:visibility="gone">-->
+        android:padding="2dp"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/text_warn"
