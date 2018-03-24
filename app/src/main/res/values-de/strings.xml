@@ -48,6 +48,16 @@
     <string name="share">Teilen</string>
     <string name="warn_ignore_directory">Zugriff auf das festgelegte Datenverzeichnis nicht möglich!</string>
     <string name="sort">Sortieren</string>
-    <string name="ascending">Aufsteigend</string>
-    <string name="descending">Absteigend</string>
+    <string name="ascending">A-Z</string>
+    <string name="descending">Z-A</string>
+    <string name="err_create_dir">\'%s\' kann nicht erstellt werden</string>
+    <string name="err_illegal_char">Dateiname enthält ungültiges Zeichen \'/\'</string>
+    <string name="warn_no_dir_access">Zugriff auf dieses Verzeichnis wurde verweigert!</string>
+    <string name="create_new_dir">Neues Verzeichnis erstellen</string>
+    <string name="name_of_new_dir">Name des neuen Verzeichnisses</string>
+    <string name="selected_directory">Ausgewähltes Verzeichnis:</string>
+    <string name="duplicate_warning">\'%s\' ist bereits auf der Liste</string>
+    <string name="checked_first">Abgehakte zuerst</string>
+    <string name="unchecked_first">Abgehakte zuletzt</string>
+    <string name="select_storage_location">Speicher auswählen</string>
 </resources>

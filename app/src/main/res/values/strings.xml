@@ -57,7 +57,7 @@
     <string name="create_new_dir">Create new directory</string>
     <string name="name_of_new_dir">Name of new directory</string>
     <string name="selected_directory">Selected directory:</string>
-    <string name="duplicate_warning">%s is already on the list</string>
+    <string name="duplicate_warning">\'%s\' is already on the list</string>
     <string name="checked_first">Checked first</string>
     <string name="unchecked_first">Unchecked first</string>
 </resources>
