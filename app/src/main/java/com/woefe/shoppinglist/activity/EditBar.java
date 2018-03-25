@@ -288,8 +288,10 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     }
 
     public void disconnectShoppingList() {
-        this.shoppingList.removeListener(this);
-        this.shoppingList = null;
+        if (shoppingList != null) {
+            shoppingList.removeListener(this);
+            shoppingList = null;
+        }
     }
 
     @Override
