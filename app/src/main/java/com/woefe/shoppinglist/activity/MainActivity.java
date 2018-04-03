@@ -173,8 +173,13 @@ public class MainActivity extends BinderActivity implements
     }
 
     private void doShare() {
-        ShoppingList list = getBinder().getList(currentListName);
         String text;
+        ShoppingList list = getBinder().getList(currentListName);
+
+        if (list == null) {
+            Toast.makeText(this, R.string.err_share_list, Toast.LENGTH_LONG).show();
+            return;
+        }
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ShoppingListMarshaller.marshall(outputStream, list);
@@ -209,7 +214,11 @@ public class MainActivity extends BinderActivity implements
                 return true;
             case R.id.action_delete_list:
                 message = getString(R.string.confirm_delete_list, getTitle());
-                ConfirmationDialog.show(this, message, R.id.action_delete_list);
+                if (getBinder().hasList(currentListName)) {
+                    ConfirmationDialog.show(this, message, R.id.action_delete_list);
+                } else {
+                    Toast.makeText(this, R.string.err_cannot_delete_list, Toast.LENGTH_LONG).show();
+                }
                 return true;
             case R.id.action_new_list:
                 NewListDialog.Builder builder = new TextInputDialog.Builder(this, NewListDialog.class);
@@ -243,6 +252,9 @@ public class MainActivity extends BinderActivity implements
 
     private void sort(final boolean ascending) {
         ShoppingList list = getBinder().getList(currentListName);
+        if (list == null) {
+            return;
+        }
         list.sort(new Comparator<ListItem>() {
             @Override
             public int compare(ListItem o1, ListItem o2) {
@@ -254,6 +266,9 @@ public class MainActivity extends BinderActivity implements
 
     private void sortByChecked(final boolean checkedFirst) {
         ShoppingList list = getBinder().getList(currentListName);
+        if (list == null) {
+            return;
+        }
         list.sort(new Comparator<ListItem>() {
             @Override
             public int compare(ListItem o1, ListItem o2) {
@@ -278,9 +293,13 @@ public class MainActivity extends BinderActivity implements
                 }
                 break;
             case R.id.action_delete_list:
-                getBinder().removeList(getTitle().toString());
-                updateDrawer();
-                selectList(0);
+                boolean success = getBinder().removeList(getTitle().toString());
+                if (!success) {
+                    Toast.makeText(this, R.string.err_cannot_delete_list, Toast.LENGTH_LONG).show();
+                } else {
+                    updateDrawer();
+                    selectList(0);
+                }
                 break;
         }
     }

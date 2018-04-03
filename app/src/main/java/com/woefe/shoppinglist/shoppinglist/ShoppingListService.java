@@ -88,10 +88,11 @@ public class ShoppingListService extends Service implements SharedPreferences.On
             manager.addList(listName);
         }
 
-        public void removeList(String listName) {
-            manager.removeList(listName);
+        public boolean removeList(String listName) {
+            return manager.removeList(listName);
         }
 
+        @Nullable
         public ShoppingList getList(String listName) {
             return manager.getList(listName);
         }
@@ -101,7 +102,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
         }
 
         public String[] getListNames() {
-            String[] names = manager.getListNames().toArray(new String[0]);
+            String[] names = manager.getListNames().toArray(new String[manager.size()]);
             Arrays.sort(names, new Comparator<String>() {
                 @Override
                 public int compare(String o1, String o2) {

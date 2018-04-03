@@ -19,13 +19,15 @@
 
 package com.woefe.shoppinglist.shoppinglist;
 
+import android.support.annotation.NonNull;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 public class ShoppingListMarshaller {
-    public static void marshall(OutputStream stream, ShoppingList list) throws IOException {
+    public static void marshall(@NonNull OutputStream stream, @NonNull ShoppingList list) throws IOException {
 
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream))) {
             writer.write("[ ");

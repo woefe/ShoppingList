@@ -60,4 +60,6 @@
     <string name="duplicate_warning">\'%s\' is already on the list</string>
     <string name="checked_first">Checked first</string>
     <string name="unchecked_first">Unchecked first</string>
+    <string name="err_cannot_delete_list">Cannot delete list</string>
+    <string name="err_share_list">Cannot share list</string>
 </resources>

@@ -40,7 +40,7 @@ import java.util.Set;
  */
 class ShoppingListsManager {
     private static final String TAG = ShoppingListsManager.class.getSimpleName();
-    public static final String FILE_ENDING = ".lst";
+    private static final String FILE_ENDING = ".lst";
 
     private final Map<String, ShoppingListMetadata> trashcan = new HashMap<>();
     private final MetadataContainer shoppingListsMetadata = new MetadataContainer();
@@ -144,7 +144,7 @@ class ShoppingListsManager {
         }
     }
 
-    private void addShoppingList(ShoppingList list, String filename) {
+    private ShoppingListMetadata addShoppingList(ShoppingList list, String filename) {
         final ShoppingListMetadata metadata = new ShoppingListMetadata(list, filename);
         list.addListener(new ShoppingList.ShoppingListListener() {
             @Override
@@ -154,6 +154,7 @@ class ShoppingListsManager {
         });
         setupObserver(metadata);
         shoppingListsMetadata.add(metadata);
+        return metadata;
     }
 
     private void setupObserver(final ShoppingListMetadata metadata) {
@@ -203,17 +204,26 @@ class ShoppingListsManager {
         }
 
         String filename = new File(this.directory, name + FILE_ENDING).getPath();
-        addShoppingList(new ShoppingList(name), filename);
-        shoppingListsMetadata.getByName(name).isDirty = true;
+        ShoppingListMetadata metadata = addShoppingList(new ShoppingList(name), filename);
+        metadata.isDirty = true;
     }
 
-    void removeList(String name) {
-        ShoppingListMetadata toRemove = shoppingListsMetadata.removeByName(name);
-        trashcan.put(toRemove.shoppingList.getName(), toRemove);
+    boolean removeList(String name) {
+        if (hasList(name)) {
+            ShoppingListMetadata toRemove = shoppingListsMetadata.removeByName(name);
+            trashcan.put(toRemove.shoppingList.getName(), toRemove);
+            return true;
+        }
+        return false;
     }
 
+    @Nullable
     ShoppingList getList(String name) {
-        return shoppingListsMetadata.getByName(name).shoppingList;
+        ShoppingListMetadata metadata = shoppingListsMetadata.getByName(name);
+        if (metadata != null) {
+            return metadata.shoppingList;
+        }
+        return null;
     }
 
     Set<String> getListNames() {
@@ -279,6 +289,7 @@ class ShoppingListsManager {
             return toRemove;
         }
 
+        @Nullable
         private ShoppingListMetadata getByName(String name) {
             return byName.get(name);
         }
