@@ -284,7 +284,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     public void connectShoppingList(ShoppingList shoppingList) {
         this.shoppingList = shoppingList;
         this.shoppingList.addListener(this);
-        onShoppingListUpdate(shoppingList);
+        onShoppingListUpdate(shoppingList, null);
     }
 
     public void disconnectShoppingList() {
@@ -295,7 +295,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     }
 
     @Override
-    public void onShoppingListUpdate(ShoppingList list) {
+    public void onShoppingListUpdate(ShoppingList list, ShoppingList.Event e) {
         if (mode == Mode.EDIT) {
             hide();
             return;

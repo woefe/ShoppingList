@@ -19,7 +19,7 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="12dp"
     android:background="@android:color/background_light"
@@ -47,7 +47,7 @@
         android:textColor="@android:color/black" />
 
     <ImageView
-        android:id="@+id/dragNDropHandler"
+        android:id="@+id/drag_n_drop_handler"
         android:layout_width="32dp"
         android:layout_gravity="center"
         android:src="@drawable/ic_swap_vert_black_24dp"

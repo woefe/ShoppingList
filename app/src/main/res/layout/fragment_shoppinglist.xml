@@ -24,12 +24,13 @@
     android:orientation="vertical"
     tools:context=".activity.MainActivity">
 
-    <com.woefe.shoppinglist.activity.DynamicListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/shoppingListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/layout_add_item"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:scrollbars="vertical" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add"
