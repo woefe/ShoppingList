@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!--
+  ~ ShoppingList - A simple shopping list for Android
+  ~
+  ~ Copyright (C) 2018.  Wolfgang Popp
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<resources>
+    <string name="app_name">Liste de courses</string>
+    <string name="action_settings">Param&#xE8;tres</string>
+    <string name="hint_quantity">Quantit&#xE9;</string>
+    <string name="hint_new_item">Nouvel &#xE9;l&#xE9;ment</string>
+    <string name="context_menu_edit">&#xC9;diter</string>
+    <string name="context_menu_delete">Supprimer</string>
+    <string name="action_delete_checked">Supprimer les &#xE9;l&#xE9;ments coch&#xE9;s</string>
+    <string name="remove_checked_items">Retirer tous les &#xE9;l&#xE9;ments coch&#xE9;s&#xA0;?</string>
+    <string name="cancel">Annuler</string>
+    <string name="ok">OK</string>
+    <string name="file_location">Emplacement du fichier</string>
+    <string name="error_description_empty">La description de l\'&#xE9;l&#xE9;ment ne peut pas &#xEA;tre vide&#xA0;!</string>
+    <string name="drawer_open">Ouvrir le tiroir de navigation</string>
+    <string name="drawer_close">Fermer le tiroir de navigation</string>
+    <string name="new_list">Cr&#xE9;er une nouvelle liste</string>
+    <string name="delete_list">Supprimer la liste</string>
+    <string name="confirm_delete_list">Supprimer la liste &lt;b&gt;%1$s&lt;/b&gt;&#xA0;?</string>
+    <string name="add_new_list">Ajouter une nouvelle liste</string>
+    <string name="add_list_hint">Nom de la nouvelle liste</string>
+    <string name="fragment_invalid_text">Aucune liste n\'est disponible.</string>
+    <string name="done">Termin&#xE9;</string>
+    <string name="swap">Inverser</string>
+    <string name="lists">Listes</string>
+    <string name="about_text">&lt;h1&gt;&#xC0; propos&lt;/h1&gt; &lt;h3&gt;Version&lt;/h3&gt; Vous utilisez la version &lt;tt&gt;v%1$s&lt;/tt&gt; &lt;h3&gt;Mainteneur&lt;/h3&gt; Wolfgang Popp &lt;h3&gt;Code source, rapports de bug et contribution&lt;/h3&gt; Ce projet est h&#xE9;berg&#xE9; sur &lt;a href="https://github.com/woefe/ShoppingList"&gt;Github&lt;/a&gt; &lt;h3&gt;Licence&lt;/h3&gt; ShoppingList est publi&#xE9; sous licence &lt;a href="https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING"&gt;GPLv3+&lt;/a&gt;</string>
+    <string name="about">&#xC0; propos</string>
+    <string name="error_list_name_empty">Le nom de la liste ne peut pas &#xEA;tre vide&#xA0;!</string>
+    <string name="error_list_exists">Cette liste existe d&#xE9;j&#xE0;</string>
+    <string name="share">Partager</string>
+    <string name="warn_ignore_directory">Impossible d\'acc&#xE9;der au r&#xE9;pertoire configur&#xE9;&#xA0;!</string>
+    <string name="sort">Trier</string>
+    <string name="ascending">A-Z</string>
+    <string name="descending">Z-A</string>
+    <string name="warn_no_dir_access">Impossible d\'acc&#xE9;der au r&#xE9;pertoire configur&#xE9;&#xA0;!</string>
+    <string name="err_create_dir">Impossible de cr&#xE9;er \'%s\'</string>
+    <string name="err_illegal_char">Le nom du fichier contient le caract&#xE8;re interdit \'/\'</string>
+    <string name="select_storage_location">S&#xE9;lectionner l\'emplacement de stockage</string>
+    <string name="create_new_dir">Cr&#xE9;er un nouveau r&#xE9;pertoire</string>
+    <string name="name_of_new_dir">Nom du nouveau r&#xE9;pertoire</string>
+    <string name="selected_directory">R&#xE9;pertoire s&#xE9;lectionn&#xE9;&#xA0;:</string>
+    <string name="duplicate_warning">\'%s\' est d&#xE9;j&#xE0; dans la liste</string>
+    <string name="checked_first">Coch&#xE9;s en premier</string>
+    <string name="unchecked_first">Non-coch&#xE9;s en premier</string>
+    <string name="err_cannot_delete_list">Impossible de supprimer la liste</string>
+    <string name="err_share_list">Impossible de partager la liste</string>
+</resources>
