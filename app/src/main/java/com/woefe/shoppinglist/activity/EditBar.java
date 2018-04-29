@@ -121,7 +121,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     }
 
     private void checkDuplicate(String str) {
-        if (mode != Mode.ADD) {
+        if (mode != Mode.ADD || !isVisible()) {
             return;
         }
         if (descriptionIndex.contains(str.toLowerCase())) {
