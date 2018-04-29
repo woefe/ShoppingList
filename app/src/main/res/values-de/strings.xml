@@ -60,4 +60,6 @@
     <string name="checked_first">Abgehakte zuerst</string>
     <string name="unchecked_first">Abgehakte zuletzt</string>
     <string name="select_storage_location">Speicher auswählen</string>
+    <string name="err_cannot_delete_list">Die Liste kann nicht gelöscht werden</string>
+    <string name="err_share_list">Die Liste kann nicht geteilt werden</string>
 </resources>
