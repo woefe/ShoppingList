@@ -22,6 +22,7 @@ package com.woefe.shoppinglist.activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.GestureDetector;
@@ -175,7 +176,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         descriptionText.append(description);
     }
 
-    public void enableAutoHideFAB(View view) {
+    public void enableAutoHideFAB(RecyclerView view) {
         final GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             private final int slop = ViewConfiguration.get(ctx).getScaledPagingTouchSlop();
             private float start = -1;
@@ -199,7 +200,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
             }
 
             private boolean isNewEvent(MotionEvent e1) {
-                boolean isNewEvent = !(e1.getY() == triggerPosition);
+                boolean isNewEvent = e1 != null && !(e1.getY() == triggerPosition);
                 if (isNewEvent) {
                     triggerPosition = e1.getY();
                 }
