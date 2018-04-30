@@ -22,7 +22,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="12dp"
-    android:background="@android:color/background_light"
+    android:background="@color/colorListItemBackground"
     android:rowCount="1">
 
     <TextView

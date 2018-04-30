@@ -23,6 +23,8 @@ import com.woefe.shoppinglist.shoppinglist.ShoppingList;
 public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapter.ViewHolder> {
     private final int colorChecked;
     private final int colorDefault;
+    private final int colorRemove;
+    private final int colorBackground;
     private ShoppingList shoppingList;
     private ItemTouchHelper touchHelper;
     private ItemLongClickListener longClickListener;
@@ -52,6 +54,8 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
     public RecyclerListAdapter(Context ctx) {
         colorChecked = ContextCompat.getColor(ctx, R.color.textColorChecked);
         colorDefault = ContextCompat.getColor(ctx, R.color.textColorDefault);
+        colorRemove = ContextCompat.getColor(ctx, R.color.colorCritical);
+        colorBackground = ContextCompat.getColor(ctx, R.color.colorListItemBackground);
         touchHelper = new ItemTouchHelper(new RecyclerListCallback());
     }
 
@@ -103,6 +107,8 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
             holder.description.setTextColor(colorDefault);
             holder.quantity.setTextColor(colorDefault);
         }
+
+        holder.itemView.setBackgroundColor(colorBackground);
 
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,6 +205,11 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
             if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                 // Fade out the view as it is swiped out of the parent's bounds
                 final float alpha = 1.0f - Math.abs(dX) / (float) viewHolder.itemView.getWidth();
+                if (dX < 1) {
+                    viewHolder.itemView.setBackgroundColor(colorBackground);
+                } else {
+                    viewHolder.itemView.setBackgroundColor(colorRemove);
+                }
                 viewHolder.itemView.setAlpha(alpha);
                 viewHolder.itemView.setTranslationX(dX);
             } else {
