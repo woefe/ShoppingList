@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?xml version="1.0"?><!--
   ~ ShoppingList - A simple shopping list for Android
   ~
   ~ Copyright (C) 2018.  Wolfgang Popp
@@ -17,6 +16,7 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
+
 <resources>
     <string name="app_name">Liste de courses</string>
     <string name="action_settings">Param&#xE8;tres</string>
@@ -41,7 +41,6 @@
     <string name="done">Termin&#xE9;</string>
     <string name="swap">Inverser</string>
     <string name="lists">Listes</string>
-    <string name="about_text">&lt;h1&gt;&#xC0; propos&lt;/h1&gt; &lt;h3&gt;Version&lt;/h3&gt; Vous utilisez la version &lt;tt&gt;v%1$s&lt;/tt&gt; &lt;h3&gt;Mainteneur&lt;/h3&gt; Wolfgang Popp &lt;h3&gt;Code source, rapports de bug et contribution&lt;/h3&gt; Ce projet est h&#xE9;berg&#xE9; sur &lt;a href="https://github.com/woefe/ShoppingList"&gt;Github&lt;/a&gt; &lt;h3&gt;Licence&lt;/h3&gt; ShoppingList est publi&#xE9; sous licence &lt;a href="https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING"&gt;GPLv3+&lt;/a&gt;</string>
     <string name="about">&#xC0; propos</string>
     <string name="error_list_name_empty">Le nom de la liste ne peut pas &#xEA;tre vide&#xA0;!</string>
     <string name="error_list_exists">Cette liste existe d&#xE9;j&#xE0;</string>
@@ -62,4 +61,9 @@
     <string name="unchecked_first">Non-coch&#xE9;s en premier</string>
     <string name="err_cannot_delete_list">Impossible de supprimer la liste</string>
     <string name="err_share_list">Impossible de partager la liste</string>
+    <string name="about_title">&lt;h1&gt;&#xC0; propos&lt;/h1&gt;</string>
+    <string name="about_version">&lt;h3&gt;Version&lt;/h3&gt; Vous utilisez la version &lt;tt&gt;v%1$s&lt;/tt&gt;</string>
+    <string name="about_github">&lt;h3&gt;Code source, rapports de bug et contribution&lt;/h3&gt; Ce projet est h&#xE9;berg&#xE9; sur &lt;a href="https://github.com/woefe/ShoppingList"&gt;Github&lt;/a&gt;</string>
+    <string name="about_license">&lt;h3&gt;Licence&lt;/h3&gt; ShoppingList est publi&#xE9; sous licence &lt;a href="https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING"&gt;GPLv3+&lt;/a&gt;</string>
+    <string name="about_author">&lt;h3&gt;Auteur&lt;/h3&gt; Wolfgang Popp</string>
 </resources>
