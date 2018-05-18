@@ -242,6 +242,8 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         descriptionText.clearFocus();
         quantityText.clearFocus();
         layout.setVisibility(View.GONE);
+        duplicateWarnText.setText("");
+        duplicateWarnText.setVisibility(View.GONE);
         InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.hideSoftInputFromWindow(layout.getWindowToken(), 0);
