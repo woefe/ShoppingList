@@ -130,7 +130,7 @@ public class DirectoryChooser extends AppCompatActivity implements TextInputDial
                 && (savedDir = savedInstanceState.getString(KEY_CURRENT_DIR)) != null) {
 
             directory = new File(savedDir);
-        } else if (storageLocations.length > 1) {
+        } else if (storageLocations.length > 0) {
             directory = storageLocations[0];
         } else {
             directory = new File(""); // Jeez you phone is broken?!?!
@@ -227,7 +227,8 @@ public class DirectoryChooser extends AppCompatActivity implements TextInputDial
         ListIterator<File> it = locations.listIterator();
         while (it.hasNext()) {
             File directory = it.next();
-            if (!Environment.getStorageState(directory).equals(Environment.MEDIA_MOUNTED)
+            if (directory == null
+                    || !Environment.MEDIA_MOUNTED.equals(Environment.getStorageState(directory))
                     || !directory.canExecute()
                     || !directory.canRead()) {
 
