@@ -55,6 +55,10 @@ public class AboutActivity extends AppCompatActivity {
         textView.append("\n");
         textView.append("\n");
         textView.append(Html.fromHtml(getString(R.string.about_author)));
+        textView.append("\n");
+        textView.append("\n");
+        textView.append("\n");
+        textView.append(Html.fromHtml(getString(R.string.about_contributors)));
     }
 
 }
