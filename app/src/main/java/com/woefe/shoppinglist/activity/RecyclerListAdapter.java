@@ -66,8 +66,10 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
     }
 
     public void disconnectShoppingList() {
-        shoppingList.removeListener(listener);
-        shoppingList = null;
+        if (shoppingList != null) {
+            shoppingList.removeListener(listener);
+            shoppingList = null;
+        }
     }
 
     public void move(int fromPos, int toPos) {
