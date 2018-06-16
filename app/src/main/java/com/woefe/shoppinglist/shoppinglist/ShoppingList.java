@@ -60,13 +60,13 @@ public class ShoppingList extends ArrayList<ListItem> {
         notifyListChanged(Event.newOther());
     }
 
-    public int getId(int index) {
-        return ((ListItem.ListItemWithID) get(index)).getId();
+    public long getId(int index) {
+        return get(index).getId();
     }
 
     @Override
     public boolean add(ListItem item) {
-        boolean res = super.add(new ListItem.ListItemWithID(generateID(), item));
+        boolean res = super.add(item);
         notifyListChanged(Event.newItemInserted(size() - 1));
         return res;
     }

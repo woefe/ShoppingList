@@ -26,11 +26,21 @@ public class ListItem {
     private boolean isChecked;
     private String description;
     private String quantity;
+    private long id;
 
-    public ListItem(boolean isChecked, String description, String quantity) {
+    public ListItem(long id, boolean isChecked, String description, String quantity) {
         this.isChecked = isChecked;
         this.description = description;
         this.quantity = quantity;
+        this.id = id;
+    }
+
+    public ListItem(boolean isChecked, String description, String quantity) {
+        this(0, isChecked, description, quantity);
+    }
+
+    public long getId() {
+        return id;
     }
 
     public boolean isChecked() {
@@ -55,19 +65,5 @@ public class ListItem {
 
     public void setQuantity(String quantity) {
         this.quantity = quantity;
-    }
-
-    static class ListItemWithID extends ListItem {
-        private final int id;
-
-        public ListItemWithID(int id, ListItem item) {
-            super(item.isChecked, item.description, item.quantity);
-            this.id = id;
-        }
-
-        public int getId() {
-            return id;
-        }
-
     }
 }
