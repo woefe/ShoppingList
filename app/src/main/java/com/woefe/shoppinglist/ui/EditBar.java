@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.woefe.shoppinglist.activity;
+package com.woefe.shoppinglist.ui;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -38,12 +38,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.woefe.shoppinglist.R;
-import com.woefe.shoppinglist.shoppinglist.ShoppingList;
+import com.woefe.shoppinglist.db.entity.ItemEntity;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-public class EditBar implements ShoppingList.ShoppingListListener {
+public class EditBar {
     private static final String KEY_SAVED_DESCRIPTION = "SAVED_DESCRIPTION";
     private static final String KEY_SAVED_QUANTITY = "SAVED_QUANTITY";
     private static final String KEY_SAVED_MODE = "SAVED_MODE";
@@ -58,7 +59,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     private final FloatingActionButton fab;
     private int position;
     private final Set<String> descriptionIndex = new HashSet<>();
-    private ShoppingList shoppingList;
+    private List<ItemEntity> shoppingList;
 
     public EditBar(View boundView, final Context ctx) {
         this.ctx = ctx;
@@ -71,20 +72,12 @@ public class EditBar implements ShoppingList.ShoppingListListener {
 
         layout.setVisibility(View.GONE);
 
-        quantityText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                onConfirm();
-                return true;
-            }
+        quantityText.setOnEditorActionListener((v, actionId, event) -> {
+            onConfirm();
+            return true;
         });
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onConfirm();
-            }
-        });
+        button.setOnClickListener(v -> onConfirm());
 
         setButtonEnabled(button, false);
         descriptionText.addTextChangedListener(new TextWatcher() {
@@ -111,12 +104,9 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         });
 
         fab = boundView.findViewById(R.id.fab_add);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fab.hide();
-                showAdd();
-            }
+        fab.setOnClickListener(v -> {
+            fab.hide();
+            showAdd();
         });
     }
 
@@ -210,12 +200,9 @@ public class EditBar implements ShoppingList.ShoppingListListener {
 
         final GestureDetector detector = new GestureDetector(ctx, gestureListener);
 
-        view.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                detector.onTouchEvent(event);
-                return false;
-            }
+        view.setOnTouchListener((v, event) -> {
+            detector.onTouchEvent(event);
+            return false;
         });
     }
 
@@ -284,27 +271,13 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         }
     }
 
-    public void connectShoppingList(ShoppingList shoppingList) {
+    public void setShoppingList(List<ItemEntity> shoppingList) {
         this.shoppingList = shoppingList;
-        this.shoppingList.addListener(this);
-        onShoppingListUpdate(shoppingList, null);
-    }
 
-    public void disconnectShoppingList() {
-        if (shoppingList != null) {
-            shoppingList.removeListener(this);
-            shoppingList = null;
-        }
-    }
-
-    @Override
-    public void onShoppingListUpdate(ShoppingList list, ShoppingList.Event e) {
-        if (mode == Mode.EDIT) {
-            hide();
-            return;
-        }
         descriptionIndex.clear();
-        descriptionIndex.addAll(list.createDescriptionIndex());
+        for (ItemEntity itemEntity : shoppingList) {
+            descriptionIndex.add(itemEntity.getDescription());
+        }
         checkDuplicate(descriptionText.getText().toString());
     }
 

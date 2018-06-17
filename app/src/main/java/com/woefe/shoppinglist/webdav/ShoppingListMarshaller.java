@@ -17,25 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.woefe.shoppinglist.shoppinglist;
+package com.woefe.shoppinglist.webdav;
+
 
 import android.support.annotation.NonNull;
+
+import com.woefe.shoppinglist.db.entity.ItemEntity;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
 public class ShoppingListMarshaller {
-    public static void marshall(@NonNull OutputStream stream, @NonNull ShoppingList list) throws IOException {
+    public static void marshall(@NonNull OutputStream stream, @NonNull String listName,
+                                @NonNull List<ItemEntity> list) throws IOException {
 
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream))) {
             writer.write("[ ");
-            writer.write(list.getName());
+            writer.write(listName);
             writer.write(" ]\n\n");
 
-            for (ListItem item : list) {
-                String quantity = item.getQuantity();
+            for (ItemEntity item : list) {
+                String quantity = item.getAmount();
                 String description = item.getDescription();
 
                 if (item.isChecked()) {

@@ -17,64 +17,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.woefe.shoppinglist.activity;
+package com.woefe.shoppinglist.ui;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.LongSparseArray;
-import android.util.SparseIntArray;
-import android.util.SparseLongArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.woefe.shoppinglist.R;
-import com.woefe.shoppinglist.dialog.ConfirmationDialog;
-import com.woefe.shoppinglist.dialog.TextInputDialog;
-import com.woefe.shoppinglist.shoppinglist.ListItem;
-import com.woefe.shoppinglist.shoppinglist.ListsChangeListener;
-import com.woefe.shoppinglist.shoppinglist.ShoppingList;
-import com.woefe.shoppinglist.shoppinglist.ShoppingListException;
-import com.woefe.shoppinglist.shoppinglist.ShoppingListMarshaller;
-import com.woefe.shoppinglist.shoppinglist.ShoppingListService;
-import com.woefe.shoppinglist.shoppinglist.db.ShoppingListEntity;
+import com.woefe.shoppinglist.ShoppingListApp;
+import com.woefe.shoppinglist.db.ShoppingListDatabase;
+import com.woefe.shoppinglist.db.entity.ItemEntity;
+import com.woefe.shoppinglist.db.entity.ShoppingListEntity;
+import com.woefe.shoppinglist.ui.dialog.ConfirmationDialog;
+import com.woefe.shoppinglist.ui.dialog.TextInputDialog;
+import com.woefe.shoppinglist.viewmodel.ShoppingListsViewModel;
+import com.woefe.shoppinglist.webdav.ShoppingListMarshaller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class MainActivity extends BinderActivity implements
-        ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.TextInputDialogListener, ListsChangeListener {
+public class MainActivity extends AppCompatActivity implements
+        ConfirmationDialog.ConfirmationDialogListener, TextInputDialog.TextInputDialogListener {
 
-    private static final String KEY_FRAGMENT = "FRAGMENT";
     private static final String KEY_LIST_ID = "LIST_ID";
     private DrawerLayout drawerLayout;
     private ListView drawerList;
@@ -95,12 +87,7 @@ public class MainActivity extends BinderActivity implements
         drawerList = findViewById(R.id.nav_drawer_content);
         drawerAdapter = new DrawerAdapter(this);
         drawerList.setAdapter(drawerAdapter);
-        drawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectList(position);
-            }
-        });
+        drawerList.setOnItemClickListener((parent, view, position, id) -> selectList(position));
 
         final Toolbar toolbar = findViewById(R.id.toolbar_main);
         toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);
@@ -117,9 +104,34 @@ public class MainActivity extends BinderActivity implements
         drawerLayout.addDrawerListener(drawerToggle);
 
         if (savedInstanceState != null) {
-            Fragment fragment = getFragmentManager().getFragment(savedInstanceState, KEY_FRAGMENT);
             long id = savedInstanceState.getLong(KEY_LIST_ID);
+            ShoppingListFragment fragment = ShoppingListFragment.forList(id);
             setFragment(fragment, id);
+        }
+
+        ShoppingListsViewModel model = ViewModelProviders.of(this)
+                .get(ShoppingListsViewModel.class);
+
+        subscribe(model);
+
+    }
+
+    private void subscribe(ShoppingListsViewModel model) {
+        final Observer<List<ShoppingListEntity>> listsObserver = shoppingListEntities -> {
+            if (shoppingListEntities != null) {
+                drawerAdapter.clear();
+                drawerAdapter.setLists(shoppingListEntities);
+                updateDrawer();
+            }
+        };
+
+        model.getLists().observe(this, listsObserver);
+    }
+
+    void updateDrawer() {
+        int fragmentPos = drawerAdapter.getPosition(currentListId);
+        if (fragmentPos >= 0) {
+            drawerList.setItemChecked(fragmentPos, true);
         }
     }
 
@@ -131,28 +143,8 @@ public class MainActivity extends BinderActivity implements
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        if (currentFragment != null) {
-            getFragmentManager().putFragment(outState, KEY_FRAGMENT, currentFragment);
-        }
         outState.putLong(KEY_LIST_ID, currentListId);
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onServiceConnected(ShoppingListService.ShoppingListBinder binder) {
-        updateDrawer();
-
-        if (currentFragment == null || !binder.hasList(currentListId)) {
-            selectList(0);
-        }
-        if (currentFragment != null && currentFragment instanceof ShoppingListFragment) {
-            ((ShoppingListFragment) currentFragment).setShoppingList(binder.getList(currentListId));
-        }
-    }
-
-    @Override
-    protected void onServiceDisconnected(ShoppingListService.ShoppingListBinder binder) {
-        drawerAdapter.clear();
     }
 
     @Override
@@ -172,9 +164,16 @@ public class MainActivity extends BinderActivity implements
         return true;
     }
 
+    private ShoppingListDatabase getDatabase() {
+        return ((ShoppingListApp) getApplication()).getDatabase();
+    }
+
     private void doShare() {
         String text;
-        ShoppingList list = getBinder().getList(currentListId);
+        LiveData<List<ItemEntity>> allItemsOfList = getDatabase().itemDAO()
+                .getAllItemsOfList(currentListId);
+
+        List<ItemEntity> list = allItemsOfList.getValue();
 
         if (list == null) {
             Toast.makeText(this, R.string.err_share_list, Toast.LENGTH_LONG).show();
@@ -182,7 +181,7 @@ public class MainActivity extends BinderActivity implements
         }
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ShoppingListMarshaller.marshall(outputStream, list);
+            ShoppingListMarshaller.marshall(outputStream, getName(currentListId), list);
             text = outputStream.toString();
         } catch (IOException ignored) {
             return;
@@ -214,7 +213,7 @@ public class MainActivity extends BinderActivity implements
                 return true;
             case R.id.action_delete_list:
                 message = getString(R.string.confirm_delete_list, getTitle());
-                if (getBinder().hasList(currentListId)) {
+                if (getDatabase().shoppingListDAO().getListById(currentListId).getValue() != null) {
                     ConfirmationDialog.show(this, message, R.id.action_delete_list);
                 } else {
                     Toast.makeText(this, R.string.err_cannot_delete_list, Toast.LENGTH_LONG).show();
@@ -251,36 +250,38 @@ public class MainActivity extends BinderActivity implements
     }
 
     private void sort(final boolean ascending) {
-        ShoppingList list = getBinder().getList(currentListId);
-        if (list == null) {
-            return;
-        }
-        list.sort(new Comparator<ListItem>() {
-            @Override
-            public int compare(ListItem o1, ListItem o2) {
-                int i = o1.getDescription().compareToIgnoreCase(o2.getDescription());
-                return i * (ascending ? 1 : -1);
-            }
-        });
+        // TODO
+//        ShoppingList list = getBinder().getList(currentListId);
+//        if (list == null) {
+//            return;
+//        }
+//        list.sort(new Comparator<ListItem>() {
+//            @Override
+//            public int compare(ListItem o1, ListItem o2) {
+//                int i = o1.getDescription().compareToIgnoreCase(o2.getDescription());
+//                return i * (ascending ? 1 : -1);
+//            }
+//        });
     }
 
     private void sortByChecked(final boolean checkedFirst) {
-        ShoppingList list = getBinder().getList(currentListId);
-        if (list == null) {
-            return;
-        }
-        list.sort(new Comparator<ListItem>() {
-            @Override
-            public int compare(ListItem o1, ListItem o2) {
-                if (o1.isChecked() && !o2.isChecked()) {
-                    return checkedFirst ? 1 : -1;
-                }
-                if (!o1.isChecked() && o2.isChecked()) {
-                    return checkedFirst ? -1 : 1;
-                }
-                return o1.getDescription().compareToIgnoreCase(o2.getDescription());
-            }
-        });
+        //TODO
+//        ShoppingList list = getBinder().getList(currentListId);
+//        if (list == null) {
+//            return;
+//        }
+//        list.sort(new Comparator<ListItem>() {
+//            @Override
+//            public int compare(ListItem o1, ListItem o2) {
+//                if (o1.isChecked() && !o2.isChecked()) {
+//                    return checkedFirst ? 1 : -1;
+//                }
+//                if (!o1.isChecked() && o2.isChecked()) {
+//                    return checkedFirst ? -1 : 1;
+//                }
+//                return o1.getDescription().compareToIgnoreCase(o2.getDescription());
+//            }
+//        });
 
     }
 
@@ -293,11 +294,12 @@ public class MainActivity extends BinderActivity implements
                 }
                 break;
             case R.id.action_delete_list:
-                boolean success = getBinder().removeList(currentListId);
+                ShoppingListEntity toDelete = new ShoppingListEntity();
+                toDelete.setId(currentListId);
+                boolean success = getDatabase().shoppingListDAO().deleteLists(toDelete) != 0;
                 if (!success) {
                     Toast.makeText(this, R.string.err_cannot_delete_list, Toast.LENGTH_LONG).show();
                 } else {
-                    updateDrawer();
                     selectList(0);
                 }
                 break;
@@ -310,68 +312,41 @@ public class MainActivity extends BinderActivity implements
 
     @Override
     public void onInputComplete(String input, int action) {
-        if (isServiceConnected() && action == R.id.action_new_list) {
-            long newId = getBinder().addList(input);
-            selectList(drawerAdapter.getPosition(newId));
-        }
+        ShoppingListEntity newList = new ShoppingListEntity();
+        newList.setName(input);
+        newList.setModifyTime(System.currentTimeMillis());
+        long[] ids = getDatabase().shoppingListDAO().insertLists();
+        selectList(drawerAdapter.getPosition(ids[0]));
     }
 
-    @Override
-    public void onListsChanged() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                updateDrawer();
-                if (!getBinder().hasList(currentListId)) {
-                    selectList(0);
-                }
-            }
-        });
-    }
-
-    private void setFragment(Fragment fragment, String title) {
-        this.currentListId = -1;
-        this.currentFragment = fragment;
-        setTitle(title);
-        updateDrawer();
-        FragmentManager manager = getFragmentManager();
-        manager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-    }
     private void setFragment(Fragment fragment, long listId) {
+        setFragment(fragment, listId, getName(listId));
+    }
+
+    private void setFragment(Fragment fragment, long listId, String name) {
         this.currentListId = listId;
         this.currentFragment = fragment;
-        setTitle(drawerAdapter.getItem(drawerAdapter.getPosition(listId)).name);
+        setTitle(name);
         updateDrawer();
-        FragmentManager manager = getFragmentManager();
+        FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+    }
+
+    private String getName(long listId) {
+        return drawerAdapter.getItem(drawerAdapter.getPosition(listId)).getName();
     }
 
     private void selectList(int position) {
         if (position >= drawerAdapter.getCount()) {
-            setFragment(new InvalidFragment(), getString(R.string.app_name));
+            setFragment(new InvalidFragment(), -1, getString(R.string.app_name));
             return;
         }
 
-        long listId = drawerAdapter.getItem(position).id;
-        Fragment fragment = ShoppingListFragment.newInstance(getBinder().getList(listId));
+        long listId = drawerAdapter.getItem(position).getId();
+        Fragment fragment = ShoppingListFragment.forList(listId);
         setFragment(fragment, listId);
 
         drawerLayout.closeDrawer(drawerContainer);
-    }
-
-    private void updateDrawer() {
-        drawerAdapter.clear();
-
-        if (!isServiceConnected()) {
-            return;
-        }
-
-        drawerAdapter.addAll(getBinder().getLists());
-
-        int fragmentPos = drawerAdapter.getPosition(currentListId);
-        if (fragmentPos >= 0) {
-            drawerList.setItemChecked(fragmentPos, true);
-        }
     }
 
     public static class NewListDialog extends TextInputDialog {
@@ -384,11 +359,13 @@ public class MainActivity extends BinderActivity implements
                 return false;
             }
 
+            /*
             assert activity != null;
             if (!activity.isServiceConnected() || activity.getBinder().hasName(input)) {
                 Toast.makeText(activity, R.string.error_list_exists, Toast.LENGTH_SHORT).show();
                 return false;
             }
+            */
 
             return true;
         }
@@ -403,11 +380,11 @@ public class MainActivity extends BinderActivity implements
             this.ctx = context;
         }
 
-        public void addAll(List<ShoppingListEntity> lists) {
+        public void setLists(List<ShoppingListEntity> lists) {
             for (int i = 0; i < lists.size(); i++) {
                 ShoppingListEntity shoppingListEntity = lists.get(i);
                 this.lists.add(shoppingListEntity);
-                this.idMap.put(shoppingListEntity.id, i);
+                this.idMap.put(shoppingListEntity.getId(), i);
             }
         }
 
@@ -423,7 +400,7 @@ public class MainActivity extends BinderActivity implements
 
         @Override
         public long getItemId(int position) {
-            return getItem(position).id;
+            return getItem(position).getId();
         }
 
         @Override
@@ -454,7 +431,7 @@ public class MainActivity extends BinderActivity implements
             }
 
             TextView text = view.findViewById(R.id.drawer_text);
-            text.setText(getItem(position).name);
+            text.setText(getItem(position).getName());
             return view;
         }
     }

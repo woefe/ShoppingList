@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.woefe.shoppinglist.dialog;
+package com.woefe.shoppinglist.ui.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

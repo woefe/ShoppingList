@@ -17,13 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.woefe.shoppinglist.shoppinglist;
+package com.woefe.shoppinglist.webdav;
+
+import android.util.Pair;
+
+import com.woefe.shoppinglist.db.entity.ItemEntity;
+import com.woefe.shoppinglist.db.entity.ShoppingListEntity;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,12 +37,10 @@ public class ShoppingListUnmarshaller {
     private static final Pattern EMPTY_LINE = Pattern.compile("^\\s*$");
     private static final Pattern HEADER = Pattern.compile("\\[(.*)]");
 
-    public static ShoppingList unmarshal(String filename) throws IOException, UnmarshallException {
-        return unmarshal(new FileInputStream(filename));
-    }
+    public static Pair<ShoppingListEntity, List<ItemEntity>>
+    unmarshalShoppingList(InputStream inputStream) throws IOException, UnmarshallException {
 
-    public static ShoppingList unmarshal(InputStream inputStream) throws IOException, UnmarshallException {
-        ShoppingList shoppingList;
+        ShoppingListEntity shoppingList;
         String name = null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String firstLine = reader.readLine();
@@ -52,19 +56,22 @@ public class ShoppingListUnmarshaller {
             throw new UnmarshallException("Could not find the name of the list");
         }
 
-        shoppingList = new ShoppingList(name);
+        shoppingList = new ShoppingListEntity();
+        shoppingList.setModifyTime(System.currentTimeMillis());
+        shoppingList.setName(name);
+        List<ItemEntity> items = new LinkedList<>();
 
         String line;
         while ((line = reader.readLine()) != null) {
             if (!EMPTY_LINE.matcher(line).matches()) {
-                shoppingList.add(createListItem(line));
+                items.add(createListItem(line, 0)); //TODO
             }
         }
 
-        return shoppingList;
+        return new Pair<>(shoppingList, items);
     }
 
-    private static ListItem createListItem(String item) {
+    private static ItemEntity createListItem(String item, long listId) {
         boolean isChecked = item.startsWith("//");
         int index;
         String quantity;
@@ -84,6 +91,12 @@ public class ShoppingListUnmarshaller {
             name = item.trim();
         }
 
-        return new ListItem(isChecked, name.trim(), quantity);
+        ItemEntity entity = new ItemEntity();
+        entity.setAmount(quantity);
+        entity.setChecked(isChecked);
+        entity.setDescription(name.trim());
+        entity.setListId(listId);
+
+        return entity;
     }
 }

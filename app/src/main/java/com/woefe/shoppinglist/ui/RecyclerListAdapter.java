@@ -1,4 +1,4 @@
-package com.woefe.shoppinglist.activity;
+package com.woefe.shoppinglist.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -14,8 +14,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.woefe.shoppinglist.R;
-import com.woefe.shoppinglist.shoppinglist.ListItem;
-import com.woefe.shoppinglist.shoppinglist.ShoppingList;
+import com.woefe.shoppinglist.db.entity.ItemEntity;
+
+import java.util.List;
 
 /**
  * @author Wolfgang Popp
@@ -25,31 +26,9 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
     private final int colorDefault;
     private final int colorRemove;
     private final int colorBackground;
-    private ShoppingList shoppingList;
+    private List<ItemEntity> shoppingList;
     private ItemTouchHelper touchHelper;
     private ItemLongClickListener longClickListener;
-
-    private final ShoppingList.ShoppingListListener listener = new ShoppingList.ShoppingListListener() {
-        @Override
-        public void onShoppingListUpdate(ShoppingList list, ShoppingList.Event e) {
-            switch (e.getState()) {
-                case ShoppingList.Event.ITEM_CHANGED:
-                    notifyItemChanged(e.getIndex());
-                    break;
-                case ShoppingList.Event.ITEM_INSERTED:
-                    notifyItemInserted(e.getIndex());
-                    break;
-                case ShoppingList.Event.ITEM_MOVED:
-                    notifyItemMoved(e.getOldIndex(), e.getNewIndex());
-                    break;
-                case ShoppingList.Event.ITEM_REMOVED:
-                    notifyItemRemoved(e.getIndex());
-                    break;
-                default:
-                    notifyDataSetChanged();
-            }
-        }
-    };
 
     public RecyclerListAdapter(Context ctx) {
         colorChecked = ContextCompat.getColor(ctx, R.color.textColorChecked);
@@ -59,21 +38,14 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
         touchHelper = new ItemTouchHelper(new RecyclerListCallback());
     }
 
-    public void connectShoppingList(ShoppingList shoppingList) {
+    public void setItems(List<ItemEntity> shoppingList) {
         this.shoppingList = shoppingList;
-        shoppingList.addListener(listener);
         notifyDataSetChanged();
     }
 
-    public void disconnectShoppingList() {
-        if (shoppingList != null) {
-            shoppingList.removeListener(listener);
-            shoppingList = null;
-        }
-    }
-
     public void move(int fromPos, int toPos) {
-        shoppingList.move(fromPos, toPos);
+        //TODO
+        //shoppingList.move(fromPos, toPos);
     }
 
     public void remove(int pos) {
@@ -98,9 +70,9 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        ListItem listItem = shoppingList.get(position);
+        ItemEntity listItem = shoppingList.get(position);
         holder.description.setText(listItem.getDescription());
-        holder.quantity.setText(listItem.getQuantity());
+        holder.quantity.setText(listItem.getAmount());
 
         if (listItem.isChecked()) {
             holder.description.setTextColor(colorChecked);
@@ -112,31 +84,21 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
 
         holder.itemView.setBackgroundColor(colorBackground);
 
-        holder.view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                shoppingList.toggleChecked(holder.getAdapterPosition());
-            }
+        holder.view.setOnClickListener(v -> {
+            ItemEntity item = shoppingList.get(holder.getAdapterPosition());
+            item.setChecked(!item.isChecked());
         });
 
 
-        holder.view.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                return longClickListener != null
-                        && longClickListener.onLongClick(holder.getAdapterPosition());
-            }
-        });
+        holder.view.setOnLongClickListener(v -> longClickListener != null
+                && longClickListener.onLongClick(holder.getAdapterPosition()));
 
-        holder.dragHandler.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    touchHelper.startDrag(holder);
-                    return true;
-                }
-                return false;
+        holder.dragHandler.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                touchHelper.startDrag(holder);
+                return true;
             }
+            return false;
         });
 
     }

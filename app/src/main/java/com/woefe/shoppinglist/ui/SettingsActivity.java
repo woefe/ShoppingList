@@ -17,14 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.woefe.shoppinglist.shoppinglist;
+package com.woefe.shoppinglist.ui;
+
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 /**
- * @author Wolfgang Popp
+ * @author Wolfgang Popp.
  */
+public class SettingsActivity extends AppCompatActivity {
 
-class UnmarshallException extends Exception {
-    public UnmarshallException(String s) {
-        super(s);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getSupportFragmentManager().beginTransaction()
+                .replace(android.R.id.content, new SettingsFragment())
+                .commit();
     }
 }

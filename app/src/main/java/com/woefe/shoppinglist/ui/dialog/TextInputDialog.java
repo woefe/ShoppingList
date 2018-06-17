@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.woefe.shoppinglist.dialog;
+package com.woefe.shoppinglist.ui.dialog;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -29,7 +29,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,27 +90,14 @@ public class TextInputDialog extends DialogFragment {
         inputField.setText(inputText);
         inputField.requestFocus();
 
-        inputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                onInputComplete();
-                return true;
-            }
+        inputField.setOnEditorActionListener((v, actionId, event) -> {
+            onInputComplete();
+            return true;
         });
 
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        cancelButton.setOnClickListener(v -> dismiss());
 
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onInputComplete();
-            }
-        });
+        okButton.setOnClickListener(v -> onInputComplete());
 
         return dialogRoot;
     }

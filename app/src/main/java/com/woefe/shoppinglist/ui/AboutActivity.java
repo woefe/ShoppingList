@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.woefe.shoppinglist.activity;
+package com.woefe.shoppinglist.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

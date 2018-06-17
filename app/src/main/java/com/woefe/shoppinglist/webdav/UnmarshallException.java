@@ -17,10 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.woefe.shoppinglist.shoppinglist;
+package com.woefe.shoppinglist.webdav;
 
-public class ShoppingListException extends Exception {
-    public ShoppingListException(String message) {
-        super(message);
+/**
+ * @author Wolfgang Popp
+ */
+
+class UnmarshallException extends Exception {
+    public UnmarshallException(String s) {
+        super(s);
     }
 }

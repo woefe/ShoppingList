@@ -17,11 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.woefe.shoppinglist.activity;
+package com.woefe.shoppinglist.ui;
 
-import android.app.Fragment;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,31 +32,33 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.woefe.shoppinglist.R;
-import com.woefe.shoppinglist.shoppinglist.ListItem;
-import com.woefe.shoppinglist.shoppinglist.ShoppingList;
+import com.woefe.shoppinglist.db.entity.ItemEntity;
+import com.woefe.shoppinglist.viewmodel.ItemsViewModel;
+
+import java.util.List;
 
 public class ShoppingListFragment extends Fragment implements EditBar.EditBarListener {
 
+    public static final String KEY_LIST_ID = "LIST_ID";
     private EditBar editBar;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerListAdapter adapter;
     private View rootView;
-    private ShoppingList shoppingList;
+    private ItemsViewModel model;
 
-    public static ShoppingListFragment newInstance(ShoppingList shoppingList) {
+    public static ShoppingListFragment forList(long listId) {
         ShoppingListFragment fragment = new ShoppingListFragment();
-        fragment.setShoppingList(shoppingList);
+        Bundle args = new Bundle();
+        args.putLong(KEY_LIST_ID, listId);
+        fragment.setArguments(args);
         return fragment;
     }
 
-    public void setShoppingList(ShoppingList shoppingList) {
-        this.shoppingList = shoppingList;
-        connectList();
-    }
-
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             Bundle savedInstanceState) {
+
         rootView = inflater.inflate(R.layout.fragment_shoppinglist, container, false);
 
         recyclerView = rootView.findViewById(R.id.shoppingListView);
@@ -64,9 +68,6 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
 
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-
-        DividerItemDecoration divider = new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL);
-        recyclerView.addItemDecoration(divider);
 
         editBar = new EditBar(rootView, getActivity());
         editBar.addEditBarListener(this);
@@ -80,43 +81,44 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        adapter = new RecyclerListAdapter(getActivity());
+        adapter.registerRecyclerView(recyclerView);
+        adapter.setOnItemLongClickListener(position -> {
+            List<ItemEntity> value = model.getItems().getValue();
+            if (value != null) {
+                ItemEntity listItem = value.get(position);
+                editBar.showEdit(position, listItem.getDescription(), listItem.getAmount());
+                return true;
+            }
+            return false;
+        });
+
+        DividerItemDecoration divider = new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(divider);
+
+        recyclerView.setAdapter(adapter);
+
+        ItemsViewModel.Factory factory = new ItemsViewModel.Factory(
+                getArguments().getLong(KEY_LIST_ID), getActivity().getApplication());
+
+        model = ViewModelProviders.of(this, factory).get(ItemsViewModel.class);
+        subscribe(model);
+    }
+
+    private void subscribe(ItemsViewModel model) {
+        model.getItems().observe(this, itemEntities -> {
+            adapter.setItems(itemEntities);
+            editBar.setShoppingList(itemEntities);
+        });
+    }
+
+    @Override
     public void onDestroyView() {
         editBar.removeEditBarListener(this);
         editBar.hide();
         super.onDestroyView();
-    }
-
-    private void connectList() {
-        if (shoppingList != null && adapter != null) {
-            adapter.connectShoppingList(shoppingList);
-        }
-        if (shoppingList != null && editBar != null) {
-            editBar.connectShoppingList(shoppingList);
-        }
-    }
-
-    @Override
-    public void onStop() {
-        adapter.disconnectShoppingList();
-        editBar.disconnectShoppingList();
-        super.onStop();
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        adapter = new RecyclerListAdapter(getActivity());
-        connectList();
-        adapter.registerRecyclerView(recyclerView);
-        adapter.setOnItemLongClickListener(new RecyclerListAdapter.ItemLongClickListener() {
-            @Override
-            public boolean onLongClick(int position) {
-                ListItem listItem = shoppingList.get(position);
-                editBar.showEdit(position, listItem.getDescription(), listItem.getQuantity());
-                return true;
-            }
-        });
-        recyclerView.setAdapter(adapter);
     }
 
     public boolean onBackPressed() {
@@ -128,25 +130,28 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         editBar.saveState(outState);
     }
 
     @Override
     public void onEditSave(int position, String description, String quantity) {
-        shoppingList.editItem(position, description, quantity);
+        //shoppingList.editItem(position, description, quantity);
+        //TODO
         editBar.hide();
         recyclerView.smoothScrollToPosition(position);
     }
 
     @Override
     public void onNewItem(String description, String quantity) {
-        shoppingList.add(description, quantity);
+        //shoppingList.add(description, quantity);
+        //TODO
         recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
     }
 
     public void removeAllCheckedItems() {
-        shoppingList.removeAllCheckedItems();
+        // shoppingList.removeAllCheckedItems();
+        // TODO
     }
 }
