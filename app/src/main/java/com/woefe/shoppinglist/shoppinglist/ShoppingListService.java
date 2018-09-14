@@ -43,6 +43,13 @@ public class ShoppingListService extends Service implements SharedPreferences.On
     private SharedPreferences sharedPreferences;
     private DirectoryStatus directoryStatus;
 
+    private static final Comparator<String> ignoreCaseComperator = new Comparator<String>() {
+        @Override
+        public int compare(String o1, String o2) {
+            return o1.compareToIgnoreCase(o2);
+        }
+    };
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -103,12 +110,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
 
         public String[] getListNames() {
             String[] names = manager.getListNames().toArray(new String[manager.size()]);
-            Arrays.sort(names, new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    return o1.compareToIgnoreCase(o2);
-                }
-            });
+            Arrays.sort(names, ignoreCaseComperator);
             return names;
         }
 
@@ -116,7 +118,7 @@ public class ShoppingListService extends Service implements SharedPreferences.On
             if (listName == null) {
                 return -1;
             }
-            return Arrays.binarySearch(getListNames(), listName);
+            return Arrays.binarySearch(getListNames(), listName, ignoreCaseComperator);
         }
 
         public int size() {
