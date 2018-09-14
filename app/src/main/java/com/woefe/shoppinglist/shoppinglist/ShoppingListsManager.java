@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -203,7 +204,7 @@ class ShoppingListsManager {
             throw new ShoppingListException("List already exists");
         }
 
-        String filename = new File(this.directory, name + FILE_ENDING).getPath();
+        String filename = new File(this.directory, URLEncoder.encode(name) + FILE_ENDING).getPath();
         ShoppingListMetadata metadata = addShoppingList(new ShoppingList(name), filename);
         metadata.isDirty = true;
     }
