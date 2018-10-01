@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ ShoppingList - A simple shopping list for Android
+  ~
+  ~ Copyright (C) 2018.  Wolfgang Popp
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="app_name">Lista della spesa</string>
+    <string name="action_settings">Impostazioni</string>
+    <string name="hint_quantity">Quantità</string>
+    <string name="hint_new_item">Nuovo oggetto</string>
+    <string name="context_menu_edit">Modifica</string>
+    <string name="context_menu_delete">Elimina</string>
+    <string name="action_delete_checked">Elimina oggetti selezionati</string>
+    <string name="remove_checked_items">Rimuovere tutti gli oggetti selezionati?</string>
+    <string name="cancel">Annulla</string>
+    <string name="ok">OK</string>
+    <string name="file_location">Percorso file</string>
+    <string name="error_description_empty">La descrizione dell\'oggetto non può essere vuota!</string>
+    <string name="drawer_open">Apri pannello navigazione</string>
+    <string name="drawer_close">Chiudi pannello navigazione</string>
+    <string name="new_list">Crea nuova lista</string>
+    <string name="delete_list">Elimina lista</string>
+    <string name="confirm_delete_list">Eliminare la lista &lt;b>%1$s&lt;/b>?</string>
+    <string name="add_new_list">Aggiungi una nuova lista</string>
+    <string name="add_list_hint">Nome della nuova lista</string>
+    <string name="fragment_invalid_text">Nessuna lista disponibile.</string>
+    <string name="done">Fatto</string>
+    <string name="swap">Scambia</string>
+    <string name="lists">Liste</string>
+    <string name="about">Al riguardo</string>
+    <string name="error_list_name_empty">Il nome della lista non può essere vuoto!</string>
+    <string name="error_list_exists">Questa lista esiste già</string>
+    <string name="share">Condividi</string>
+    <string name="warn_ignore_directory">Impossibile accedere alla cartella configurata!</string>
+    <string name="sort">Ordina</string>
+    <string name="ascending">A-Z</string>
+    <string name="descending">Z-A</string>
+    <string name="warn_no_dir_access">Impossibile accedere alla cartella selezionata!</string>
+    <string name="err_create_dir">Impossibile creare \'%s\'</string>
+    <string name="err_illegal_char">Il nome del file contiene il carattare non valido \'/\'</string>
+    <string name="select_storage_location">Seleziona percorso di archiviazione</string>
+    <string name="create_new_dir">Crea nuova cartella</string>
+    <string name="name_of_new_dir">Nome nuova cartella</string>
+    <string name="selected_directory">Seleziona cartella:</string>
+    <string name="duplicate_warning">\'%s\' è già nella lista</string>
+    <string name="checked_first">Prima i segnati</string>
+    <string name="unchecked_first">Prima i non segnati</string>
+    <string name="err_cannot_delete_list">Impossibile eliminare la lista</string>
+    <string name="err_share_list">Impossibile condividere la lista</string>
+    <string name="about_title">&lt;h1&gt;Al riguardo&lt;/h1&gt;</string>
+    <string name="about_version">&lt;h3&gt;Versione&lt;/h3&gt; Stai usando la versione &lt;tt&gt;v%1$s&lt;/tt&gt;</string>
+    <string name="about_github">&lt;h3&gt;Codice sorgente, problemi, contributi&lt;/h3&gt; Questo progetto viene ospitato su &lt;a href="https://github.com/woefe/ShoppingList"&gt;Github&lt;/a&gt;</string>
+    <string name="about_license">&lt;h3&gt;Licenza&lt;/h3&gt; ShoppingList è concesso in licenza &lt;a href=&quot;https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING&quot;&gt;GPLv3+&lt;/a&gt;</string>
+    <string name="about_author">&lt;h3&gt;Autore&lt;/h3&gt; Wolfgang Popp</string>
+    <string name="about_contributors">&lt;h3&gt;Collaboratori&lt;/h3&gt; &#8226; &lt;b&gt;Pierre Rudloff&lt;/b&gt; (French translation)&lt;br/&gt; &#8226; &lt;b&gt;unbranched&lt;/b&gt; (Italian translation)&lt;br/&gt;</string>
+</resources>
