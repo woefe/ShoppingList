@@ -2,6 +2,8 @@ package com.woefe.shoppinglist.activity;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -23,7 +25,6 @@ import com.woefe.shoppinglist.shoppinglist.ShoppingList;
 public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapter.ViewHolder> {
     private final int colorChecked;
     private final int colorDefault;
-    private final int colorRemove;
     private final int colorBackground;
     private ShoppingList shoppingList;
     private ItemTouchHelper touchHelper;
@@ -54,9 +55,8 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
     public RecyclerListAdapter(Context ctx) {
         colorChecked = ContextCompat.getColor(ctx, R.color.textColorChecked);
         colorDefault = ContextCompat.getColor(ctx, R.color.textColorDefault);
-        colorRemove = ContextCompat.getColor(ctx, R.color.colorCritical);
         colorBackground = ContextCompat.getColor(ctx, R.color.colorListItemBackground);
-        touchHelper = new ItemTouchHelper(new RecyclerListCallback());
+        touchHelper = new ItemTouchHelper(new RecyclerListCallback(ctx));
     }
 
     public void connectShoppingList(ShoppingList shoppingList) {
@@ -169,6 +169,15 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
     }
 
     public class RecyclerListCallback extends ItemTouchHelper.Callback {
+        private ColorDrawable background;
+        private Drawable deleteIcon;
+        private int backgroundColor;
+
+        public RecyclerListCallback(Context ctx) {
+            this.background = new ColorDrawable();
+            this.deleteIcon = ContextCompat.getDrawable(ctx, R.drawable.ic_delete_forever_white_24);
+            this.backgroundColor = ContextCompat.getColor(ctx, R.color.colorCritical);
+        }
 
         @Override
         public boolean isItemViewSwipeEnabled() {
@@ -183,7 +192,7 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
         @Override
         public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-            final int swipeFlags = ItemTouchHelper.END;
+            final int swipeFlags = ItemTouchHelper.START;
             return makeMovementFlags(dragFlags, swipeFlags);
         }
 
@@ -204,20 +213,33 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
 
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                // Fade out the view as it is swiped out of the parent's bounds
-                final float alpha = 1.0f - Math.abs(dX) / (float) viewHolder.itemView.getWidth();
-                if (dX < 1) {
-                    viewHolder.itemView.setBackgroundColor(colorBackground);
-                } else {
-                    viewHolder.itemView.setBackgroundColor(colorRemove);
-                }
-                viewHolder.itemView.setAlpha(alpha);
-                viewHolder.itemView.setTranslationX(dX);
-            } else {
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            }
-        }
 
+            if (actionState != ItemTouchHelper.ACTION_STATE_SWIPE) {
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                return;
+            }
+
+            View itemView = viewHolder.itemView;
+
+            int backgroundLeft = itemView.getRight() + (int) dX;
+            background.setBounds(backgroundLeft, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+            background.setColor(backgroundColor);
+            background.draw(c);
+
+            int itemHeight = itemView.getBottom() - itemView.getTop();
+            int intrinsicHeight = deleteIcon.getIntrinsicHeight();
+            int iconTop = itemView.getTop() + (itemHeight - intrinsicHeight) / 2;
+            int iconMargin = (itemHeight - intrinsicHeight) / 2;
+            int iconLeft = itemView.getRight() - iconMargin - deleteIcon.getIntrinsicWidth();
+            int iconRight = itemView.getRight() - iconMargin;
+            int iconBottom = iconTop + intrinsicHeight;
+            deleteIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+            deleteIcon.draw(c);
+
+            // Fade out the view as it is swiped out of the parent's bounds
+            final float alpha = 1.0f - Math.abs(dX) / (float) itemView.getWidth();
+            itemView.setAlpha(alpha);
+            itemView.setTranslationX(dX);
+        }
     }
 }
