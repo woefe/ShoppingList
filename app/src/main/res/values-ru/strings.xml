@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ ShoppingList - A simple shopping list for Android
+  ~
+  ~ Copyright (C) 2018.  Wolfgang Popp
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="app_name">Список покупок</string>
+    <string name="action_settings">Настройки</string>
+    <string name="hint_quantity">Количество</string>
+    <string name="hint_new_item">Новый пункт</string>
+    <string name="context_menu_edit">Редактировать</string>
+    <string name="context_menu_delete">Удалить</string>
+    <string name="action_delete_checked">Удалить отмеченные пункты</string>
+    <string name="remove_checked_items">Удалить все отмеченные пункты?</string>
+    <string name="cancel">Отменить</string>
+    <string name="ok">OK</string>
+    <string name="file_location">Расположение файла</string>
+    <string name="error_description_empty">Описание пункта не может быть пустым!</string>
+    <string name="drawer_open">Открыть меню</string>
+    <string name="drawer_close">Закрыть меню</string>
+    <string name="new_list">Создать новый список</string>
+    <string name="delete_list">Удалить список</string>
+    <string name="confirm_delete_list">Удалить список &lt;b>%1$s&lt;/b>?</string>
+    <string name="add_new_list">Добавление нового списка</string>
+    <string name="add_list_hint">Название нового списка</string>
+    <string name="fragment_invalid_text">Нет доступных списков.</string>
+    <string name="done">Выполнено</string>
+    <string name="swap">Переместить</string>
+    <string name="lists">Списки</string>
+    <string name="about">О приложении</string>
+    <string name="error_list_name_empty">Название списка не может быть пустым!</string>
+    <string name="error_list_exists">Такой список уже существует</string>
+    <string name="share">Поделиться</string>
+    <string name="warn_ignore_directory">Нет доступа к настроенной директории!</string>
+    <string name="sort">Отсортировать</string>
+    <string name="ascending">А-Я</string>
+    <string name="descending">Я-А</string>
+    <string name="warn_no_dir_access">Нет доступа к выбранной директории!</string>
+    <string name="err_create_dir">Невозможно создать \'%s\'</string>
+    <string name="err_illegal_char">Имя файла содержит недопустимый символ \'/\'</string>
+    <string name="select_storage_location">Выберите место хранения</string>
+    <string name="create_new_dir">Создать новую директорию</string>
+    <string name="name_of_new_dir">Имя новой директории</string>
+    <string name="selected_directory">Выбранная директория:</string>
+    <string name="duplicate_warning">\'%s\' уже в списке</string>
+    <string name="checked_first">Сначала отмеченные</string>
+    <string name="unchecked_first">Сначала неотмеченные</string>
+    <string name="err_cannot_delete_list">Невозможно удалить список</string>
+    <string name="err_share_list">Невозможно поделиться списком</string>
+    <string name="about_title">&lt;h1&gt;О приложении&lt;/h1&gt;</string>
+    <string name="about_version">&lt;h3&gt;Версия&lt;/h3&gt; Вы используете версию &lt;tt&gt;v%1$s&lt;/tt&gt;</string>
+    <string name="about_github">&lt;h3&gt;Исходный код, Проблемы, Содействие&lt;/h3&gt; Этот проект находится на &lt;a href="https://github.com/woefe/ShoppingList"&gt;Github&lt;/a&gt;</string>
+    <string name="about_license">&lt;h3&gt;Лицензия&lt;/h3&gt; ShoppingList лицензируется согласно &lt;a href=&quot;https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING&quot;&gt;GPLv3+&lt;/a&gt;</string>
+    <string name="about_author">&lt;h3&gt;Автор&lt;/h3&gt; Wolfgang Popp</string>
+    <string name="about_contributors">&lt;h3&gt;Внёсшие вклад&lt;/h3&gt; &#8226; &lt;b&gt;Pierre Rudloff&lt;/b&gt; (перевод на французский)&lt;br/&gt;</string>
+</resources>
