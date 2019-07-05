@@ -1,0 +1,2 @@
+Verwalte Deine Einkaufs- und andere Listen.
+Die Listen werden in einer klaren, menschenlesbaren Syntax in normalen Textdateien gespeichert. Das erlaubt es sie mit anderen Geräten zu synchronisieren, z.B. mit [https://syncthing.net/ Syncthing] oder [https://nextcloud.com/ Nextcloud].

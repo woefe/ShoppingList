@@ -1,0 +1,2 @@
+Manage your shopping lists and other types of lists.
+The lists are stored as simple text files and use a simple, human-readable syntax. This allows you to synchronize them with other devices by using applications such as [https://syncthing.net/ Syncthing] and [https://nextcloud.com/ Nextcloud].
