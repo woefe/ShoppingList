@@ -31,7 +31,7 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
     private ShoppingList shoppingList;
     private ItemTouchHelper touchHelper;
     private ItemLongClickListener longClickListener;
-    private View view;
+    private View snackbarView;
 
     private final ShoppingList.ShoppingListListener listener = new ShoppingList.ShoppingListListener() {
         @Override
@@ -60,7 +60,7 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
         colorDefault = ContextCompat.getColor(ctx, R.color.textColorDefault);
         colorBackground = ContextCompat.getColor(ctx, R.color.colorListItemBackground);
         touchHelper = new ItemTouchHelper(new RecyclerListCallback(ctx));
-        view = ((Activity) ctx).findViewById(R.id.fab_add_parent);
+        snackbarView = ((Activity) ctx).findViewById(R.id.fab_add_parent);
     }
 
     public void connectShoppingList(ShoppingList shoppingList) {
@@ -83,7 +83,7 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
     public void remove(int pos) {
         final int lastDeletedPosition = pos;
         final ListItem lastDeletedItem = shoppingList.remove(pos);
-        Snackbar.make(view, R.string.item_deleted, Snackbar.LENGTH_LONG)
+        Snackbar.make(snackbarView, R.string.item_deleted, Snackbar.LENGTH_LONG)
                 .setAction(R.string.undo_delete, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
