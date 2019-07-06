@@ -38,6 +38,8 @@
     <string name="add_new_list">Add a new list</string>
     <string name="add_list_hint">Name of new list</string>
     <string name="fragment_invalid_text">No lists are available.</string>
+    <string name="item_deleted">Item deleted</string>
+    <string name="undo_delete">UNDO</string>
     <string name="done">Done</string>
     <string name="swap">Swap</string>
     <string name="lists">Lists</string>
@@ -66,5 +68,5 @@
     <string name="about_github">&lt;h3&gt;Source code, Issues, Contributing&lt;/h3&gt; This project is hosted on &lt;a href="https://github.com/woefe/ShoppingList"&gt;Github&lt;/a&gt;</string>
     <string name="about_license">&lt;h3&gt;License&lt;/h3&gt; ShoppingList is licensed under &lt;a href=&quot;https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING&quot;&gt;GPLv3+&lt;/a&gt;</string>
     <string name="about_author">&lt;h3&gt;Author&lt;/h3&gt; Wolfgang Popp</string>
-    <string name="about_contributors">&lt;h3&gt;Contributors&lt;/h3&gt; &#8226; &lt;b&gt;Pierre Rudloff&lt;/b&gt; (French translation)&lt;br/&gt; &#8226; &lt;b&gt;unbranched&lt;/b&gt; (Italian translation)&lt;br/&gt;</string>
+    <string name="about_contributors">&lt;h3&gt;Contributors&lt;/h3&gt; &#8226; &lt;b&gt;Pierre Rudloff&lt;/b&gt; (French translation)&lt;br/&gt; &#8226; &lt;b&gt;unbranched&lt;/b&gt; (Italian translation)&lt;br/&gt; &#8226; &lt;b&gt;Nuntius&lt;/b&gt; &lt;br/&gt;</string>
 </resources>
