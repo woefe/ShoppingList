@@ -149,4 +149,8 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
     public void removeAllCheckedItems() {
         shoppingList.removeAllCheckedItems();
     }
+
+	public EditBar getEditBar() {
+		return editBar;
+	}
 }

@@ -389,4 +389,14 @@ public class MainActivity extends BinderActivity implements
             return true;
         }
     }
+
+	public Snackbar makeUndoSnackbar() {
+		View snackbarView;
+		if (currentFragment instanceof ShoppingListFragment && ((ShoppingListFragment) currentFragment).getEditBar().isVisible()) {
+			snackbarView = findViewById(R.id.shoppingListView);
+		} else {
+			snackbarView = findViewById(R.id.fab_add_parent);
+		}
+		return Snackbar.make(snackbarView, R.string.item_deleted, Snackbar.LENGTH_LONG);
+	}
 }
