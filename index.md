@@ -1,9 +1,9 @@
-<h1 align="center"><img src="app/src/main/res/mipmap-xxhdpi/ic_launcher.png" width="70" height="70" /><br/> ShoppingList</h1>
+<h1 align="center"><img src="https://raw.githubusercontent.com/woefe/ShoppingList/master/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" width="70" height="70" /><br/> ShoppingList</h1>
 A simple shopping list for Android
 
 <p float="left">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01_list_content.png" height="500" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/00_lists.png" height="500" />
+  <img src="https://raw.githubusercontent.com/woefe/ShoppingList/master/fastlane/metadata/android/en-US/images/phoneScreenshots/01_list_content.png" height="500" />
+  <img src="https://raw.githubusercontent.com/woefe/ShoppingList/master/fastlane/metadata/android/en-US/images/phoneScreenshots/00_lists.png" height="500" />
 </p>
 
 <a href="https://f-droid.org/packages/com.woefe.shoppinglist/" target="_blank">
