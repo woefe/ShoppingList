@@ -70,7 +70,7 @@ public class DirectoryChooser extends AppCompatActivity implements TextInputDial
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_directory_chooser);
 
-        directoryViewAdapter = new ArrayAdapter<>(this, R.layout.drawer_list_item);
+        directoryViewAdapter = new ArrayAdapter<>(this, R.layout.directory_list_item);
         ListView directoryView = findViewById(R.id.directoryListView);
         directoryView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override

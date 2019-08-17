@@ -19,15 +19,15 @@
   -->
 
 <resources>
-    <color name="textColor">#000000</color>
-    <color name="textColorDefault">#000000</color>
-    <color name="textColorChecked">#CCCCCC</color>
-    <color name="colorListItemBackground">@android:color/background_light</color>
-    <color name="colorBackground">#FFFFFF</color>
+    <color name="textColor">#FFFFFF</color>
+    <color name="textColorDefault">#FFFFFF</color>
+    <color name="textColorChecked">#33FFFFFF</color>
+    <color name="colorListItemBackground">#212121</color>
+    <color name="colorBackground">#212121</color>
     <color name="colorPrimary">#388E3C</color>
     <color name="colorPrimaryDark">#1B5E20</color>
     <color name="colorSecondaryLight">#FFC046</color>
     <color name="colorAccent">#FF8F00</color>
     <color name="colorCritical">#FF5722</color>
-    <color name="iconColor">#000000</color>
+    <color name="iconColor">#FFFFFF</color>
 </resources>

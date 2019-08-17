@@ -20,7 +20,8 @@
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground">
 
     <TextView
         android:id="@+id/about_text"
@@ -28,5 +29,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textColor="#000" />
+        android:textColor="@color/textColor" />
 </ScrollView>

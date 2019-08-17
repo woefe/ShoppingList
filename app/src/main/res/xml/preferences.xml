@@ -21,6 +21,7 @@
     <Preference
         android:key="FILE_LOCATION"
         android:title="@string/file_location"
+        android:icon="@drawable/ic_sd_storage_24dp"
         android:inputType="text" />
 
 </PreferenceScreen>
