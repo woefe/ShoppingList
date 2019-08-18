@@ -69,8 +69,8 @@
     <string name="about_contributors">&lt;h3&gt;Contributors&lt;/h3&gt; &#8226; &lt;b&gt;Pierre Rudloff&lt;/b&gt; (French translation)&lt;br/&gt; &#8226; &lt;b&gt;unbranched&lt;/b&gt; (Italian translation)&lt;br/&gt;</string>
 
     <string name="settings_file_location">File location</string>
-    <string name="settings_theme">Theme (needs restart)</string>
-    <string name="settings_theme_follow_system">Follow system</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_follow_system">Follow system  (needs restart)</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
 </resources>
