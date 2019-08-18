@@ -17,17 +17,32 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorBackground">
+	<android.support.v7.widget.Toolbar
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		android:id="@+id/toolbar_about"
+		android:layout_width="match_parent"
+		android:layout_height="?attr/actionBarSize"
+		android:background="?attr/colorPrimary"
+		android:elevation="4dp"
+		android:theme="@style/Toolbar"
+		app:titleTextColor="@android:color/white" />
 
-    <TextView
-        android:id="@+id/about_text"
-        android:padding="7dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textColor="@color/textColor" />
-</ScrollView>
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_below="@id/toolbar_about"
+		android:background="@color/colorBackground">
+
+		<TextView
+			android:id="@+id/about_text"
+			android:padding="7dp"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+			android:textColor="@color/textColor" />
+	</ScrollView>
+</RelativeLayout>

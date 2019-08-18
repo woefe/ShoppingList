@@ -61,6 +61,7 @@
     <style name="Toolbar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:actionOverflowButtonStyle">@style/OverflowMenuTheme</item>
         <item name="android:textColor">@color/textColor</item>
+        <item name="android:colorControlNormal">@android:color/white</item>
     </style>
 
     <style name="OverflowMenuTheme" parent="@style/Widget.AppCompat.ActionButton.Overflow" >

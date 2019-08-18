@@ -20,18 +20,34 @@
 package com.woefe.shoppinglist.activity;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+
+import com.woefe.shoppinglist.R;
 
 /**
  * @author Wolfgang Popp.
  */
 public class SettingsActivity extends AppCompatActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getSupportFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new SettingsFragment())
-                .commit();
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.toolbar_settings);
+
+		final Toolbar toolbar = findViewById(R.id.toolbar_settings);
+		toolbar.setTitle(R.string.action_settings);
+		setSupportActionBar(toolbar);
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
+
+		getSupportFragmentManager().beginTransaction()
+								   .replace(android.R.id.content, new SettingsFragment())
+								   .commit();
+	}
 }

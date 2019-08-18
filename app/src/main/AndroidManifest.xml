@@ -40,8 +40,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".dialog.DirectoryChooser" android:theme="@style/AppDialogTheme" />
-        <activity android:name=".activity.SettingsActivity" />
-        <activity android:name=".activity.AboutActivity" />
+        <activity android:name=".activity.SettingsActivity" android:parentActivityName=".activity.MainActivity"/>
+        <activity android:name=".activity.AboutActivity" android:parentActivityName=".activity.MainActivity" />
+
     </application>
 
 </manifest>
