@@ -28,7 +28,7 @@
     <string name="remove_checked_items">Удалить все отмеченные пункты?</string>
     <string name="cancel">Отменить</string>
     <string name="ok">OK</string>
-    <string name="file_location">Расположение файла</string>
+    <string name="settings_file_location">Расположение файла</string>
     <string name="error_description_empty">Описание пункта не может быть пустым!</string>
     <string name="drawer_open">Открыть меню</string>
     <string name="drawer_close">Закрыть меню</string>

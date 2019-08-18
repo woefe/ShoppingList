@@ -32,6 +32,7 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
 import com.woefe.shoppinglist.R;
+import com.woefe.shoppinglist.ShoppingListApplication;
 import com.woefe.shoppinglist.dialog.DirectoryChooser;
 
 /**
@@ -41,6 +42,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String KEY_DIRECTORY_LOCATION = "FILE_LOCATION";
+    public static final String KEY_THEME = "THEME";
     private static final int REQUEST_CODE_CHOOSE_DIR = 123;
 
     @Override
@@ -115,6 +117,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         if (key.equals(KEY_DIRECTORY_LOCATION)) {
             Preference p = findPreference(key);
             updatePreferences(p);
+        } else if (key.equals(KEY_THEME)) {
+            Activity activity = getActivity();
+            if (activity != null) {
+                ShoppingListApplication.setNightMode(activity);
+                activity.recreate();
+            }
         }
     }
 

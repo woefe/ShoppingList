@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string-array name="settings_theme_entries">
+        <item>@string/settings_theme_follow_system</item>
+        <item>@string/settings_theme_light</item>
+        <item>@string/settings_theme_dark</item>
+    </string-array>
+
+    <string-array name="settings_theme_entry_values">
+        <item>"MODE_NIGHT_FOLLOW_SYSTEM"</item>
+        <item>"MODE_NIGHT_NO"</item>
+        <item>"MODE_NIGHT_YES"</item>
+    </string-array>
+
+</resources>
