@@ -20,11 +20,13 @@
 package com.woefe.shoppinglist.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceCategory;
@@ -32,7 +34,7 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
 import com.woefe.shoppinglist.R;
-import com.woefe.shoppinglist.ShoppingListApplication;
+import com.woefe.shoppinglist.SettingsRepository;
 import com.woefe.shoppinglist.dialog.DirectoryChooser;
 
 /**
@@ -44,6 +46,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     public static final String KEY_DIRECTORY_LOCATION = "FILE_LOCATION";
     public static final String KEY_THEME = "THEME";
     private static final int REQUEST_CODE_CHOOSE_DIR = 123;
+
+    private SettingsRepository settingsRepository;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        settingsRepository = new SettingsRepository(context);
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -118,9 +129,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
             Preference p = findPreference(key);
             updatePreferences(p);
         } else if (key.equals(KEY_THEME)) {
+            int theme = settingsRepository.getTheme();
+            AppCompatDelegate.setDefaultNightMode(theme);
             Activity activity = getActivity();
             if (activity != null) {
-                ShoppingListApplication.setNightMode(activity);
+                activity.recreate();
             }
         }
     }
