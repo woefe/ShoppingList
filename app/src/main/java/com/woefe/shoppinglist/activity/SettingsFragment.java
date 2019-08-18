@@ -121,7 +121,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
             Activity activity = getActivity();
             if (activity != null) {
                 ShoppingListApplication.setNightMode(activity);
-                activity.recreate();
             }
         }
     }

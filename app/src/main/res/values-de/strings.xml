@@ -69,7 +69,7 @@
     <string name="about_contributors">&lt;h3&gt;Mitwirkende&lt;/h3&gt; &#8226; &lt;b&gt;Pierre Rudloff&lt;/b&gt; (Französische Übersetzung)&lt;br/&gt; &#8226; &lt;b&gt;unbranched&lt;/b&gt; (Italienische Übersetzung)&lt;br/&gt;</string>
 
     <string name="settings_file_location">Dateipfad</string>
-    <string name="settings_theme">Theme</string>
+    <string name="settings_theme">Theme (benötigt Neustart)</string>
     <string name="settings_theme_follow_system">Geräte-Theme beachten</string>
     <string name="settings_theme_light">Hell</string>
     <string name="settings_theme_dark">Dunkel</string>
