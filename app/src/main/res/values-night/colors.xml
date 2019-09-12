@@ -22,8 +22,9 @@
     <color name="textColor">#FFFFFF</color>
     <color name="textColorDefault">#FFFFFF</color>
     <color name="textColorChecked">#33FFFFFF</color>
-    <color name="colorListItemBackground">#212121</color>
-    <color name="colorBackground">#212121</color>
+    <color name="colorListItemBackground">#000000</color>
+    <color name="colorBackgroundLight">#212121</color>
+    <color name="colorBackground">#000000</color>
     <color name="colorPrimary">#388E3C</color>
     <color name="colorPrimaryDark">#1B5E20</color>
     <color name="colorSecondaryLight">#FFC046</color>

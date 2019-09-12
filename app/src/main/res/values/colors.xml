@@ -23,6 +23,7 @@
     <color name="textColorDefault">#000000</color>
     <color name="textColorChecked">#CCCCCC</color>
     <color name="colorListItemBackground">@android:color/background_light</color>
+    <color name="colorBackgroundLight">#FFFFFF</color>
     <color name="colorBackground">#FFFFFF</color>
     <color name="colorPrimary">#388E3C</color>
     <color name="colorPrimaryDark">#1B5E20</color>

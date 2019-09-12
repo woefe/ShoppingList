@@ -37,7 +37,7 @@
         <item name="buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
         <item name="android:windowMinWidthMajor">65%</item>
         <item name="android:windowMinWidthMinor">95%</item>
-        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:windowBackground">@color/colorBackgroundLight</item>
         <item name="windowNoTitle">true</item>
     </style>
 
@@ -48,7 +48,7 @@
         <item name="android:textColorPrimary">@color/textColorDefault</item>
         <item name="android:textColorAlertDialogListItem">@color/textColorDefault</item>
         <item name="buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
-        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:windowBackground">@color/colorBackgroundLight</item>
         <item name="windowNoTitle">true</item>
     </style>
 
@@ -64,7 +64,8 @@
         <item name="android:colorControlNormal">@android:color/white</item>
     </style>
 
-    <style name="OverflowMenuTheme" parent="@style/Widget.AppCompat.ActionButton.Overflow" >
+    <style name="OverflowMenuTheme" parent="@style/Widget.AppCompat.ActionButton.Overflow">
         <item name="android:tint">@android:color/white</item>
     </style>
+
 </resources>

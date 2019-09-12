@@ -70,7 +70,7 @@ public class ConfirmationDialog extends DialogFragment {
             message = savedInstanceState.getString(KEY_MESSAGE);
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppDialogTheme);
         builder.setMessage(Html.fromHtml(message))
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
