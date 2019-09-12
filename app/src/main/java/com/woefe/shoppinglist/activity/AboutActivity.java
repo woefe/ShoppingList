@@ -54,8 +54,7 @@ public class AboutActivity extends AppCompatActivity {
 
 		TextView textView = findViewById(R.id.about_text);
 		textView.setMovementMethod(LinkMovementMethod.getInstance());
-		textView.setText(Html.fromHtml(getString(R.string.about_title)));
-		textView.append(Html.fromHtml(getString(R.string.about_version, BuildConfig.VERSION_NAME)));
+		textView.setText(Html.fromHtml(getString(R.string.about_version, BuildConfig.VERSION_NAME)));
 		textView.append("\n");
 		textView.append("\n");
 		textView.append("\n");
