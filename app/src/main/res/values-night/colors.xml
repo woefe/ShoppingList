@@ -30,5 +30,4 @@
     <color name="colorSecondaryLight">#FFC046</color>
     <color name="colorAccent">#FF8F00</color>
     <color name="colorCritical">#FF5722</color>
-    <color name="iconColor">#FFFFFF</color>
 </resources>
