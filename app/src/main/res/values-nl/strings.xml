@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ ShoppingList - A simple shopping list for Android
+  ~
+  ~ Copyright (C) 2018.  Wolfgang Popp
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="app_name">Shopping List</string>
+    <string name="action_settings">Instellingen</string>
+    <string name="hint_quantity">Aantal</string>
+    <string name="hint_new_item">Nieuw item</string>
+    <string name="context_menu_edit">Bewerk</string>
+    <string name="context_menu_delete">Verwijder</string>
+    <string name="action_delete_checked">Verwijder aangevinkte items</string>
+    <string name="remove_checked_items">Verwijder alle aangevinkte items?</string>
+    <string name="cancel">Annuleer</string>
+    <string name="ok">Oké</string>
+    <string name="file_location">Bestandslocatie</string>
+    <string name="error_description_empty">Itembeschrijving mag niet leeg zijn!</string>
+    <string name="drawer_open">Open navigatielade</string>
+    <string name="drawer_close">Sluit navigatielade</string>
+    <string name="new_list">Maak nieuwe lijst aan</string>
+    <string name="delete_list">Verwijder lijst</string>
+    <string name="confirm_delete_list">Verwijder lijst &lt;b>%1$s&lt;/b>?</string>
+    <string name="add_new_list">Voeg nieuwe lijst toe</string>
+    <string name="add_list_hint">Naam van de nieuwe lijst</string>
+    <string name="fragment_invalid_text">Er zijn geen lijsten beschikbaar.</string>
+    <string name="done">Klaar</string>
+    <string name="swap">Wissel</string>
+    <string name="lists">Lijsten</string>
+    <string name="about">Over</string>
+    <string name="error_list_name_empty">De naam van de lijst mag niet leeg zijn!</string>
+    <string name="error_list_exists">Deze lijst bestaat al</string>
+    <string name="share">Deel</string>
+    <string name="warn_ignore_directory">Geen toegang tot ingestelde map!</string>
+    <string name="sort">Sorteer</string>
+    <string name="ascending">A-Z</string>
+    <string name="descending">Z-A</string>
+    <string name="warn_no_dir_access">Geen toegang tot geselecteerde map!</string>
+    <string name="err_create_dir">Kan \'%s\' niet aanmaken</string>
+    <string name="err_illegal_char">Bestandsnaam bevat ongeldige karakter \'/\'</string>
+    <string name="select_storage_location">Kies opslaglocatie</string>
+    <string name="create_new_dir">Maak nieuwe map aan</string>
+    <string name="name_of_new_dir">Naam van nieuwe map</string>
+    <string name="selected_directory">Gekozen map:</string>
+    <string name="duplicate_warning">\'%s\' staat al op de lijst</string>
+    <string name="checked_first">Eerste aangevinkt</string>
+    <string name="unchecked_first">Eerste uitgevinkt</string>
+    <string name="err_cannot_delete_list">Kan lijst niet verwijderen</string>
+    <string name="err_share_list">Kan lijst niet delen</string>
+    <string name="about_title">&lt;h1&gt;Over&lt;/h1&gt;</string>
+    <string name="about_version">&lt;h3&gt;Versie&lt;/h3&gt; Je gebruikt versie &lt;tt&gt;v%1$s&lt;/tt&gt;</string>
+    <string name="about_github">&lt;h3&gt;Broncode, Issues, Bijdragen&lt;/h3&gt; Dit project is te vinden op &lt;a href="https://github.com/woefe/ShoppingList"&gt;Github&lt;/a&gt;</string>
+    <string name="about_license">&lt;h3&gt;Licentie&lt;/h3&gt; ShoppingList heeft de licentie &lt;a href=&quot;https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING&quot;&gt;GPLv3+&lt;/a&gt;</string>
+    <string name="about_author">&lt;h3&gt;Auteur&lt;/h3&gt; Wolfgang Popp</string>
+    <string name="about_contributors">&lt;h3&gt;Bijdragen van&lt;/h3&gt; &#8226; &lt;b&gt;Pierre Rudloff&lt;/b&gt; (Franse vertaling)&lt;br/&gt; &#8226; &lt;b&gt;unbranched&lt;/b&gt; (Italiaanse vertaling)&lt;br/&gt;</string>
+</resources>
