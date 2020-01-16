@@ -29,6 +29,7 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
     private ShoppingList shoppingList;
     private ItemTouchHelper touchHelper;
     private ItemLongClickListener longClickListener;
+    private MainActivity mainActivity;
 
     private final ShoppingList.ShoppingListListener listener = new ShoppingList.ShoppingListListener() {
         @Override
@@ -57,6 +58,7 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
         colorDefault = ContextCompat.getColor(ctx, R.color.textColorDefault);
         colorBackground = ContextCompat.getColor(ctx, R.color.colorListItemBackground);
         touchHelper = new ItemTouchHelper(new RecyclerListCallback(ctx));
+        mainActivity = (MainActivity) ctx;
     }
 
     public void connectShoppingList(ShoppingList shoppingList) {
@@ -77,7 +79,15 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
     }
 
     public void remove(int pos) {
-        shoppingList.remove(pos);
+        final int lastDeletedPosition = pos;
+        final ListItem lastDeletedItem = shoppingList.remove(pos);
+        mainActivity.makeUndoSnackbar()
+                    .setAction(R.string.undo_delete, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            shoppingList.add(lastDeletedPosition, lastDeletedItem);
+                        }
+                    }).show();
     }
 
     public void registerRecyclerView(RecyclerView view) {

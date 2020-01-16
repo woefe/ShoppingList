@@ -66,5 +66,5 @@
     <string name="about_github">&lt;h3&gt;Codice sorgente, problemi, contributi&lt;/h3&gt; Questo progetto viene ospitato su &lt;a href="https://github.com/woefe/ShoppingList"&gt;Github&lt;/a&gt;</string>
     <string name="about_license">&lt;h3&gt;Licenza&lt;/h3&gt; ShoppingList è concesso in licenza &lt;a href=&quot;https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING&quot;&gt;GPLv3+&lt;/a&gt;</string>
     <string name="about_author">&lt;h3&gt;Autore&lt;/h3&gt; Wolfgang Popp</string>
-    <string name="about_contributors">&lt;h3&gt;Collaboratori&lt;/h3&gt; &#8226; &lt;b&gt;Pierre Rudloff&lt;/b&gt; (traduzione in francese)&lt;br/&gt; &#8226; &lt;b&gt;unbranched&lt;/b&gt; (traduzione in italiano)&lt;br/&gt;</string>
+    <string name="about_contributors">&lt;h3&gt;Collaboratori&lt;/h3&gt; &#8226; &lt;b&gt;Pierre Rudloff&lt;/b&gt; (traduzione in francese)&lt;br/&gt; &#8226; &lt;b&gt;unbranched&lt;/b&gt; (traduzione in italiano)&lt;br/&gt; &#8226; &lt;b&gt;Nuntius&lt;/b&gt; &lt;br/&gt;</string>
 </resources>
