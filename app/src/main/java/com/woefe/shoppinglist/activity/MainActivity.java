@@ -30,6 +30,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -69,6 +70,7 @@ public class MainActivity extends BinderActivity implements
     private Fragment currentFragment;
     private String currentListName;
     private ShareActionProvider actionProvider;
+    private int lastTheme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +88,7 @@ public class MainActivity extends BinderActivity implements
                 selectList(position);
             }
         });
+        lastTheme = AppCompatDelegate.getDefaultNightMode();
 
         final Toolbar toolbar = findViewById(R.id.toolbar_main);
         toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);
@@ -112,6 +115,14 @@ public class MainActivity extends BinderActivity implements
     public void onPostCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
         super.onPostCreate(savedInstanceState, persistentState);
         drawerToggle.syncState();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (AppCompatDelegate.getDefaultNightMode() != lastTheme) {
+            recreate();
+        }
     }
 
     @Override

@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+  <!--
   ~ ShoppingList - A simple shopping list for Android
   ~
-  ~ Copyright (C) 2018.  Wolfgang Popp
+  ~ Copyright (C) 2019.  Wolfgang Popp
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -18,12 +19,15 @@
   -->
 
 <resources>
+    <color name="textColor">#000000</color>
     <color name="textColorDefault">#000000</color>
-    <color name="textColorChecked">#cccccc</color>
+    <color name="textColorChecked">#CCCCCC</color>
     <color name="colorListItemBackground">@android:color/background_light</color>
-    <color name="colorPrimary">#388e3c</color>
-    <color name="colorPrimaryDark">#1b5e20</color>
-    <color name="colorSecondaryLight">#ffc046</color>
-    <color name="colorAccent">#ff8f00</color>
+    <color name="colorBackgroundLight">#FFFFFF</color>
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorPrimary">#388E3C</color>
+    <color name="colorPrimaryDark">#1B5E20</color>
+    <color name="colorSecondaryLight">#FFC046</color>
+    <color name="colorAccent">#FF8F00</color>
     <color name="colorCritical">#FF5722</color>
 </resources>

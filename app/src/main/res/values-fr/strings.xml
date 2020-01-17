@@ -28,7 +28,7 @@
     <string name="remove_checked_items">Retirer tous les &#xE9;l&#xE9;ments coch&#xE9;s&#xA0;?</string>
     <string name="cancel">Annuler</string>
     <string name="ok">OK</string>
-    <string name="file_location">Emplacement du fichier</string>
+    <string name="settings_file_location">Emplacement du fichier</string>
     <string name="error_description_empty">La description de l\'&#xE9;l&#xE9;ment ne peut pas &#xEA;tre vide&#xA0;!</string>
     <string name="drawer_open">Ouvrir le tiroir de navigation</string>
     <string name="drawer_close">Fermer le tiroir de navigation</string>

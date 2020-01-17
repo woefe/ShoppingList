@@ -28,7 +28,7 @@
     <string name="remove_checked_items">Rimuovere tutti gli oggetti selezionati?</string>
     <string name="cancel">Annulla</string>
     <string name="ok">OK</string>
-    <string name="file_location">Percorso file</string>
+    <string name="settings_file_location">Percorso file</string>
     <string name="error_description_empty">La descrizione dell\'oggetto non può essere vuota!</string>
     <string name="drawer_open">Apri pannello navigazione</string>
     <string name="drawer_close">Chiudi pannello navigazione</string>

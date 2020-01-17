@@ -28,7 +28,6 @@
     <string name="remove_checked_items">Remove all checked items?</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
-    <string name="file_location">File location</string>
     <string name="error_description_empty">Item description may not be empty!</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
@@ -61,10 +60,17 @@
     <string name="unchecked_first">Unchecked first</string>
     <string name="err_cannot_delete_list">Cannot delete list</string>
     <string name="err_share_list">Cannot share list</string>
+
     <string name="about_title">&lt;h1&gt;About&lt;/h1&gt;</string>
     <string name="about_version">&lt;h3&gt;Version&lt;/h3&gt; You are using version &lt;tt&gt;v%1$s&lt;/tt&gt;</string>
     <string name="about_github">&lt;h3&gt;Source code, Issues, Contributing&lt;/h3&gt; This project is hosted on &lt;a href="https://github.com/woefe/ShoppingList"&gt;Github&lt;/a&gt;</string>
     <string name="about_license">&lt;h3&gt;License&lt;/h3&gt; ShoppingList is licensed under &lt;a href=&quot;https://raw.githubusercontent.com/woefe/ShoppingList/master/COPYING&quot;&gt;GPLv3+&lt;/a&gt;</string>
     <string name="about_author">&lt;h3&gt;Author&lt;/h3&gt; Wolfgang Popp</string>
     <string name="about_contributors">&lt;h3&gt;Contributors&lt;/h3&gt; &#8226; &lt;b&gt;Pierre Rudloff&lt;/b&gt; (French translation)&lt;br/&gt; &#8226; &lt;b&gt;unbranched&lt;/b&gt; (Italian translation)&lt;br/&gt;</string>
+
+    <string name="settings_file_location">File location</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_follow_system">Follow system  (needs restart)</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
 </resources>

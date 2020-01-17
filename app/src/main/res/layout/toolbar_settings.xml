@@ -17,23 +17,12 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <PreferenceCategory android:layout="@layout/toolbar_settings">
-
-        <Preference
-            android:key="FILE_LOCATION"
-            android:icon="@drawable/ic_sd_storage_24dp"
-            android:inputType="text"
-            android:title="@string/settings_file_location" />
-
-        <ListPreference
-            android:key="THEME"
-            android:icon="@drawable/ic_color_lens_24dp"
-            android:title="@string/settings_theme"
-            android:entries="@array/settings_theme_entries"
-            android:entryValues="@array/settings_theme_entry_values" />
-
-    </PreferenceCategory>
-
-</PreferenceScreen>
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/toolbar_settings"
+	android:layout_width="match_parent"
+	android:layout_height="?attr/actionBarSize"
+	android:background="?attr/colorPrimary"
+	android:elevation="4dp"
+	android:theme="@style/Toolbar"
+	app:titleTextColor="@android:color/white" />

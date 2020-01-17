@@ -60,7 +60,7 @@
         android:layout_margin="16dp"
         android:clickable="true"
         android:focusable="true"
-        android:src="@drawable/ic_add_black_24dp" />
+        android:src="@drawable/ic_add_24dp" />
 
     <ImageButton
         android:id="@+id/button_choose_storage"
@@ -68,7 +68,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:src="@drawable/ic_sd_storage_black_24dp" />
+        android:src="@drawable/ic_sd_storage_24dp" />
 
     <Button
         android:id="@+id/button_dialog_ok"
