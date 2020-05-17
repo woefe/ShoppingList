@@ -15,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter;
+import com.afollestad.sectionedrecyclerview.SectionedViewHolder;
 import com.woefe.shoppinglist.R;
 import com.woefe.shoppinglist.shoppinglist.ListItem;
 import com.woefe.shoppinglist.shoppinglist.ShoppingList;
@@ -22,7 +24,7 @@ import com.woefe.shoppinglist.shoppinglist.ShoppingList;
 /**
  * @author Wolfgang Popp
  */
-public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapter.ViewHolder> {
+public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedViewHolder> {
     private final int colorChecked;
     private final int colorDefault;
     private final int colorBackground;
@@ -39,9 +41,6 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
                     break;
                 case ShoppingList.Event.ITEM_INSERTED:
                     notifyItemInserted(e.getIndex());
-                    break;
-                case ShoppingList.Event.ITEM_MOVED:
-                    notifyItemMoved(e.getOldIndex(), e.getNewIndex());
                     break;
                 case ShoppingList.Event.ITEM_REMOVED:
                     notifyItemRemoved(e.getIndex());
@@ -72,8 +71,8 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
         }
     }
 
-    public void move(int fromPos, int toPos) {
-        shoppingList.move(fromPos, toPos);
+    public void move(ListItem from, ListItem to) {
+        shoppingList.move(from, to);
     }
 
     public void remove(int pos) {
@@ -90,76 +89,119 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item, parent, false);
-        return new ViewHolder(v);
+    public SectionedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_HEADER) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_category, parent, false);
+            return new CategoryViewHolder(v);
+        } else {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+            return new ItemViewHolder(v);
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        ListItem listItem = shoppingList.get(position);
-        holder.description.setText(listItem.getDescription());
-        holder.quantity.setText(listItem.getQuantity());
+    public int getSectionCount() {
+        return shoppingList.getCategories().size();
+    }
 
-        if (listItem.isChecked()) {
-            holder.description.setTextColor(colorChecked);
-            holder.quantity.setTextColor(colorChecked);
-        } else {
-            holder.description.setTextColor(colorDefault);
-            holder.quantity.setTextColor(colorDefault);
+    @Override
+    public int getItemCount(int section) {
+        String category = shoppingList.getCategories().get(section);
+        int count = 0;
+
+        for (int i = 0; i < shoppingList.size(); i++) {
+            if (shoppingList.get(i).getCategory().equals(category)) {
+                count++;
+            }
         }
 
-        holder.itemView.setBackgroundColor(colorBackground);
+        return count;
+    }
 
-        holder.view.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onBindHeaderViewHolder(SectionedViewHolder sectionedViewHolder, int section, boolean expanded) {
+        CategoryViewHolder categoryViewHolder = (CategoryViewHolder) sectionedViewHolder;
+        categoryViewHolder.category.setText(shoppingList.getCategories().get(section));
+    }
+
+    @Override
+    public void onBindFooterViewHolder(SectionedViewHolder sectionedViewHolder, int i) {
+        // not needed
+    }
+
+    @Override
+    public void onBindViewHolder(SectionedViewHolder sectionedViewHolder,
+                                 int section,
+                                 int relativePosition,
+                                 final int absolutePosition) {
+
+        final ItemViewHolder itemViewHolder = (ItemViewHolder) sectionedViewHolder;
+        String category = shoppingList.getCategories().get(section);
+        final ListItem listItem = shoppingList.getListItemByCategory(category).get(relativePosition);
+
+        itemViewHolder.description.setText(listItem.getDescription());
+        itemViewHolder.quantity.setText(listItem.getQuantity());
+        itemViewHolder.listItem = listItem;
+
+        if (listItem.isChecked()) {
+            itemViewHolder.description.setTextColor(colorChecked);
+            itemViewHolder.quantity.setTextColor(colorChecked);
+        } else {
+            itemViewHolder.description.setTextColor(colorDefault);
+            itemViewHolder.quantity.setTextColor(colorDefault);
+        }
+
+        itemViewHolder.itemView.setBackgroundColor(colorBackground);
+
+        itemViewHolder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                shoppingList.toggleChecked(holder.getAdapterPosition());
+                shoppingList.toggleChecked(listItem, absolutePosition);
             }
         });
 
-
-        holder.view.setOnLongClickListener(new View.OnLongClickListener() {
+        itemViewHolder.view.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 return longClickListener != null
-                        && longClickListener.onLongClick(holder.getAdapterPosition());
+                        && longClickListener.onLongClick(listItem);
             }
         });
 
-        holder.dragHandler.setOnTouchListener(new View.OnTouchListener() {
+        itemViewHolder.dragHandler.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    touchHelper.startDrag(holder);
+                    touchHelper.startDrag(itemViewHolder);
                     return true;
                 }
                 return false;
             }
         });
-
-    }
-
-    @Override
-    public int getItemCount() {
-        if (shoppingList != null) {
-            return shoppingList.size();
-        }
-        return 0;
     }
 
     public interface ItemLongClickListener {
-        boolean onLongClick(int position);
+        boolean onLongClick(ListItem item);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class CategoryViewHolder extends SectionedViewHolder {
+        TextView category;
+
+        CategoryViewHolder(View itemView) {
+            super(itemView);
+
+            category = itemView.findViewById(R.id.category);
+        }
+    }
+
+    static class ItemViewHolder extends SectionedViewHolder {
         TextView description;
         TextView quantity;
         ImageView dragHandler;
         View view;
+        ListItem listItem;
 
-        public ViewHolder(View itemView) {
+        public ItemViewHolder(View itemView) {
             super(itemView);
             view = itemView;
             description = itemView.findViewById(R.id.text_description);
@@ -190,19 +232,28 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
         }
 
         @Override
-        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
             final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
             final int swipeFlags = ItemTouchHelper.START;
             return makeMovementFlags(dragFlags, swipeFlags);
         }
 
         @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+        public boolean onMove(@NonNull RecyclerView recyclerView,
+                              RecyclerView.ViewHolder viewHolder,
+                              RecyclerView.ViewHolder target) {
             if (viewHolder.getItemViewType() != target.getItemViewType()) {
                 return false;
             }
 
-            RecyclerListAdapter.this.move(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+            if (!(viewHolder instanceof ItemViewHolder) || !(target instanceof ItemViewHolder)) {
+                return false;
+            }
+
+            ItemViewHolder sourceViewHolder = (ItemViewHolder) viewHolder;
+            ItemViewHolder targetViewHolder = (ItemViewHolder) target;
+
+            RecyclerListAdapter.this.move(sourceViewHolder.listItem, targetViewHolder.listItem);
             return true;
         }
 
@@ -212,7 +263,13 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
         }
 
         @Override
-        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        public void onChildDraw(@NonNull Canvas c,
+                                @NonNull RecyclerView recyclerView,
+                                @NonNull RecyclerView.ViewHolder viewHolder,
+                                float dX,
+                                float dY,
+                                int actionState,
+                                boolean isCurrentlyActive) {
 
             if (actionState != ItemTouchHelper.ACTION_STATE_SWIPE) {
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);

@@ -20,6 +20,7 @@
 package com.woefe.shoppinglist.shoppinglist;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -34,25 +35,47 @@ public class ShoppingListMarshaller {
             writer.write(list.getName());
             writer.write(" ]\n\n");
 
-            for (ListItem item : list) {
-                String quantity = item.getQuantity();
-                String description = item.getDescription();
-
-                if (item.isChecked()) {
-                    writer.write("// ");
+            writer.write("Categories:");
+            int categorySize = list.getCategories().size();
+            for (int i = 0; i < categorySize; i++) {
+                writer.write(list.getCategories().get(i));
+                if (i < categorySize - 1) {
+                    writer.write(",");
                 }
+            }
+            writer.write("\n");
 
-                if (description != null) {
-                    writer.write(description);
+            for (String category : list.getCategories()) {
+                for (ListItem item : list.getListItemByCategory(category)) {
+                    writeItem(item, writer);
                 }
-
-                if (quantity != null && !quantity.equals("")) {
-                    writer.write(" #");
-                    writer.write(quantity);
-                }
-
-                writer.write("\n");
             }
         }
+    }
+
+    private static void writeItem(ListItem item, BufferedWriter writer) throws IOException {
+        String quantity = item.getQuantity();
+        String description = item.getDescription();
+        String category = item.getCategory();
+
+        if (item.isChecked()) {
+            writer.write("// ");
+        }
+
+        if (description != null) {
+            writer.write(description);
+        }
+
+        if (quantity != null && !quantity.equals("")) {
+            writer.write(" #");
+            writer.write(quantity);
+        }
+
+        if (!TextUtils.isEmpty(category)) {
+            writer.write(" $");
+            writer.write(category);
+        }
+
+        writer.write("\n");
     }
 }

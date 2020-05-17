@@ -27,9 +27,12 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.woefe.shoppinglist.shoppinglist.ShoppingList.DEFAULT_CATEGORY;
+
 public class ShoppingListUnmarshaller {
     private static final Pattern EMPTY_LINE = Pattern.compile("^\\s*$");
     private static final Pattern HEADER = Pattern.compile("\\[(.*)]");
+    private static final Pattern CATEGORY = Pattern.compile("^Categories:.*$");
 
     public static ShoppingList unmarshal(String filename) throws IOException, UnmarshallException {
         return unmarshal(new FileInputStream(filename));
@@ -56,34 +59,61 @@ public class ShoppingListUnmarshaller {
 
         String line;
         while ((line = reader.readLine()) != null) {
-            if (!EMPTY_LINE.matcher(line).matches()) {
-                shoppingList.add(createListItem(line));
+            if (CATEGORY.matcher(line).matches()) {
+                shoppingList.parseCategories(line);
+            } else if (!EMPTY_LINE.matcher(line).matches()) {
+                shoppingList.add(createListItem(line, shoppingList));
             }
+        }
+
+        if (shoppingList.getCategories().isEmpty()) {
+            shoppingList.addDefaultCategory();
         }
 
         return shoppingList;
     }
 
-    private static ListItem createListItem(String item) {
+    private static ListItem createListItem(String item, ShoppingList shoppingList) {
         boolean isChecked = item.startsWith("//");
         int index;
         String quantity;
         String name;
+        String category;
 
         if (isChecked) {
             item = item.substring(2);
         }
 
         index = item.lastIndexOf("#");
+        int indexCategory = item.lastIndexOf("$");
 
         if (index != -1) {
-            quantity = item.substring(index + 1).trim();
+            if (indexCategory != -1) {
+                quantity = item.substring(index + 1, indexCategory).trim();
+            } else {
+                quantity = item.substring(index + 1).trim();
+            }
             name = item.substring(0, index).trim();
         } else {
             quantity = "";
-            name = item.trim();
+
+            if (indexCategory != -1) {
+                name = item.substring(0, indexCategory);
+            } else {
+                name = item.trim();
+            }
         }
 
-        return new ListItem(isChecked, name.trim(), quantity);
+        if (indexCategory != -1) {
+            category = item.substring(indexCategory + 1).trim();
+        } else {
+            category = DEFAULT_CATEGORY;
+        }
+
+        if (!shoppingList.getCategories().contains(category)) {
+            shoppingList.getCategories().add(category);
+        }
+
+        return new ListItem(isChecked, name.trim(), quantity, category);
     }
 }

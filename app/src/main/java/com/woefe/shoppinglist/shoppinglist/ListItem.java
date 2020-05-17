@@ -26,11 +26,13 @@ public class ListItem {
     private boolean isChecked;
     private String description;
     private String quantity;
+    private String category;
 
-    public ListItem(boolean isChecked, String description, String quantity) {
+    public ListItem(boolean isChecked, String description, String quantity, String category) {
         this.isChecked = isChecked;
         this.description = description;
         this.quantity = quantity;
+        this.category = category;
     }
 
     public boolean isChecked() {
@@ -57,11 +59,19 @@ public class ListItem {
         this.quantity = quantity;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     static class ListItemWithID extends ListItem {
         private final int id;
 
         public ListItemWithID(int id, ListItem item) {
-            super(item.isChecked, item.description, item.quantity);
+            super(item.isChecked, item.description, item.quantity, item.category);
             this.id = id;
         }
 

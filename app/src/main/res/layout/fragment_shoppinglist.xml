@@ -78,12 +78,27 @@
                 android:singleLine="true" />
         </android.support.design.widget.TextInputLayout>
 
+        <TextView
+            android:id="@+id/category_descriptionParent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/new_item_descriptionParent"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="4dp"
+            android:text="@string/hint_category" />
+
+        <Spinner
+            android:id="@+id/category_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/category_descriptionParent" />
+
         <ImageButton
             android:id="@+id/button_add_new_item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_below="@id/new_item_descriptionParent"
+            android:layout_below="@id/category_description"
             android:layout_marginTop="6dp"
             android:layout_marginEnd="4dp"
             android:contentDescription="@string/done"
@@ -97,7 +112,7 @@
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/new_item_descriptionParent"
+            android:layout_below="@id/category_description"
             android:layout_alignParentStart="true"
             android:layout_toStartOf="@id/button_add_new_item">
 

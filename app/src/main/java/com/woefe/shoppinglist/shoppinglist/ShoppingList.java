@@ -40,6 +40,8 @@ public class ShoppingList extends ArrayList<ListItem> {
     private String name;
     private static int currentID;
     private final List<ShoppingListListener> listeners = new LinkedList<>();
+    private List<String> categories = new ArrayList<>();
+    public static final String DEFAULT_CATEGORY = "Allgemein";
 
     public ShoppingList(String name) {
         super();
@@ -49,6 +51,12 @@ public class ShoppingList extends ArrayList<ListItem> {
     public ShoppingList(String name, Collection<ListItem> collection) {
         super(collection);
         this.name = name;
+    }
+
+    public void addDefaultCategory() {
+        if (categories.isEmpty()) {
+            categories.add(DEFAULT_CATEGORY); // todo translate
+        }
     }
 
     public String getName() {
@@ -71,8 +79,8 @@ public class ShoppingList extends ArrayList<ListItem> {
         return res;
     }
 
-    public boolean add(String description, String quantity) {
-        return add(new ListItem(false, description, quantity));
+    public boolean add(String description, String quantity, String category) {
+        return add(new ListItem(false, description, quantity, category));
     }
 
     @Override
@@ -82,14 +90,14 @@ public class ShoppingList extends ArrayList<ListItem> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends ListItem> c) {
+    public boolean addAll(@NonNull Collection<? extends ListItem> c) {
         boolean b = super.addAll(c);
         notifyListChanged(Event.newOther());
         return b;
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends ListItem> c) {
+    public boolean addAll(int index, @NonNull Collection<? extends ListItem> c) {
         boolean b = super.addAll(index, c);
         notifyListChanged(Event.newOther());
         return b;
@@ -125,7 +133,7 @@ public class ShoppingList extends ArrayList<ListItem> {
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@NonNull Collection<?> c) {
         boolean b = super.removeAll(c);
         if (b) {
             notifyListChanged(Event.newOther());
@@ -134,7 +142,7 @@ public class ShoppingList extends ArrayList<ListItem> {
     }
 
     @Override
-    public boolean removeIf(Predicate<? super ListItem> filter) {
+    public boolean removeIf(@NonNull Predicate<? super ListItem> filter) {
         boolean b = false;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             b = super.removeIf(filter);
@@ -146,7 +154,7 @@ public class ShoppingList extends ArrayList<ListItem> {
     }
 
     @Override
-    public void replaceAll(UnaryOperator<ListItem> operator) {
+    public void replaceAll(@NonNull UnaryOperator<ListItem> operator) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             super.replaceAll(operator);
             notifyListChanged(Event.newOther());
@@ -154,7 +162,7 @@ public class ShoppingList extends ArrayList<ListItem> {
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@NonNull Collection<?> c) {
         boolean b = super.retainAll(c);
         if (b) {
             notifyListChanged(Event.newOther());
@@ -195,24 +203,28 @@ public class ShoppingList extends ArrayList<ListItem> {
         notifyListChanged(Event.newOther());
     }
 
-    public void setChecked(int index, boolean isChecked) {
-        get(index).setChecked(isChecked);
-        notifyListChanged(Event.newItemChanged(index));
+    public void setChecked(ListItem item, boolean isChecked, int absolutePosition) {
+        get(indexOf(item)).setChecked(isChecked);
+        notifyListChanged(Event.newItemChanged(absolutePosition));
     }
 
-    public void toggleChecked(int index) {
-        setChecked(index, !get(index).isChecked());
+    public void toggleChecked(ListItem item, int absolutePosition) {
+        setChecked(item, !item.isChecked(), absolutePosition);
     }
 
-    public void move(int oldIndex, int newIndex) {
+    public void move(ListItem from, ListItem to) {
+        int oldIndex = indexOf(from);
+        int newIndex = indexOf(to);
+        
         super.add(newIndex, super.remove(oldIndex));
         notifyListChanged(Event.newItemMoved(oldIndex, newIndex));
     }
 
-    public void editItem(int index, String newDescription, String newQuantity) {
+    public void editItem(int index, String newDescription, String newQuantity, String newCategory) {
         ListItem listItem = get(index);
         listItem.setDescription(newDescription);
         listItem.setQuantity(newQuantity);
+        listItem.setCategory(newCategory);
         notifyListChanged(Event.newItemChanged(index));
     }
 
@@ -247,6 +259,26 @@ public class ShoppingList extends ArrayList<ListItem> {
 
     private synchronized int generateID() {
         return ++currentID;
+    }
+
+    public void parseCategories(String line) {
+        categories.addAll(Arrays.asList(line.split(":")[1].split(",")));
+    }
+
+    public List<String> getCategories() {
+        return categories;
+    }
+
+    public List<ListItem> getListItemByCategory(String desiredCategory) {
+        List<ListItem> list = new ArrayList<>();
+
+        for (int i = 0; i < size(); i++) {
+            if (desiredCategory.equals(get(i).getCategory())) {
+                list.add(get(i));
+            }
+        }
+
+        return list;
     }
 
     private void notifyListChanged(ShoppingList.Event event) {

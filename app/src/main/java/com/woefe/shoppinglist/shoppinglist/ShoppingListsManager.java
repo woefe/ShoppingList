@@ -205,7 +205,9 @@ class ShoppingListsManager {
         }
 
         String filename = new File(this.directory, URLEncoder.encode(name) + FILE_ENDING).getPath();
-        ShoppingListMetadata metadata = addShoppingList(new ShoppingList(name), filename);
+        ShoppingList shoppingList = new ShoppingList(name);
+        shoppingList.addDefaultCategory();
+        ShoppingListMetadata metadata = addShoppingList(shoppingList, filename);
         metadata.isDirty = true;
     }
 

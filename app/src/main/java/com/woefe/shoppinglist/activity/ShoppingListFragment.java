@@ -110,9 +110,8 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
         adapter.registerRecyclerView(recyclerView);
         adapter.setOnItemLongClickListener(new RecyclerListAdapter.ItemLongClickListener() {
             @Override
-            public boolean onLongClick(int position) {
-                ListItem listItem = shoppingList.get(position);
-                editBar.showEdit(position, listItem.getDescription(), listItem.getQuantity());
+            public boolean onLongClick(ListItem listItem) {
+                editBar.showEdit(listItem.getDescription(), listItem.getQuantity(), listItem.getCategory());
                 return true;
             }
         });
@@ -134,15 +133,15 @@ public class ShoppingListFragment extends Fragment implements EditBar.EditBarLis
     }
 
     @Override
-    public void onEditSave(int position, String description, String quantity) {
-        shoppingList.editItem(position, description, quantity);
+    public void onEditSave(int position, String description, String quantity, String category) {
+        shoppingList.editItem(position, description, quantity, category);
         editBar.hide();
         recyclerView.smoothScrollToPosition(position);
     }
 
     @Override
-    public void onNewItem(String description, String quantity) {
-        shoppingList.add(description, quantity);
+    public void onNewItem(String description, String quantity, String category) {
+        shoppingList.add(description, quantity, category);
         recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
     }
 

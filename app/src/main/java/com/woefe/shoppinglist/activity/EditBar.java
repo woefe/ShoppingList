@@ -31,9 +31,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,12 +48,14 @@ import java.util.Set;
 public class EditBar implements ShoppingList.ShoppingListListener {
     private static final String KEY_SAVED_DESCRIPTION = "SAVED_DESCRIPTION";
     private static final String KEY_SAVED_QUANTITY = "SAVED_QUANTITY";
+    private static final String KEY_SAVED_CATEGORY = "SAVED_CATEGORY";
     private static final String KEY_SAVED_MODE = "SAVED_MODE";
     private static final String KEY_SAVE_IS_VISIBLE = "SAVE_IS_VISIBLE";
     private final Context ctx;
     private final RelativeLayout layout;
     private final EditText descriptionText;
     private final EditText quantityText;
+    private final Spinner categorySpinner;
     private final TextView duplicateWarnText;
     private Mode mode;
     private EditBarListener listener;
@@ -59,6 +63,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     private int position;
     private final Set<String> descriptionIndex = new HashSet<>();
     private ShoppingList shoppingList;
+    private ArrayAdapter<String> categoryAdapter;
 
     public EditBar(View boundView, final Context ctx) {
         this.ctx = ctx;
@@ -66,6 +71,10 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         final ImageButton button = boundView.findViewById(R.id.button_add_new_item);
         this.descriptionText = boundView.findViewById(R.id.new_item_description);
         this.quantityText = boundView.findViewById(R.id.new_item_quantity);
+        this.categorySpinner = boundView.findViewById(R.id.category_description);
+        categoryAdapter = new ArrayAdapter<>(ctx, android.R.layout.simple_spinner_item);
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(categoryAdapter);
         this.duplicateWarnText = boundView.findViewById(R.id.text_warn);
         this.mode = Mode.ADD;
 
@@ -141,6 +150,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     private void onConfirm() {
         String desc = descriptionText.getText().toString();
         String qty = quantityText.getText().toString();
+        String category = categorySpinner.getSelectedItem().toString();
 
         if (desc.equals("")) {
             Toast.makeText(ctx, R.string.error_description_empty, Toast.LENGTH_SHORT).show();
@@ -148,32 +158,35 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         }
 
         if (mode == Mode.ADD) {
-            listener.onNewItem(desc, qty);
+            listener.onNewItem(desc, qty, category);
             descriptionText.requestFocus();
         } else if (mode == Mode.EDIT) {
-            listener.onEditSave(position, desc, qty);
+            listener.onEditSave(position, desc, qty, category);
         }
 
         descriptionText.setText("");
         quantityText.setText("");
+        //categorySpinner.setText("");
     }
 
-    public void showEdit(int position, String description, String quantity) {
-        this.position = position;
-        prepare(Mode.EDIT, description, quantity);
+    public void showEdit(String description, String quantity, String category) {
+        // this.position = position;
+        prepare(Mode.EDIT, description, quantity, category);
         show();
     }
 
     public void showAdd() {
-        prepare(Mode.ADD, "", "");
+        prepare(Mode.ADD, "", "", "");
         show();
     }
 
-    private void prepare(Mode mode, String description, String quantity) {
+    private void prepare(Mode mode, String description, String quantity, String category) {
         this.mode = mode;
         quantityText.setText(quantity);
         descriptionText.setText("");
         descriptionText.append(description);
+        int position = shoppingList.getCategories().indexOf(category);
+        categorySpinner.setSelection(position);
     }
 
     public void enableAutoHideFAB(RecyclerView view) {
@@ -269,6 +282,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     public void saveState(Bundle state) {
         state.putString(KEY_SAVED_DESCRIPTION, descriptionText.getText().toString());
         state.putString(KEY_SAVED_QUANTITY, quantityText.getText().toString());
+        state.putInt(KEY_SAVED_CATEGORY, categorySpinner.getSelectedItemPosition());
         state.putBoolean(KEY_SAVE_IS_VISIBLE, isVisible());
         state.putSerializable(KEY_SAVED_MODE, mode);
     }
@@ -276,9 +290,10 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     public void restoreState(Bundle state) {
         String description = state.getString(KEY_SAVED_DESCRIPTION);
         String quantity = state.getString(KEY_SAVED_QUANTITY);
+        categorySpinner.setSelection(state.getInt(KEY_SAVED_CATEGORY));
         Mode mode = (Mode) state.getSerializable(KEY_SAVED_MODE);
         if (state.getBoolean(KEY_SAVE_IS_VISIBLE)) {
-            prepare(mode, description, quantity);
+            prepare(mode, description, quantity, categorySpinner.getSelectedItem().toString());
             layout.setVisibility(View.VISIBLE);
             fab.hide();
         }
@@ -305,13 +320,15 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         }
         descriptionIndex.clear();
         descriptionIndex.addAll(list.createDescriptionIndex());
+        categoryAdapter.clear();
+        categoryAdapter.addAll(shoppingList.getCategories());
         checkDuplicate(descriptionText.getText().toString());
     }
 
     public interface EditBarListener {
-        void onEditSave(int position, String description, String quantity);
+        void onEditSave(int position, String description, String quantity, String category);
 
-        void onNewItem(String description, String quantity);
+        void onNewItem(String description, String quantity, String category);
     }
 
     private enum Mode {
