@@ -40,10 +40,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.woefe.shoppinglist.R;
+import com.woefe.shoppinglist.shoppinglist.ListItem;
 import com.woefe.shoppinglist.shoppinglist.ShoppingList;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class EditBar implements ShoppingList.ShoppingListListener {
     private static final String KEY_SAVED_DESCRIPTION = "SAVED_DESCRIPTION";
@@ -51,6 +49,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     private static final String KEY_SAVED_CATEGORY = "SAVED_CATEGORY";
     private static final String KEY_SAVED_MODE = "SAVED_MODE";
     private static final String KEY_SAVE_IS_VISIBLE = "SAVE_IS_VISIBLE";
+    private static final String KEY_SAVE_ITEM = "ITEM";
     private final Context ctx;
     private final RelativeLayout layout;
     private final EditText descriptionText;
@@ -60,10 +59,9 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     private Mode mode;
     private EditBarListener listener;
     private final FloatingActionButton fab;
-    private int position;
-    private final Set<String> descriptionIndex = new HashSet<>();
     private ShoppingList shoppingList;
     private ArrayAdapter<String> categoryAdapter;
+    private ListItem item;
 
     public EditBar(View boundView, final Context ctx) {
         this.ctx = ctx;
@@ -133,7 +131,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         if (mode != Mode.ADD || !isVisible()) {
             return;
         }
-        if (descriptionIndex.contains(str.toLowerCase())) {
+        if (shoppingList.contains(str.toLowerCase())) {
             duplicateWarnText.setText(ctx.getString(R.string.duplicate_warning, str));
             duplicateWarnText.setVisibility(View.VISIBLE);
         } else {
@@ -161,7 +159,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
             listener.onNewItem(desc, qty, category);
             descriptionText.requestFocus();
         } else if (mode == Mode.EDIT) {
-            listener.onEditSave(position, desc, qty, category);
+            listener.onEditSave(item, desc, qty, category);
         }
 
         descriptionText.setText("");
@@ -169,23 +167,22 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         //categorySpinner.setText("");
     }
 
-    public void showEdit(String description, String quantity, String category) {
-        // this.position = position;
-        prepare(Mode.EDIT, description, quantity, category);
+    public void showEdit(ListItem item) {
+        prepare(Mode.EDIT, item, item.getDescription(), item.getQuantity(), item.getCategory());
         show();
     }
 
     public void showAdd() {
-        prepare(Mode.ADD, "", "", "");
+        prepare(Mode.ADD, new ListItem(), "", "", "");
         show();
     }
 
-    private void prepare(Mode mode, String description, String quantity, String category) {
+    private void prepare(Mode mode, ListItem item, String description, String quantity, String category) {
         this.mode = mode;
-        quantityText.setText(quantity);
-        descriptionText.setText("");
-        descriptionText.append(description);
-        int position = shoppingList.getCategories().indexOfKey(category);
+        this.item = item;
+        quantityText.setText(item.getQuantity());
+        descriptionText.append(item.getDescription());
+        int position = shoppingList.getCategories().indexOfKey(item.getCategory());
         categorySpinner.setSelection(position);
     }
 
@@ -285,6 +282,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         state.putInt(KEY_SAVED_CATEGORY, categorySpinner.getSelectedItemPosition());
         state.putBoolean(KEY_SAVE_IS_VISIBLE, isVisible());
         state.putSerializable(KEY_SAVED_MODE, mode);
+        state.putParcelable(KEY_SAVE_ITEM, item);
     }
 
     public void restoreState(Bundle state) {
@@ -292,8 +290,10 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         String quantity = state.getString(KEY_SAVED_QUANTITY);
         categorySpinner.setSelection(state.getInt(KEY_SAVED_CATEGORY));
         Mode mode = (Mode) state.getSerializable(KEY_SAVED_MODE);
+        ListItem item = state.getParcelable(KEY_SAVE_ITEM);
+        
         if (state.getBoolean(KEY_SAVE_IS_VISIBLE)) {
-            prepare(mode, description, quantity, categorySpinner.getSelectedItem().toString());
+            prepare(mode, item, description, quantity, categorySpinner.getSelectedItem().toString());
             layout.setVisibility(View.VISIBLE);
             fab.hide();
         }
@@ -318,15 +318,13 @@ public class EditBar implements ShoppingList.ShoppingListListener {
             hide();
             return;
         }
-        descriptionIndex.clear();
-        descriptionIndex.addAll(list.createDescriptionIndex());
         categoryAdapter.clear();
         categoryAdapter.addAll(shoppingList.getCategories().keySet());
         checkDuplicate(descriptionText.getText().toString());
     }
 
     public interface EditBarListener {
-        void onEditSave(int position, String description, String quantity, String category);
+        void onEditSave(ListItem item, String description, String quantity, String category);
 
         void onNewItem(String description, String quantity, String category);
     }

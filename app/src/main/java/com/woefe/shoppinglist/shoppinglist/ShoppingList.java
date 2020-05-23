@@ -19,39 +19,22 @@
 
 package com.woefe.shoppinglist.shoppinglist;
 
-import android.os.Build;
-import android.support.annotation.NonNull;
 import android.util.ArrayMap;
-import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
-public class ShoppingList extends ArrayList<ListItem> {
+public class ShoppingList {
 
     private String name;
-    private static int currentID;
     private final List<ShoppingListListener> listeners = new LinkedList<>();
     private ArrayMap<String, ArrayList<ListItem>> categories = new ArrayMap<>();
-    public static final String DEFAULT_CATEGORY = "Allgemein";
+    public static final String DEFAULT_CATEGORY = "Allgemein"; // todo translate
 
     public ShoppingList(String name) {
-        super();
-        this.name = name;
-    }
-
-    public ShoppingList(String name, Collection<ListItem> collection) {
-        super(collection);
         this.name = name;
     }
 
@@ -70,115 +53,29 @@ public class ShoppingList extends ArrayList<ListItem> {
         notifyListChanged(Event.newOther());
     }
 
-    public int getId(int index) {
-        return ((ListItem.ListItemWithID) get(index)).getId();
-    }
-
-    @Override
-    public boolean add(ListItem item) {
-        boolean res = super.add(new ListItem.ListItemWithID(generateID(), item));
-        notifyListChanged(Event.newItemInserted(size() - 1));
-        return res;
-    }
-
     public boolean add(String description, String quantity, String category) {
-        return add(new ListItem(false, description, quantity, category));
-    }
+        ListItem item = new ListItem(false, description, quantity, category);
+        boolean res = getListForItem(item).add(item);
 
-    @Override
-    public void add(int index, ListItem element) {
-        super.add(index, element);
-        notifyListChanged(Event.newItemInserted(index));
-    }
-
-    @Override
-    public boolean addAll(@NonNull Collection<? extends ListItem> c) {
-        boolean b = super.addAll(c);
-        notifyListChanged(Event.newOther());
-        return b;
-    }
-
-    @Override
-    public boolean addAll(int index, @NonNull Collection<? extends ListItem> c) {
-        boolean b = super.addAll(index, c);
-        notifyListChanged(Event.newOther());
-        return b;
-    }
-
-    @Override
-    public ListItem set(int index, ListItem element) {
-        ListItem old = super.set(index, element);
-        notifyListChanged(Event.newItemChanged(index));
-        return old;
-    }
-
-    @Override
-    public ListItem remove(int index) {
-        ListItem res = super.remove(index);
-        notifyListChanged(Event.newItemRemoved(index));
+        if (res) {
+            notifyListChanged(Event.newItemInserted(0));
+        }
+        
         return res;
     }
 
-    @Override
-    public boolean remove(Object o) {
-        boolean b = super.remove(o);
+    public void remove(ListItem item) {
+        boolean b = getListForItem(item).remove(item);
         if (b) {
             notifyListChanged(Event.newOther());
         }
-        return b;
     }
 
-    @Override
-    protected void removeRange(int fromIndex, int toIndex) {
-        super.removeRange(fromIndex, toIndex);
+    void clear() {
+        categories.clear();
         notifyListChanged(Event.newOther());
     }
 
-    @Override
-    public boolean removeAll(@NonNull Collection<?> c) {
-        boolean b = super.removeAll(c);
-        if (b) {
-            notifyListChanged(Event.newOther());
-        }
-        return b;
-    }
-
-    @Override
-    public boolean removeIf(@NonNull Predicate<? super ListItem> filter) {
-        boolean b = false;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            b = super.removeIf(filter);
-        }
-        if (b) {
-            notifyListChanged(Event.newOther());
-        }
-        return b;
-    }
-
-    @Override
-    public void replaceAll(@NonNull UnaryOperator<ListItem> operator) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            super.replaceAll(operator);
-            notifyListChanged(Event.newOther());
-        }
-    }
-
-    @Override
-    public boolean retainAll(@NonNull Collection<?> c) {
-        boolean b = super.retainAll(c);
-        if (b) {
-            notifyListChanged(Event.newOther());
-        }
-        return b;
-    }
-
-    @Override
-    public void clear() {
-        super.clear();
-        notifyListChanged(Event.newOther());
-    }
-
-    @Override
     public int size() {
         int size = 0;
 
@@ -188,55 +85,21 @@ public class ShoppingList extends ArrayList<ListItem> {
         return size;
     }
 
-    @NonNull
-    @Override
-    public Iterator<ListItem> iterator() {
-        return new Itr(super.iterator());
-    }
-
-    @NonNull
-    @Override
-    public ListIterator<ListItem> listIterator(int index) {
-        return new ListItr(super.listIterator(index));
-    }
-
-    @NonNull
-    @Override
-    public ListIterator<ListItem> listIterator() {
-        return new ListItr(super.listIterator());
-    }
-
-    @Override
     public void sort(Comparator<? super ListItem> c) {
-        ListItem[] items = toArray(new ListItem[size()]);
-        Arrays.sort(items, c);
-        super.clear();
-        super.addAll(Arrays.asList(items));
+        for (ArrayList<ListItem> list : categories.values()) {
+            list.sort(c);
+        }
         notifyListChanged(Event.newOther());
     }
 
-    public void setChecked(ListItem item, boolean isChecked, int absolutePosition) {
-        get(indexOf(item)).setChecked(isChecked);
+    private void setChecked(ListItem item, boolean isChecked, int absolutePosition) {
+        List<ListItem> list = getListForItem(item);
+        list.get(list.indexOf(item)).setChecked(isChecked);
         notifyListChanged(Event.newItemChanged(absolutePosition));
     }
 
     public void toggleChecked(ListItem item, int absolutePosition) {
         setChecked(item, !item.isChecked(), absolutePosition);
-    }
-
-    public void move(ListItem from, ListItem to) {
-        int oldIndex = indexOf(from);
-        int newIndex = indexOf(to);
-
-        Log.d("MOVE", "From " + oldIndex + " to " + newIndex);
-
-        super.add(newIndex, super.remove(oldIndex));
-        notifyListChanged(Event.newItemMoved(oldIndex, newIndex));
-    }
-
-    public void move(int oldIndex, int newIndex) {
-        super.add(newIndex, super.remove(oldIndex));
-        notifyListChanged(Event.newItemMoved(oldIndex, newIndex));
     }
 
     public void moveInCategory(String category,
@@ -249,33 +112,23 @@ public class ShoppingList extends ArrayList<ListItem> {
         notifyListChanged(Event.newItemMoved(fromAbsolutePosition, toAbsolutePosition));
     }
 
-    public void editItem(int index, String newDescription, String newQuantity, String newCategory) {
-        ListItem listItem = get(index);
-        listItem.setDescription(newDescription);
-        listItem.setQuantity(newQuantity);
-        listItem.setCategory(newCategory);
-        notifyListChanged(Event.newItemChanged(index));
+    public void editItem(ListItem item, String newDescription, String newQuantity, String newCategory) {
+        item.setDescription(newDescription);
+        item.setQuantity(newQuantity);
+        item.setCategory(newCategory);
+        notifyListChanged(Event.newItemChanged(-1));
     }
 
 
     public void removeAllCheckedItems() {
-        Iterator<ListItem> it = iterator();
-
-        while (it.hasNext()) {
-            ListItem item = it.next();
-            if (item.isChecked()) {
-                it.remove();
+        for (ArrayList<ListItem> list : categories.values()) {
+            for (ListItem item : list) {
+                if (item.isChecked()) {
+                    list.remove(item);
+                }
             }
         }
         notifyListChanged(Event.newOther());
-    }
-
-    public Set<String> createDescriptionIndex() {
-        Set<String> descriptionIndex = new HashSet<>();
-        for (ListItem listItem : this) {
-            descriptionIndex.add(listItem.getDescription().toLowerCase());
-        }
-        return descriptionIndex;
     }
 
     public void addListener(ShoppingListListener listener) {
@@ -284,10 +137,6 @@ public class ShoppingList extends ArrayList<ListItem> {
 
     public void removeListener(ShoppingListListener listener) {
         listeners.remove(listener);
-    }
-
-    private synchronized int generateID() {
-        return ++currentID;
     }
 
     public ArrayMap<String, ArrayList<ListItem>> getCategories() {
@@ -395,47 +244,22 @@ public class ShoppingList extends ArrayList<ListItem> {
         }
     }
 
-    private class ListItr extends Itr implements ListIterator<ListItem> {
-
-        private ListIterator<ListItem> iterator;
-
-        private ListItr(ListIterator<ListItem> iterator) {
-            super(iterator);
-            this.iterator = iterator;
+    private List<ListItem> getListForItem(ListItem item) {
+        if (!categories.containsKey(item.getCategory())) {
+            categories.put(item.getCategory(), new ArrayList<ListItem>());
         }
 
-        @Override
-        public boolean hasPrevious() {
-            return iterator.hasPrevious();
-        }
+        return categories.get(item.getCategory());
+    }
 
-        @Override
-        public ListItem previous() {
-            return iterator.previous();
+    public boolean contains(String item) {
+        for (ArrayList<ListItem> list : categories.values()) {
+            for (ListItem listItem : list) {
+                if (item.equalsIgnoreCase(listItem.getDescription())) {
+                    return true;
+                }
+            }
         }
-
-        @Override
-        public int nextIndex() {
-            return iterator.nextIndex();
-        }
-
-        @Override
-        public int previousIndex() {
-            return iterator.previousIndex();
-        }
-
-        @Override
-        public void set(ListItem listItem) {
-            iterator.set(listItem);
-            //TODO get index and use Event.newItemChanged
-            notifyListChanged(Event.newOther());
-        }
-
-        @Override
-        public void add(ListItem listItem) {
-            iterator.add(listItem);
-            //TODO get index and use Event.newItemInserted
-            notifyListChanged(Event.newOther());
-        }
+        return false;
     }
 }

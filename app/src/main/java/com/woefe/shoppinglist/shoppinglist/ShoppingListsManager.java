@@ -167,7 +167,7 @@ class ShoppingListsManager {
                         try {
                             ShoppingList list = ShoppingListUnmarshaller.unmarshal(metadata.filename);
                             metadata.shoppingList.clear();
-                            metadata.shoppingList.addAll(list);
+                            metadata.shoppingList = list;
                             metadata.isDirty = false;
 
                             String oldName = metadata.shoppingList.getName();
@@ -250,7 +250,7 @@ class ShoppingListsManager {
     }
 
     private class ShoppingListMetadata {
-        private final ShoppingList shoppingList;
+        private ShoppingList shoppingList;
         private final String filename;
         private boolean isDirty;
         private FileObserver observer;

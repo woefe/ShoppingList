@@ -40,10 +40,12 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
         public void onShoppingListUpdate(ShoppingList list, ShoppingList.Event e) {
             switch (e.getState()) {
                 case ShoppingList.Event.ITEM_CHANGED:
-                    notifyItemChanged(e.getIndex());
+                    notifyDataSetChanged();
+                    //notifyItemChanged(e.getIndex()); // TODO
                     break;
                 case ShoppingList.Event.ITEM_INSERTED:
-                    notifyItemInserted(e.getIndex());
+                    notifyDataSetChanged();
+                    //notifyItemInserted(e.getIndex()); // TODO
                     break;
                 case ShoppingList.Event.ITEM_MOVED:
                     notifyItemMoved(e.getOldIndex(), e.getNewIndex());
@@ -97,8 +99,8 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
         );
     }
 
-    public void remove(int pos) {
-        shoppingList.remove(pos);
+    public void remove(ListItem item) {
+        shoppingList.remove(item);
     }
 
     public void registerRecyclerView(RecyclerView view) {
@@ -296,7 +298,8 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
 
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            RecyclerListAdapter.this.remove(viewHolder.getAdapterPosition());
+            ItemViewHolder itemViewHolder = (ItemViewHolder) viewHolder;
+            remove(itemViewHolder.listItem);
         }
 
         @Override
