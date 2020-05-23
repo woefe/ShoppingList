@@ -180,8 +180,8 @@ public class EditBar implements ShoppingList.ShoppingListListener {
     private void prepare(Mode mode, ListItem item, String description, String quantity, String category) {
         this.mode = mode;
         this.item = item;
-        quantityText.setText(item.getQuantity());
-        descriptionText.append(item.getDescription());
+        quantityText.setText(quantity);
+        descriptionText.append(description);
         int position = shoppingList.getCategories().indexOfKey(item.getCategory());
         categorySpinner.setSelection(position);
     }
@@ -319,7 +319,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
             return;
         }
         categoryAdapter.clear();
-        categoryAdapter.addAll(shoppingList.getCategories().keySet());
+        categoryAdapter.addAll(shoppingList.getAllCategories());
         checkDuplicate(descriptionText.getText().toString());
     }
 

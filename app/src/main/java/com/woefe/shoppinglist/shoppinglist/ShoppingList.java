@@ -30,6 +30,7 @@ import java.util.List;
 public class ShoppingList {
 
     private String name;
+    private List<String> allCategories = new ArrayList<>();
     private final List<ShoppingListListener> listeners = new LinkedList<>();
     private ArrayMap<String, ArrayList<ListItem>> categories = new ArrayMap<>();
     public static final String DEFAULT_CATEGORY = "Allgemein"; // todo translate
@@ -141,6 +142,10 @@ public class ShoppingList {
 
     public ArrayMap<String, ArrayList<ListItem>> getCategories() {
         return categories;
+    }
+
+    public List<String> getAllCategories() {
+        return allCategories;
     }
 
     private void notifyListChanged(ShoppingList.Event event) {

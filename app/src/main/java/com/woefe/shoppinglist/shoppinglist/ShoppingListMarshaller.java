@@ -26,6 +26,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
 public class ShoppingListMarshaller {
     public static void marshall(@NonNull OutputStream stream, @NonNull ShoppingList list) throws IOException {
@@ -36,20 +37,24 @@ public class ShoppingListMarshaller {
             writer.write(" ]\n\n");
 
             writer.write("Categories:");
-            int categorySize = list.getCategories().size();
+            int categorySize = list.getAllCategories().size();
             for (int i = 0; i < categorySize; i++) {
-                writer.write(list.getCategories().keyAt(i));
+                writer.write(list.getAllCategories().get(i));
                 if (i < categorySize - 1) {
                     writer.write(",");
                 }
             }
             writer.write("\n\n");
 
-            for (String category : list.getCategories().keySet()) {
-                for (ListItem item : list.getCategories().get(category)) {
-                    writeItem(item, writer);
+            for (String category : list.getAllCategories()) {
+                List<ListItem> itemList = list.getCategories().get(category);
+
+                if (itemList != null) {
+                    for (ListItem item : itemList) {
+                        writeItem(item, writer);
+                    }
+                    writer.write("\n");
                 }
-                writer.write("\n");
             }
         }
     }

@@ -125,18 +125,20 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
 
     @Override
     public int getSectionCount() {
-        return shoppingList.getCategories().size();
+        return shoppingList.getAllCategories().size();
     }
 
     @Override
     public int getItemCount(int section) {
-        return shoppingList.getCategories().valueAt(section).size();
+        String category = shoppingList.getAllCategories().get(section);
+        ArrayList<ListItem> list = shoppingList.getCategories().get(category);
+        return (list == null) ? 0 : list.size();
     }
 
     @Override
     public void onBindHeaderViewHolder(SectionedViewHolder sectionedViewHolder, int section, boolean expanded) {
         CategoryViewHolder categoryViewHolder = (CategoryViewHolder) sectionedViewHolder;
-        categoryViewHolder.category.setText(shoppingList.getCategories().keyAt(section));
+        categoryViewHolder.category.setText(shoppingList.getAllCategories().get(section));
     }
 
     @Override
@@ -150,7 +152,8 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
                                  int relativePosition,
                                  final int absolutePosition) {
         final ItemViewHolder itemViewHolder = (ItemViewHolder) sectionedViewHolder;
-        ArrayList<ListItem> list = shoppingList.getCategories().valueAt(section);
+        String category = shoppingList.getAllCategories().get(section);
+        ArrayList<ListItem> list = shoppingList.getCategories().get(category);
         final ListItem listItem = list.get(relativePosition);
 
         itemViewHolder.description.setText(listItem.getDescription());

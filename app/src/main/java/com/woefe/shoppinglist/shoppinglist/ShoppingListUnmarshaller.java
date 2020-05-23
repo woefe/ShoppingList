@@ -60,7 +60,11 @@ public class ShoppingListUnmarshaller {
 
         String line;
         while ((line = reader.readLine()) != null) {
-            if (!EMPTY_LINE.matcher(line).matches() && !CATEGORY.matcher(line).matches()) {
+            if (CATEGORY.matcher(line).matches()) {
+                for (String category : line.split(":")[1].split(",")) {
+                    shoppingList.getAllCategories().add(category);
+                }
+            } else if (!EMPTY_LINE.matcher(line).matches()) {
                 ListItem item = createListItem(line, shoppingList);
                 shoppingList.getCategories().get(item.getCategory()).add(item);
             }
