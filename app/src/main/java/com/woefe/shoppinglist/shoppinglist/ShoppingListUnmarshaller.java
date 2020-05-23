@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,10 +60,9 @@ public class ShoppingListUnmarshaller {
 
         String line;
         while ((line = reader.readLine()) != null) {
-            if (CATEGORY.matcher(line).matches()) {
-                shoppingList.parseCategories(line);
-            } else if (!EMPTY_LINE.matcher(line).matches()) {
-                shoppingList.add(createListItem(line, shoppingList));
+            if (!EMPTY_LINE.matcher(line).matches() && !CATEGORY.matcher(line).matches()) {
+                ListItem item = createListItem(line, shoppingList);
+                shoppingList.getCategories().get(item.getCategory()).add(item);
             }
         }
 
@@ -110,8 +110,8 @@ public class ShoppingListUnmarshaller {
             category = DEFAULT_CATEGORY;
         }
 
-        if (!shoppingList.getCategories().contains(category)) {
-            shoppingList.getCategories().add(category);
+        if (!shoppingList.getCategories().containsKey(category)) {
+            shoppingList.getCategories().put(category, new ArrayList<ListItem>());
         }
 
         return new ListItem(isChecked, name.trim(), quantity, category);

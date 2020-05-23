@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,6 +21,8 @@ import com.afollestad.sectionedrecyclerview.SectionedViewHolder;
 import com.woefe.shoppinglist.R;
 import com.woefe.shoppinglist.shoppinglist.ListItem;
 import com.woefe.shoppinglist.shoppinglist.ShoppingList;
+
+import java.util.ArrayList;
 
 /**
  * @author Wolfgang Popp
@@ -41,6 +44,16 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
                     break;
                 case ShoppingList.Event.ITEM_INSERTED:
                     notifyItemInserted(e.getIndex());
+                    break;
+                case ShoppingList.Event.ITEM_MOVED:
+                    notifyItemMoved(e.getOldIndex(), e.getNewIndex());
+                    Log.d("LIST", "");
+                    Log.d("LIST", "------------");
+                    for (ListItem item : shoppingList.getCategories().get("Allgemein")) {
+                        Log.d("LIST", item.getDescription());
+                    }
+                    Log.d("LIST", "------------");
+                    Log.d("LIST", "");
                     break;
                 case ShoppingList.Event.ITEM_REMOVED:
                     notifyItemRemoved(e.getIndex());
@@ -71,8 +84,17 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
         }
     }
 
-    public void move(ListItem from, ListItem to) {
-        shoppingList.move(from, to);
+    public void move(String category,
+                     int fromPositionInCategory,
+                     int toPositionInCategory,
+                     int fromAbsolutePosition,
+                     int toAbsolutePosition) {
+        shoppingList.moveInCategory(category,
+                fromPositionInCategory,
+                toPositionInCategory,
+                fromAbsolutePosition,
+                toAbsolutePosition
+        );
     }
 
     public void remove(int pos) {
@@ -106,22 +128,13 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
 
     @Override
     public int getItemCount(int section) {
-        String category = shoppingList.getCategories().get(section);
-        int count = 0;
-
-        for (int i = 0; i < shoppingList.size(); i++) {
-            if (shoppingList.get(i).getCategory().equals(category)) {
-                count++;
-            }
-        }
-
-        return count;
+        return shoppingList.getCategories().valueAt(section).size();
     }
 
     @Override
     public void onBindHeaderViewHolder(SectionedViewHolder sectionedViewHolder, int section, boolean expanded) {
         CategoryViewHolder categoryViewHolder = (CategoryViewHolder) sectionedViewHolder;
-        categoryViewHolder.category.setText(shoppingList.getCategories().get(section));
+        categoryViewHolder.category.setText(shoppingList.getCategories().keyAt(section));
     }
 
     @Override
@@ -134,10 +147,9 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
                                  int section,
                                  int relativePosition,
                                  final int absolutePosition) {
-
         final ItemViewHolder itemViewHolder = (ItemViewHolder) sectionedViewHolder;
-        String category = shoppingList.getCategories().get(section);
-        final ListItem listItem = shoppingList.getListItemByCategory(category).get(relativePosition);
+        ArrayList<ListItem> list = shoppingList.getCategories().valueAt(section);
+        final ListItem listItem = list.get(relativePosition);
 
         itemViewHolder.description.setText(listItem.getDescription());
         itemViewHolder.quantity.setText(listItem.getQuantity());
@@ -208,6 +220,10 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
             quantity = itemView.findViewById(R.id.text_quantity);
             dragHandler = itemView.findViewById(R.id.drag_n_drop_handler);
         }
+
+        public int getPositionInCategory() {
+            return getRelativePosition().relativePos();
+        }
     }
 
     public class RecyclerListCallback extends ItemTouchHelper.Callback {
@@ -232,30 +248,51 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
         }
 
         @Override
-        public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
             final int swipeFlags = ItemTouchHelper.START;
             return makeMovementFlags(dragFlags, swipeFlags);
         }
 
         @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView,
-                              RecyclerView.ViewHolder viewHolder,
-                              RecyclerView.ViewHolder target) {
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
             if (viewHolder.getItemViewType() != target.getItemViewType()) {
                 return false;
             }
 
-            if (!(viewHolder instanceof ItemViewHolder) || !(target instanceof ItemViewHolder)) {
-                return false;
-            }
+//            if (!(viewHolder instanceof ItemViewHolder) || !(target instanceof ItemViewHolder)) {
+//                return false;
+//            }
 
             ItemViewHolder sourceViewHolder = (ItemViewHolder) viewHolder;
             ItemViewHolder targetViewHolder = (ItemViewHolder) target;
 
-            RecyclerListAdapter.this.move(sourceViewHolder.listItem, targetViewHolder.listItem);
+            RecyclerListAdapter.this.move(sourceViewHolder.listItem.getCategory(),
+                    sourceViewHolder.getPositionInCategory(),
+                    targetViewHolder.getPositionInCategory(),
+                    sourceViewHolder.getAdapterPosition(),
+                    targetViewHolder.getAdapterPosition());
+
+
+//           RecyclerListAdapter.this.move(shoppingList.indexOf(sourceViewHolder.listItem),
+//                   shoppingList.indexOf(targetViewHolder.listItem));
+
+            // RecyclerListAdapter.this.move(sourceViewHolder.getAdapterPosition(), targetViewHolder.getAdapterPosition());
+            
+            
             return true;
         }
+
+//        @Override
+//        public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+//            super.clearView(recyclerView, viewHolder);
+//
+//            if(dragFrom != -1 && dragTo != -1 && dragFrom != dragTo) {
+//                reallyMoved(dragFrom, dragTo);
+//            }
+//
+//            dragFrom = dragTo = -1;
+//        }
 
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
@@ -263,13 +300,7 @@ public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedV
         }
 
         @Override
-        public void onChildDraw(@NonNull Canvas c,
-                                @NonNull RecyclerView recyclerView,
-                                @NonNull RecyclerView.ViewHolder viewHolder,
-                                float dX,
-                                float dY,
-                                int actionState,
-                                boolean isCurrentlyActive) {
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 
             if (actionState != ItemTouchHelper.ACTION_STATE_SWIPE) {
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);

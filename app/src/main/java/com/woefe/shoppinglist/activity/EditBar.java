@@ -185,7 +185,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         quantityText.setText(quantity);
         descriptionText.setText("");
         descriptionText.append(description);
-        int position = shoppingList.getCategories().indexOf(category);
+        int position = shoppingList.getCategories().indexOfKey(category);
         categorySpinner.setSelection(position);
     }
 
@@ -321,7 +321,7 @@ public class EditBar implements ShoppingList.ShoppingListListener {
         descriptionIndex.clear();
         descriptionIndex.addAll(list.createDescriptionIndex());
         categoryAdapter.clear();
-        categoryAdapter.addAll(shoppingList.getCategories());
+        categoryAdapter.addAll(shoppingList.getCategories().keySet());
         checkDuplicate(descriptionText.getText().toString());
     }
 

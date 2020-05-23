@@ -21,6 +21,8 @@ package com.woefe.shoppinglist.shoppinglist;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.util.ArrayMap;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +42,7 @@ public class ShoppingList extends ArrayList<ListItem> {
     private String name;
     private static int currentID;
     private final List<ShoppingListListener> listeners = new LinkedList<>();
-    private List<String> categories = new ArrayList<>();
+    private ArrayMap<String, ArrayList<ListItem>> categories = new ArrayMap<>();
     public static final String DEFAULT_CATEGORY = "Allgemein";
 
     public ShoppingList(String name) {
@@ -55,7 +57,7 @@ public class ShoppingList extends ArrayList<ListItem> {
 
     public void addDefaultCategory() {
         if (categories.isEmpty()) {
-            categories.add(DEFAULT_CATEGORY); // todo translate
+            categories.put(DEFAULT_CATEGORY, new ArrayList<ListItem>()); // todo translate
         }
     }
 
@@ -176,6 +178,16 @@ public class ShoppingList extends ArrayList<ListItem> {
         notifyListChanged(Event.newOther());
     }
 
+    @Override
+    public int size() {
+        int size = 0;
+
+        for (ArrayList<ListItem> categoryList : getCategories().values()) {
+            size += categoryList.size();
+        }
+        return size;
+    }
+
     @NonNull
     @Override
     public Iterator<ListItem> iterator() {
@@ -215,9 +227,26 @@ public class ShoppingList extends ArrayList<ListItem> {
     public void move(ListItem from, ListItem to) {
         int oldIndex = indexOf(from);
         int newIndex = indexOf(to);
-        
+
+        Log.d("MOVE", "From " + oldIndex + " to " + newIndex);
+
         super.add(newIndex, super.remove(oldIndex));
         notifyListChanged(Event.newItemMoved(oldIndex, newIndex));
+    }
+
+    public void move(int oldIndex, int newIndex) {
+        super.add(newIndex, super.remove(oldIndex));
+        notifyListChanged(Event.newItemMoved(oldIndex, newIndex));
+    }
+
+    public void moveInCategory(String category,
+                               int oldIndex,
+                               int newIndex,
+                               int fromAbsolutePosition,
+                               int toAbsolutePosition) {
+        List<ListItem> list = getCategories().get(category);
+        list.add(newIndex, list.remove(oldIndex));
+        notifyListChanged(Event.newItemMoved(fromAbsolutePosition, toAbsolutePosition));
     }
 
     public void editItem(int index, String newDescription, String newQuantity, String newCategory) {
@@ -261,24 +290,8 @@ public class ShoppingList extends ArrayList<ListItem> {
         return ++currentID;
     }
 
-    public void parseCategories(String line) {
-        categories.addAll(Arrays.asList(line.split(":")[1].split(",")));
-    }
-
-    public List<String> getCategories() {
+    public ArrayMap<String, ArrayList<ListItem>> getCategories() {
         return categories;
-    }
-
-    public List<ListItem> getListItemByCategory(String desiredCategory) {
-        List<ListItem> list = new ArrayList<>();
-
-        for (int i = 0; i < size(); i++) {
-            if (desiredCategory.equals(get(i).getCategory())) {
-                list.add(get(i));
-            }
-        }
-
-        return list;
     }
 
     private void notifyListChanged(ShoppingList.Event event) {

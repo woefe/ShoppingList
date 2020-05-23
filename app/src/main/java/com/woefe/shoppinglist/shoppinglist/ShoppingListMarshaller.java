@@ -38,17 +38,18 @@ public class ShoppingListMarshaller {
             writer.write("Categories:");
             int categorySize = list.getCategories().size();
             for (int i = 0; i < categorySize; i++) {
-                writer.write(list.getCategories().get(i));
+                writer.write(list.getCategories().keyAt(i));
                 if (i < categorySize - 1) {
                     writer.write(",");
                 }
             }
-            writer.write("\n");
+            writer.write("\n\n");
 
-            for (String category : list.getCategories()) {
-                for (ListItem item : list.getListItemByCategory(category)) {
+            for (String category : list.getCategories().keySet()) {
+                for (ListItem item : list.getCategories().get(category)) {
                     writeItem(item, writer);
                 }
+                writer.write("\n");
             }
         }
     }
