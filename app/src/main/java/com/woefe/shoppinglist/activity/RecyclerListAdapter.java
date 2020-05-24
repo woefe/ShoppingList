@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,14 +16,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter;
+import com.afollestad.sectionedrecyclerview.SectionedViewHolder;
 import com.woefe.shoppinglist.R;
 import com.woefe.shoppinglist.shoppinglist.ListItem;
 import com.woefe.shoppinglist.shoppinglist.ShoppingList;
 
+import java.util.ArrayList;
+
 /**
  * @author Wolfgang Popp
  */
-public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapter.ViewHolder> {
+public class RecyclerListAdapter extends SectionedRecyclerViewAdapter<SectionedViewHolder> {
     private final int colorChecked;
     private final int colorDefault;
     private final int colorBackground;
@@ -35,13 +40,22 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
         public void onShoppingListUpdate(ShoppingList list, ShoppingList.Event e) {
             switch (e.getState()) {
                 case ShoppingList.Event.ITEM_CHANGED:
-                    notifyItemChanged(e.getIndex());
+                    notifyDataSetChanged();
+                    //notifyItemChanged(e.getIndex()); // TODO
                     break;
                 case ShoppingList.Event.ITEM_INSERTED:
-                    notifyItemInserted(e.getIndex());
+                    notifyDataSetChanged();
+                    //notifyItemInserted(e.getIndex()); // TODO
                     break;
                 case ShoppingList.Event.ITEM_MOVED:
                     notifyItemMoved(e.getOldIndex(), e.getNewIndex());
+                    Log.d("LIST", "");
+                    Log.d("LIST", "------------");
+                    for (ListItem item : shoppingList.getCategories().get("Allgemein")) {
+                        Log.d("LIST", item.getDescription());
+                    }
+                    Log.d("LIST", "------------");
+                    Log.d("LIST", "");
                     break;
                 case ShoppingList.Event.ITEM_REMOVED:
                     notifyItemRemoved(e.getIndex());
@@ -72,12 +86,21 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
         }
     }
 
-    public void move(int fromPos, int toPos) {
-        shoppingList.move(fromPos, toPos);
+    public void move(String category,
+                     int fromPositionInCategory,
+                     int toPositionInCategory,
+                     int fromAbsolutePosition,
+                     int toAbsolutePosition) {
+        shoppingList.moveInCategory(category,
+                fromPositionInCategory,
+                toPositionInCategory,
+                fromAbsolutePosition,
+                toAbsolutePosition
+        );
     }
 
-    public void remove(int pos) {
-        shoppingList.remove(pos);
+    public void remove(ListItem item) {
+        shoppingList.remove(item);
     }
 
     public void registerRecyclerView(RecyclerView view) {
@@ -90,81 +113,121 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item, parent, false);
-        return new ViewHolder(v);
+    public SectionedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_HEADER) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_category, parent, false);
+            return new CategoryViewHolder(v);
+        } else {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+            return new ItemViewHolder(v);
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        ListItem listItem = shoppingList.get(position);
-        holder.description.setText(listItem.getDescription());
-        holder.quantity.setText(listItem.getQuantity());
+    public int getSectionCount() {
+        return shoppingList.getAllCategories().size();
+    }
+
+    @Override
+    public int getItemCount(int section) {
+        String category = shoppingList.getAllCategories().get(section);
+        ArrayList<ListItem> list = shoppingList.getCategories().get(category);
+        return (list == null) ? 0 : list.size();
+    }
+
+    @Override
+    public void onBindHeaderViewHolder(SectionedViewHolder sectionedViewHolder, int section, boolean expanded) {
+        CategoryViewHolder categoryViewHolder = (CategoryViewHolder) sectionedViewHolder;
+        categoryViewHolder.category.setText(shoppingList.getAllCategories().get(section));
+    }
+
+    @Override
+    public void onBindFooterViewHolder(SectionedViewHolder sectionedViewHolder, int i) {
+        // not needed
+    }
+
+    @Override
+    public void onBindViewHolder(SectionedViewHolder sectionedViewHolder,
+                                 int section,
+                                 int relativePosition,
+                                 final int absolutePosition) {
+        final ItemViewHolder itemViewHolder = (ItemViewHolder) sectionedViewHolder;
+        String category = shoppingList.getAllCategories().get(section);
+        ArrayList<ListItem> list = shoppingList.getCategories().get(category);
+        final ListItem listItem = list.get(relativePosition);
+
+        itemViewHolder.description.setText(listItem.getDescription());
+        itemViewHolder.quantity.setText(listItem.getQuantity());
+        itemViewHolder.listItem = listItem;
 
         if (listItem.isChecked()) {
-            holder.description.setTextColor(colorChecked);
-            holder.quantity.setTextColor(colorChecked);
+            itemViewHolder.description.setTextColor(colorChecked);
+            itemViewHolder.quantity.setTextColor(colorChecked);
         } else {
-            holder.description.setTextColor(colorDefault);
-            holder.quantity.setTextColor(colorDefault);
+            itemViewHolder.description.setTextColor(colorDefault);
+            itemViewHolder.quantity.setTextColor(colorDefault);
         }
 
-        holder.itemView.setBackgroundColor(colorBackground);
+        itemViewHolder.itemView.setBackgroundColor(colorBackground);
 
-        holder.view.setOnClickListener(new View.OnClickListener() {
+        itemViewHolder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                shoppingList.toggleChecked(holder.getAdapterPosition());
+                shoppingList.toggleChecked(listItem, absolutePosition);
             }
         });
 
-
-        holder.view.setOnLongClickListener(new View.OnLongClickListener() {
+        itemViewHolder.view.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 return longClickListener != null
-                        && longClickListener.onLongClick(holder.getAdapterPosition());
+                        && longClickListener.onLongClick(listItem);
             }
         });
 
-        holder.dragHandler.setOnTouchListener(new View.OnTouchListener() {
+        itemViewHolder.dragHandler.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    touchHelper.startDrag(holder);
+                    touchHelper.startDrag(itemViewHolder);
                     return true;
                 }
                 return false;
             }
         });
-
-    }
-
-    @Override
-    public int getItemCount() {
-        if (shoppingList != null) {
-            return shoppingList.size();
-        }
-        return 0;
     }
 
     public interface ItemLongClickListener {
-        boolean onLongClick(int position);
+        boolean onLongClick(ListItem item);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class CategoryViewHolder extends SectionedViewHolder {
+        TextView category;
+
+        CategoryViewHolder(View itemView) {
+            super(itemView);
+
+            category = itemView.findViewById(R.id.category);
+        }
+    }
+
+    static class ItemViewHolder extends SectionedViewHolder {
         TextView description;
         TextView quantity;
         ImageView dragHandler;
         View view;
+        ListItem listItem;
 
-        public ViewHolder(View itemView) {
+        public ItemViewHolder(View itemView) {
             super(itemView);
             view = itemView;
             description = itemView.findViewById(R.id.text_description);
             quantity = itemView.findViewById(R.id.text_quantity);
             dragHandler = itemView.findViewById(R.id.drag_n_drop_handler);
+        }
+
+        public int getPositionInCategory() {
+            return getRelativePosition().relativePos();
         }
     }
 
@@ -202,13 +265,44 @@ public class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListAdapte
                 return false;
             }
 
-            RecyclerListAdapter.this.move(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+//            if (!(viewHolder instanceof ItemViewHolder) || !(target instanceof ItemViewHolder)) {
+//                return false;
+//            }
+
+            ItemViewHolder sourceViewHolder = (ItemViewHolder) viewHolder;
+            ItemViewHolder targetViewHolder = (ItemViewHolder) target;
+
+            RecyclerListAdapter.this.move(sourceViewHolder.listItem.getCategory(),
+                    sourceViewHolder.getPositionInCategory(),
+                    targetViewHolder.getPositionInCategory(),
+                    sourceViewHolder.getAdapterPosition(),
+                    targetViewHolder.getAdapterPosition());
+
+
+//           RecyclerListAdapter.this.move(shoppingList.indexOf(sourceViewHolder.listItem),
+//                   shoppingList.indexOf(targetViewHolder.listItem));
+
+            // RecyclerListAdapter.this.move(sourceViewHolder.getAdapterPosition(), targetViewHolder.getAdapterPosition());
+            
+            
             return true;
         }
 
+//        @Override
+//        public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+//            super.clearView(recyclerView, viewHolder);
+//
+//            if(dragFrom != -1 && dragTo != -1 && dragFrom != dragTo) {
+//                reallyMoved(dragFrom, dragTo);
+//            }
+//
+//            dragFrom = dragTo = -1;
+//        }
+
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            RecyclerListAdapter.this.remove(viewHolder.getAdapterPosition());
+            ItemViewHolder itemViewHolder = (ItemViewHolder) viewHolder;
+            remove(itemViewHolder.listItem);
         }
 
         @Override

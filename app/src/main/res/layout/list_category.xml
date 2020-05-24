@@ -20,39 +20,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/colorListItemBackground"
     android:orientation="horizontal"
     android:padding="12dp"
-    android:background="@color/colorListItemBackground"
     android:rowCount="1">
 
     <TextView
-        android:id="@+id/text_description"
+        android:id="@+id/category"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="0.7"
+        android:gravity="center"
         android:text="New Text"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/black" />
-
-    <TextView
-        android:id="@+id/text_quantity"
-        android:layout_width="0dp"
-        android:layout_gravity="center"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.3"
-        android:gravity="end"
-        android:text="New Text"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@android:color/black" />
-
-    <ImageView
-        android:id="@+id/drag_n_drop_handler"
-        android:layout_width="32dp"
-        android:layout_gravity="center"
-        android:src="@drawable/ic_swap_vert_black_24dp"
-        android:alpha="0.4"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/swap" />
-
 </LinearLayout>

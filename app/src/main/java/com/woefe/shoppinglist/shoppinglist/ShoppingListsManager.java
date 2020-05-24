@@ -167,7 +167,7 @@ class ShoppingListsManager {
                         try {
                             ShoppingList list = ShoppingListUnmarshaller.unmarshal(metadata.filename);
                             metadata.shoppingList.clear();
-                            metadata.shoppingList.addAll(list);
+                            metadata.shoppingList = list;
                             metadata.isDirty = false;
 
                             String oldName = metadata.shoppingList.getName();
@@ -205,7 +205,9 @@ class ShoppingListsManager {
         }
 
         String filename = new File(this.directory, URLEncoder.encode(name) + FILE_ENDING).getPath();
-        ShoppingListMetadata metadata = addShoppingList(new ShoppingList(name), filename);
+        ShoppingList shoppingList = new ShoppingList(name);
+        shoppingList.addDefaultCategory();
+        ShoppingListMetadata metadata = addShoppingList(shoppingList, filename);
         metadata.isDirty = true;
     }
 
@@ -248,7 +250,7 @@ class ShoppingListsManager {
     }
 
     private class ShoppingListMetadata {
-        private final ShoppingList shoppingList;
+        private ShoppingList shoppingList;
         private final String filename;
         private boolean isDirty;
         private FileObserver observer;

@@ -19,18 +19,27 @@
 
 package com.woefe.shoppinglist.shoppinglist;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * @author Wolfgang Popp.
  */
-public class ListItem {
+public class ListItem implements Parcelable {
     private boolean isChecked;
     private String description;
     private String quantity;
+    private String category;
 
-    public ListItem(boolean isChecked, String description, String quantity) {
+    public ListItem() {
+        this(false, "", "", "");
+    }
+
+    public ListItem(boolean isChecked, String description, String quantity, String category) {
         this.isChecked = isChecked;
         this.description = description;
         this.quantity = quantity;
+        this.category = category;
     }
 
     public boolean isChecked() {
@@ -57,17 +66,43 @@ public class ListItem {
         this.quantity = quantity;
     }
 
-    static class ListItemWithID extends ListItem {
-        private final int id;
-
-        public ListItemWithID(int id, ListItem item) {
-            super(item.isChecked, item.description, item.quantity);
-            this.id = id;
-        }
-
-        public int getId() {
-            return id;
-        }
-
+    public String getCategory() {
+        return category;
     }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(isChecked ? 1 : 0);
+        dest.writeString(description);
+        dest.writeString(quantity);
+        dest.writeString(category);
+    }
+
+    protected ListItem(Parcel in) {
+        isChecked = in.readByte() != 0;
+        description = in.readString();
+        quantity = in.readString();
+        category = in.readString();
+    }
+
+    public static final Creator<ListItem> CREATOR = new Creator<ListItem>() {
+        @Override
+        public ListItem createFromParcel(Parcel in) {
+            return new ListItem(in);
+        }
+
+        @Override
+        public ListItem[] newArray(int size) {
+            return new ListItem[size];
+        }
+    };
 }
