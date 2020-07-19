@@ -278,7 +278,9 @@ public class MainActivity extends BinderActivity implements
                 if (!o1.isChecked() && o2.isChecked()) {
                     return checkedFirst ? -1 : 1;
                 }
-                return o1.getDescription().compareToIgnoreCase(o2.getDescription());
+                // Maintain the separate ordering of the checked items and the unchecked items
+                // return o1.getDescription().compareToIgnoreCase(o2.getDescription());
+                return 1;
             }
         });
 
